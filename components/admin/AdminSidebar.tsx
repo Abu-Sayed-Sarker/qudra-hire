@@ -45,11 +45,7 @@ const navItems = [
     href: "/admin/applications",
     icon: FileText,
   },
-  {
-    label: "Credit Management",
-    href: "/admin/credits",
-    icon: CreditCard,
-  },
+  
   {
     label: "Subscriptions",
     href: "/admin/subscriptions",
@@ -99,7 +95,7 @@ export default function AdminSidebar() {
               key={href}
               href={href}
               className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[16px] font-medium transition-all duration-200",
+                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium transition-all duration-200",
                 isActive
                   ? "bg-green-500 text-white"
                   : "text-muted-foreground hover:bg-green-500 hover:text-white"

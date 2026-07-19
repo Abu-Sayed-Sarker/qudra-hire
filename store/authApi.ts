@@ -155,6 +155,30 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+// ─── Admin Settings types ────────────────────────────────────────────────────
+
+export interface AdminSettings {
+  platform_name: string;
+  support_email: string;
+  currency: string;
+  timezone: string;
+  primary_language: string;
+  rtl_support: boolean;
+  email_notifications: boolean;
+  ai_auto_matching: boolean;
+}
+
+export interface AdminSettingsPatchPayload {
+  platform_name?: string;
+  support_email?: string;
+  currency?: string;
+  timezone?: string;
+  primary_language?: string;
+  rtl_support?: boolean;
+  email_notifications?: boolean;
+  ai_auto_matching?: boolean;
+}
+
 // ─── Admin Dashboard types ────────────────────────────────────────────────────
 
 export interface DashboardCard {
@@ -304,7 +328,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -460,6 +484,24 @@ export const authApi = createApi({
       invalidatesTags: ["AdminJobs"],
     }),
 
+    // ── Admin Settings endpoints ──────────────────────────────────────────────
+
+    // GET /admin/settings/
+    getAdminSettings: builder.query<ApiResponse<AdminSettings>, void>({
+      query: () => "admin/settings/",
+      providesTags: ["AdminSettings"],
+    }),
+
+    // PATCH /admin/settings/
+    patchAdminSettings: builder.mutation<ApiResponse<AdminSettings>, AdminSettingsPatchPayload>({
+      query: (body) => ({
+        url: "admin/settings/",
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["AdminSettings"],
+    }),
+
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -550,6 +592,9 @@ export const {
   // Admin Jobs
   useGetAdminJobsQuery,
   useDeleteAdminJobMutation,
+  // Admin Settings
+  useGetAdminSettingsQuery,
+  usePatchAdminSettingsMutation,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,
