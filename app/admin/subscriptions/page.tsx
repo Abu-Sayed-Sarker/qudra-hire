@@ -3,48 +3,21 @@
 import { useState } from "react";
 import {
   Sparkles, Star, DollarSign, TrendingUp,
-  Pencil, Check, Plus, X, Briefcase
+  Pencil, Check, Plus, Briefcase, Loader2, AlertTriangle,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  useGetAdminSubscriptionDashboardQuery,
+  type SubscriptionPlan,
+} from "@/store/authApi";
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-const statsData = [
-  { icon: Sparkles, label: "Premium Plans Active", value: "5", change: "+14.2%" },
-  { icon: Star, label: "Starter Plans Active", value: "4", change: "+8.1%" },
-  { icon: DollarSign, label: "Monthly Revenue", value: "AED 88,400", change: "+10.7%" },
-  { icon: TrendingUp, label: "Conversion Rate", value: "62%", change: "+3.2%" },
-];
-
-const freePlanFeatures = [
-  "Browse & apply to unlimited jobs",
-  "Basic AI job matching",
-  "Resume upload & profile",
-  "Application tracking",
-  "Standard support",
-];
-
-const premiumPlanFeatures = [
-  "Everything in Free",
-  "Auto Apply — AI submits tailored applications daily",
-  "AI Resume Tailoring per job",
-  "AI Resume Improvement & ATS score",
-  "Priority AI matching & shortlisting",
-  "AI interview prep & practice",
-  "Direct messaging inbox",
-  "WhatsApp daily match digest",
-  "Priority support",
-];
-
-const activePremiumPlans = [
-  { name: "Ahmed Al-Rashidi", designation: "Software Engineer", billing: "Monthly", start: "2024-06-12", expires: "2024-07-12", jobs: 8 },
-  { name: "Sara Al-Mansouri", designation: "Marketing Manager", billing: "Yearly", start: "2024-01-01", expires: "2025-01-01", jobs: 12 },
-  { name: "Nora Al-Zaabi", designation: "Data Scientist", billing: "Yearly", start: "2024-03-01", expires: "2025-03-01", jobs: 15 },
-  { name: "Omar Hussain", designation: "Civil Engineer", billing: "Monthly", start: "2024-07-05", expires: "2024-08-05", jobs: 4 },
-  { name: "Fatima Al-Ali", designation: "Marketing Manager", billing: "Monthly", start: "2024-06-18", expires: "2024-07-18", jobs: 2 },
-];
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -171,11 +144,42 @@ function PlanModal({
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function SubscriptionsPage() {
+  const { data, isLoading, isError } = useGetAdminSubscriptionDashboardQuery();
+  const dashboard = data?.data;
+
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [modalMode, setModalMode] = useState<"add" | "edit" | null>(null);
 
-  const monthlyPrice = 79;
-  const yearlyPrice = Math.round(monthlyPrice * 12 * 0.84);
+  const metrics = dashboard?.metrics;
+  const plans = dashboard?.plans ?? [];
+  const activePremiumPlans = dashboard?.active_premium_plans ?? [];
+
+  const freePlans = plans.filter(p => p.plan_type === "Free");
+  const premiumPlans = plans.filter(p => p.plan_type === "Premium");
+
+  const statsData = metrics ? [
+    { icon: Sparkles, label: "Premium Plans Active", value: String(metrics.premium_active_count), change: "" },
+    { icon: Star, label: "Starter Plans Active", value: String(metrics.starter_active_count), change: "" },
+    { icon: DollarSign, label: "Monthly Revenue", value: `AED ${metrics.monthly_revenue.toLocaleString()}`, change: "" },
+    { icon: TrendingUp, label: "Conversion Rate", value: `${metrics.conversion_rate_percentage}%`, change: "" },
+  ] : [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-20 text-center">
+        <AlertTriangle className="h-8 w-8 text-red-400 mx-auto mb-3" />
+        <p className="text-red-400">Failed to load subscription data.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -225,78 +229,88 @@ export default function SubscriptionsPage() {
       {/* Plan Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Free Plan */}
-        <div className="rounded-xl bg-card border border-border p-6 shadow-sm">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-1">⚡ STARTER</p>
-              <h2 className="text-4xl font-black text-foreground">Free</h2>
-              <p className="text-sm text-muted-foreground mt-1">Everything you need to start your search.</p>
+        {freePlans.filter(p => p.category === "CANDIDATE").map(plan => (
+          <div key={plan.id} className="rounded-xl bg-card border border-border p-6 shadow-sm">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-1">⚡ {plan.plan_title}</p>
+                <h2 className="text-4xl font-black text-foreground">{plan.name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{plan.description || "Everything you need to start your search."}</p>
+              </div>
+              <button
+                onClick={() => setModalMode("edit")}
+                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
             </div>
-            <button
-              onClick={() => setModalMode("edit")}
-              className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Pencil className="h-4 w-4" />
+            <div className="mb-5">
+              <span className="text-3xl font-black text-foreground">{plan.currency} {Number(plan.price).toFixed(0)} </span>
+              <span className="text-muted-foreground text-sm">{plan.renewal}</span>
+            </div>
+            <button className="w-full py-2.5 rounded-lg border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors mb-5">
+              Get started free
             </button>
+            <ul className="space-y-2.5">
+              {plan.features.map(f => (
+                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                  <Check className="h-4 w-4 text-[#21c55e] flex-shrink-0 mt-0.5" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground mt-3">{plan.subscribers_count} subscriber{plan.subscribers_count !== 1 ? "s" : ""}</p>
           </div>
-          <div className="mb-5">
-            <span className="text-3xl font-black text-foreground">AED 0 </span>
-            <span className="text-muted-foreground text-sm">forever</span>
-          </div>
-          <button className="w-full py-2.5 rounded-lg border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors mb-5">
-            Get started free
-          </button>
-          <ul className="space-y-2.5">
-            {freePlanFeatures.map(f => (
-              <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                <Check className="h-4 w-4 text-[#21c55e] flex-shrink-0 mt-0.5" />
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
+        ))}
 
         {/* Premium Plan */}
-        <div className="rounded-xl bg-card border border-[#6366f1]/40 p-6 shadow-md relative overflow-hidden">
-          {/* Most popular badge */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2">
-            <span className="inline-block bg-[#21c55e] text-[#0f172a] text-[10px] font-black px-4 py-1 rounded-b-full tracking-wide">
-              Most popular
-            </span>
-          </div>
-          <div className="flex items-start justify-between mb-4 mt-3">
-            <div>
-              <p className="text-[11px] font-bold text-[#6366f1] uppercase tracking-widest mb-1">⭐ RECOMMENDED</p>
-              <h2 className="text-4xl font-black text-foreground">Premium</h2>
-              <p className="text-sm text-muted-foreground mt-1">Your always-on AI Recruiter.</p>
+        {premiumPlans.filter(p => p.category === "CANDIDATE").map(plan => (
+          <div key={plan.id} className="rounded-xl bg-card border border-[#6366f1]/40 p-6 shadow-md relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2">
+              <span className="inline-block bg-[#21c55e] text-[#0f172a] text-[10px] font-black px-4 py-1 rounded-b-full tracking-wide">
+                Most popular
+              </span>
             </div>
-            <button
-              onClick={() => setModalMode("edit")}
-              className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Pencil className="h-4 w-4" />
+            <div className="flex items-start justify-between mb-4 mt-3">
+              <div>
+                <p className="text-[11px] font-bold text-[#6366f1] uppercase tracking-widest mb-1">⭐ {plan.plan_title}</p>
+                <h2 className="text-4xl font-black text-foreground">{plan.name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{plan.description || "Your always-on AI Recruiter."}</p>
+              </div>
+              <button
+                onClick={() => setModalMode("edit")}
+                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mb-5">
+              <span className="text-3xl font-black text-foreground">
+                {plan.currency} {Number(plan.price).toFixed(0)}{" "}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                / {billing === "monthly" ? "month" : "year"}
+              </span>
+              {plan.discount && plan.discount !== "None" && (
+                <span className="ml-2 text-xs font-medium text-[#21c55e] bg-[#21c55e]/10 px-2 py-0.5 rounded-full">
+                  {plan.discount}
+                </span>
+              )}
+            </div>
+            <button className="w-full py-2.5 rounded-lg bg-[#21c55e] hover:bg-[#21c55e]/90 text-[#0f172a] text-sm font-bold transition-colors mb-5">
+              Upgrade to Premium
             </button>
+            <ul className="space-y-2.5">
+              {plan.features.map(f => (
+                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                  <Check className="h-4 w-4 text-[#21c55e] flex-shrink-0 mt-0.5" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground mt-3">{plan.subscribers_count} subscriber{plan.subscribers_count !== 1 ? "s" : ""}</p>
           </div>
-          <div className="mb-5">
-            <span className="text-3xl font-black text-foreground">
-              AED {billing === "monthly" ? monthlyPrice : yearlyPrice}{" "}
-            </span>
-            <span className="text-muted-foreground text-sm">
-              / {billing === "monthly" ? "month" : "year"}
-            </span>
-          </div>
-          <button className="w-full py-2.5 rounded-lg bg-[#21c55e] hover:bg-[#21c55e]/90 text-[#0f172a] text-sm font-bold transition-colors mb-5">
-            Upgrade to Premium
-          </button>
-          <ul className="space-y-2.5">
-            {premiumPlanFeatures.map(f => (
-              <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                <Check className="h-4 w-4 text-[#21c55e] flex-shrink-0 mt-0.5" />
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
+        ))}
       </div>
 
       {/* Active Premium Plans Table */}
@@ -315,31 +329,37 @@ export default function SubscriptionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {activePremiumPlans.map((row, idx) => (
-                  <tr
-                    key={row.name}
-                    className={`border-b border-border hover:bg-muted/40 transition-colors ${idx === activePremiumPlans.length - 1 ? "border-b-0" : ""}`}
-                  >
-                    <td className="px-5 py-3.5 text-sm font-semibold text-foreground">{row.name}</td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Briefcase className="h-3.5 w-3.5" />
-                        {row.designation}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-semibold border ${row.billing === "Monthly"
-                          ? "bg-muted border-border text-foreground"
-                          : "bg-[#6366f1]/10 border-[#6366f1]/20 text-[#6366f1]"
-                        }`}>
-                        {row.billing}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">{row.start}</td>
-                    <td className="px-5 py-3.5 text-sm text-muted-foreground">{row.expires}</td>
-                    <td className="px-5 py-3.5 text-sm font-semibold text-foreground">{row.jobs}</td>
+                {activePremiumPlans.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-10 text-muted-foreground text-sm">No active premium plans.</td>
                   </tr>
-                ))}
+                ) : (
+                  activePremiumPlans.map((row, idx) => (
+                    <tr
+                      key={row.id}
+                      className={`border-b border-border hover:bg-muted/40 transition-colors ${idx === activePremiumPlans.length - 1 ? "border-b-0" : ""}`}
+                    >
+                      <td className="px-5 py-3.5 text-sm font-semibold text-foreground">{row.candidate}</td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Briefcase className="h-3.5 w-3.5" />
+                          {row.designation}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-semibold border ${row.billing === "Month"
+                            ? "bg-muted border-border text-foreground"
+                            : "bg-[#6366f1]/10 border-[#6366f1]/20 text-[#6366f1]"
+                          }`}>
+                          {row.billing}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-sm text-muted-foreground">{row.start}</td>
+                      <td className="px-5 py-3.5 text-sm text-muted-foreground">{row.expires}</td>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-foreground">{row.jobs_applied}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

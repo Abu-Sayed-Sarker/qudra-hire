@@ -155,6 +155,49 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+// ─── Admin Subscription types ────────────────────────────────────────────────
+
+export interface SubscriptionMetrics {
+  premium_active_count: number;
+  starter_active_count: number;
+  monthly_revenue: number;
+  conversion_rate_percentage: number;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  category: string;
+  price: string;
+  currency: string;
+  description: string | null;
+  is_active: boolean;
+  subscribers_count: number;
+  plan_title: string;
+  plan_type: string;
+  renewal: string;
+  discount: string;
+  features: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActivePremiumPlan {
+  id: string;
+  candidate: string;
+  designation: string;
+  billing: string;
+  start: string;
+  expires: string;
+  jobs_applied: number;
+}
+
+export interface AdminSubscriptionDashboard {
+  metrics: SubscriptionMetrics;
+  plans: SubscriptionPlan[];
+  active_premium_plans: ActivePremiumPlan[];
+}
+
 // ─── Admin Settings types ────────────────────────────────────────────────────
 
 export interface AdminSettings {
@@ -328,7 +371,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -502,6 +545,14 @@ export const authApi = createApi({
       invalidatesTags: ["AdminSettings"],
     }),
 
+    // ── Admin Subscription endpoints ──────────────────────────────────────────
+
+    // GET /admin/subscriptions/dashboard/
+    getAdminSubscriptionDashboard: builder.query<ApiResponse<AdminSubscriptionDashboard>, void>({
+      query: () => "admin/subscriptions/dashboard/",
+      providesTags: ["AdminSubscriptions"],
+    }),
+
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -595,6 +646,8 @@ export const {
   // Admin Settings
   useGetAdminSettingsQuery,
   usePatchAdminSettingsMutation,
+  // Admin Subscriptions
+  useGetAdminSubscriptionDashboardQuery,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,
