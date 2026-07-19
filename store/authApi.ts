@@ -139,6 +139,22 @@ export interface AdminCandidatePatchPayload {
   plan_id?: string;
 }
 
+// ─── Admin Job types ─────────────────────────────────────────────────────────
+
+export interface AdminJobListItem {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  matches: number;
+  applications: number;
+  posted: string;
+  salary_min: number;
+  salary_max: number;
+  currency: string;
+  job_status: string;
+}
+
 // ─── Admin Dashboard types ────────────────────────────────────────────────────
 
 export interface DashboardCard {
@@ -288,7 +304,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -430,6 +446,20 @@ export const authApi = createApi({
       }),
     }),
 
+    // ── Admin Job endpoints ────────────────────────────────────────────────────
+
+    // GET /admin/jobs/
+    getAdminJobs: builder.query<ApiResponse<AdminJobListItem[]>, void>({
+      query: () => "admin/jobs/",
+      providesTags: ["AdminJobs"],
+    }),
+
+    // DELETE /admin/jobs/{id}/
+    deleteAdminJob: builder.mutation<ApiResponse<null>, string>({
+      query: (id) => ({ url: `admin/jobs/${id}/`, method: "DELETE" }),
+      invalidatesTags: ["AdminJobs"],
+    }),
+
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -517,6 +547,9 @@ export const {
   useSuspendAdminCandidateMutation,
   useUnsuspendAdminCandidateMutation,
   useResetAdminCandidatePasswordMutation,
+  // Admin Jobs
+  useGetAdminJobsQuery,
+  useDeleteAdminJobMutation,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,

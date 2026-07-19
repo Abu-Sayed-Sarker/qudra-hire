@@ -24,20 +24,16 @@ const navItems = [
     href: "/admin/dashboard",
     icon: LayoutDashboard,
   },
+
   {
-    label: "User Management",
-    href: "/admin/users",
-    icon: Users,
+    label: "Candidates Management",
+    href: "/admin/candidates",
+    icon: UserCheck,
   },
   {
     label: "Company Management",
     href: "/admin/companies",
     icon: Building2,
-  },
-  {
-    label: "Candidates",
-    href: "/admin/candidates",
-    icon: UserCheck,
   },
   {
     label: "Job Management",
@@ -70,7 +66,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-[210px] shrink-0 flex-col bg-card text-foreground border-r border-border">
+    <aside className="flex h-screen w-[250px] shrink-0 flex-col bg-card text-foreground border-r border-border">
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-5 border-b border-border">
         <div className="flex items-center gap-1">
@@ -103,16 +99,16 @@ export default function AdminSidebar() {
               key={href}
               href={href}
               className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[16px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-green-500 text-white"
+                  : "text-muted-foreground hover:bg-green-500 hover:text-white"
               )}
             >
               <Icon
                 className={cn(
                   "h-4 w-4 flex-shrink-0 transition-colors",
-                  isActive ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                  isActive ? "text-white" : "text-muted-foreground group-hover:text-white"
                 )}
               />
               <span className="leading-tight">{label}</span>
