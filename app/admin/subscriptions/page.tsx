@@ -360,9 +360,7 @@ export default function SubscriptionsPage() {
             }`}
         >
           Yearly
-          <span className="text-[11px] font-medium text-[#21c55e] bg-[#21c55e]/10 px-1.5 py-0.5 rounded-full">
-            • Save 16%
-          </span>
+        
         </button>
       </div>
 

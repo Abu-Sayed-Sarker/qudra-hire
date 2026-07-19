@@ -155,6 +155,33 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+// ─── Admin Application types ─────────────────────────────────────────────────
+
+export interface AdminApplicationItem {
+  id: string;
+  candidate_name: string;
+  company_name: string;
+  job_title: string;
+  match_score: string;
+  ats_score: number;
+  applied_date: string;
+  status: string;
+}
+
+export interface AdminApplicationCounts {
+  applied: number;
+  shortlisted: number;
+  interview: number;
+  offer: number;
+  hired: number;
+  all: number;
+}
+
+export interface AdminApplicationList {
+  counts: AdminApplicationCounts;
+  applications: AdminApplicationItem[];
+}
+
 // ─── Admin Subscription types ────────────────────────────────────────────────
 
 export interface SubscriptionMetrics {
@@ -385,7 +412,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -593,6 +620,26 @@ export const authApi = createApi({
       invalidatesTags: ["AdminSubscriptions"],
     }),
 
+    // ── Admin Application endpoints ───────────────────────────────────────────
+
+    // GET /admin/applications/
+    getAdminApplications: builder.query<ApiResponse<AdminApplicationList>, void>({
+      query: () => "admin/applications/",
+      providesTags: ["AdminApplications"],
+    }),
+
+    // GET /admin/applications/{id}/pdf/
+    downloadApplicationPdf: builder.mutation<Blob, string>({
+      queryFn: async (id, _queryApi, _extraOptions, baseQuery) => {
+        const result = await baseQuery({
+          url: `admin/applications/${id}/pdf/`,
+          responseHandler: (response) => response.blob(),
+        });
+        if (result.error) return { error: result.error };
+        return { data: result.data as Blob };
+      },
+    }),
+
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -691,6 +738,9 @@ export const {
   useCreateSubscriptionPlanMutation,
   useUpdateSubscriptionPlanMutation,
   useDeleteSubscriptionPlanMutation,
+  // Admin Applications
+  useGetAdminApplicationsQuery,
+  useDownloadApplicationPdfMutation,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,
