@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   Sparkles, Star, DollarSign, TrendingUp,
-  Pencil, Check, Plus, Briefcase, Loader2, AlertTriangle,
+  Pencil, Check, Plus, Briefcase, Loader2, AlertTriangle, Trash2,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -12,6 +12,7 @@ import {
   useGetAdminSubscriptionDashboardQuery,
   useCreateSubscriptionPlanMutation,
   useUpdateSubscriptionPlanMutation,
+  useDeleteSubscriptionPlanMutation,
   type SubscriptionPlan,
 } from "@/store/authApi";
 
@@ -277,10 +278,17 @@ function PlanModal({
 export default function SubscriptionsPage() {
   const { data, isLoading, isError } = useGetAdminSubscriptionDashboardQuery();
   const dashboard = data?.data;
+  const [deletePlan] = useDeleteSubscriptionPlanMutation();
 
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [modalMode, setModalMode] = useState<"add" | "edit" | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+
+  async function handleDeletePlan(id: string, name: string) {
+    if (confirm(`Delete plan "${name}"? This cannot be undone.`)) {
+      await deletePlan(id);
+    }
+  }
 
   const metrics = dashboard?.metrics;
   const plans = dashboard?.plans ?? [];
@@ -375,6 +383,12 @@ export default function SubscriptionsPage() {
               >
                 <Pencil className="h-4 w-4" />
               </button>
+              <button
+                onClick={() => handleDeletePlan(plan.id, plan.name)}
+                className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
             <div className="mb-5">
               <span className="text-3xl font-black text-foreground">{plan.currency} {Number(plan.price).toFixed(0)} </span>
@@ -414,6 +428,12 @@ export default function SubscriptionsPage() {
                 className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handleDeletePlan(plan.id, plan.name)}
+                className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
               </button>
             </div>
             <div className="mb-5">

@@ -587,6 +587,12 @@ export const authApi = createApi({
       invalidatesTags: ["AdminSubscriptions"],
     }),
 
+    // DELETE /subscriptions/plans/{id}/
+    deleteSubscriptionPlan: builder.mutation<ApiResponse<null>, string>({
+      query: (id) => ({ url: `subscriptions/plans/${id}/`, method: "DELETE" }),
+      invalidatesTags: ["AdminSubscriptions"],
+    }),
+
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -684,6 +690,7 @@ export const {
   useGetAdminSubscriptionDashboardQuery,
   useCreateSubscriptionPlanMutation,
   useUpdateSubscriptionPlanMutation,
+  useDeleteSubscriptionPlanMutation,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,
