@@ -6,9 +6,11 @@ import {
   Loader2, AlertTriangle,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
+import { BASE_URL } from "@/store/authApi";
 import {
   useGetAdminApplicationsQuery,
-  useDownloadApplicationPdfMutation,
   type AdminApplicationItem,
 } from "@/store/authApi";
 
@@ -111,8 +113,8 @@ function AppDetailModal({
 
 export default function ApplicationManagementPage() {
   const { data, isLoading, isError } = useGetAdminApplicationsQuery();
-  const [downloadPdf] = useDownloadApplicationPdfMutation();
   const appData = data?.data;
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const [filter, setFilter] = useState<AppStatus | "All">("All");
   const [selected, setSelected] = useState<AdminApplicationItem | null>(null);
@@ -124,7 +126,11 @@ export default function ApplicationManagementPage() {
 
   async function handleDownload(id: string) {
     try {
-      const blob = await downloadPdf(id).unwrap();
+      const res = await fetch(`${BASE_URL}/admin/applications/${id}/pdf/`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) throw new Error("Download failed");
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

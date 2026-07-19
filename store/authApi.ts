@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "./index";
 
-const BASE_URL =
+export const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://10.10.29.169:8020/api/v1";
 
 // ─── Response shape ───────────────────────────────────────────────────────────
@@ -628,18 +628,6 @@ export const authApi = createApi({
       providesTags: ["AdminApplications"],
     }),
 
-    // GET /admin/applications/{id}/pdf/
-    downloadApplicationPdf: builder.mutation<Blob, string>({
-      queryFn: async (id, _queryApi, _extraOptions, baseQuery) => {
-        const result = await baseQuery({
-          url: `admin/applications/${id}/pdf/`,
-          responseHandler: (response) => response.blob(),
-        });
-        if (result.error) return { error: result.error };
-        return { data: result.data as Blob };
-      },
-    }),
-
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -740,7 +728,6 @@ export const {
   useDeleteSubscriptionPlanMutation,
   // Admin Applications
   useGetAdminApplicationsQuery,
-  useDownloadApplicationPdfMutation,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,
