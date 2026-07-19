@@ -198,6 +198,20 @@ export interface AdminSubscriptionDashboard {
   active_premium_plans: ActivePremiumPlan[];
 }
 
+export interface SubscriptionPlanPayload {
+  name: string;
+  category: string;
+  price: string;
+  currency: string;
+  description: string;
+  is_active: boolean;
+  plan_title: string;
+  plan_type: string;
+  renewal: string;
+  discount: string;
+  features: string[];
+}
+
 // ─── Admin Settings types ────────────────────────────────────────────────────
 
 export interface AdminSettings {
@@ -553,6 +567,26 @@ export const authApi = createApi({
       providesTags: ["AdminSubscriptions"],
     }),
 
+    // POST /subscriptions/plans/
+    createSubscriptionPlan: builder.mutation<ApiResponse<SubscriptionPlan>, SubscriptionPlanPayload>({
+      query: (body) => ({
+        url: "subscriptions/plans/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["AdminSubscriptions"],
+    }),
+
+    // PATCH /subscriptions/plans/{id}/
+    updateSubscriptionPlan: builder.mutation<ApiResponse<SubscriptionPlan>, { id: string } & Partial<SubscriptionPlanPayload>>({
+      query: ({ id, ...body }) => ({
+        url: `subscriptions/plans/${id}/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["AdminSubscriptions"],
+    }),
+
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
@@ -648,6 +682,8 @@ export const {
   usePatchAdminSettingsMutation,
   // Admin Subscriptions
   useGetAdminSubscriptionDashboardQuery,
+  useCreateSubscriptionPlanMutation,
+  useUpdateSubscriptionPlanMutation,
   // Admin Companies
   useGetAdminCompaniesQuery,
   useGetAdminCompanyByIdQuery,
