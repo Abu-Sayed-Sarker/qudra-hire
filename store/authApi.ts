@@ -155,6 +155,28 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+// ─── Candidate Application types ─────────────────────────────────────────────
+
+export interface CandidateApplicationAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface CandidateApplicationItem {
+  id: string;
+  job: string;
+  job_title: string;
+  company_name: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  answers: CandidateApplicationAnswer[];
+  resume_url: string | null;
+  application_status: string;
+  status_reason: string | null;
+  created_at: string;
+}
+
 // ─── Candidate Dashboard types ───────────────────────────────────────────────
 
 export interface CandidateDashboardMetrics {
@@ -485,7 +507,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -775,6 +797,12 @@ export const authApi = createApi({
       query: () => "auth/candidate/dashboard/",
       providesTags: ["CandidateDashboard"],
     }),
+
+    // GET /candidate/applications/
+    getCandidateApplications: builder.query<ApiResponse<CandidateApplicationItem[]>, void>({
+      query: () => "candidate/applications/",
+      providesTags: ["CandidateApplications"],
+    }),
   }),
 });
 
@@ -821,4 +849,6 @@ export const {
   useUnsuspendAdminCompanyMutation,
   // Candidate Dashboard
   useGetCandidateDashboardQuery,
+  // Candidate Applications
+  useGetCandidateApplicationsQuery,
 } = authApi;
