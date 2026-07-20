@@ -155,6 +155,37 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+// ─── Candidate Job Detail types ──────────────────────────────────────────────
+
+export interface CandidateJobDetail {
+  id: string;
+  company_name: string;
+  company_logo: string | null;
+  title: string;
+  location: string;
+  employment_type: string;
+  employment_type_display: string;
+  currency: string;
+  salary_min: number;
+  salary_max: number;
+  salary_period: string;
+  visa_sponsorship: boolean;
+  emiratization: boolean;
+  saudization: boolean;
+  open_to_remote: boolean;
+  description: string;
+  requirements: string;
+  requirements_list: string[];
+  skills: string[];
+  preferred_skills: string[];
+  benefits: string[];
+  additional_questions: { question: string; required: boolean }[];
+  published_at: string;
+  created_at: string;
+  match_score: number;
+  has_saved_cv: boolean;
+}
+
 // ─── Candidate Application types ─────────────────────────────────────────────
 
 export interface CandidateApplicationAnswer {
@@ -507,7 +538,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -803,6 +834,12 @@ export const authApi = createApi({
       query: () => "candidate/applications/",
       providesTags: ["CandidateApplications"],
     }),
+
+    // GET /candidate/jobs/{id}/
+    getCandidateJobDetail: builder.query<ApiResponse<CandidateJobDetail>, string>({
+      query: (id) => `candidate/jobs/${id}/`,
+      providesTags: (_r, _e, id) => [{ type: "CandidateJobDetail", id }],
+    }),
   }),
 });
 
@@ -851,4 +888,6 @@ export const {
   useGetCandidateDashboardQuery,
   // Candidate Applications
   useGetCandidateApplicationsQuery,
+  // Candidate Job Detail
+  useGetCandidateJobDetailQuery,
 } = authApi;
