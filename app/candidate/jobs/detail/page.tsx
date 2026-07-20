@@ -12,6 +12,10 @@ import {
   MapPin,
   Clock,
   DollarSign,
+  X,
+  FileText,
+  Phone,
+  Mail,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -22,6 +26,8 @@ function JobDetailContent() {
   const status = params.get("status") as "initial" | "tailoring" | "tailored" | "comparison" | "success" || "initial";
   // States: 'initial' | 'tailoring' | 'tailored' | 'comparison' | 'success'
   const [rightState, setRightState] = useState<"initial" | "tailoring" | "tailored" | "comparison" | "success">(status);
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [applyStep, setApplyStep] = useState<"review" | "submitted">("review");
 
   // Steps for tailoring animation
   const [tailoringSteps, setTailoringSteps] = useState([
@@ -217,7 +223,7 @@ function JobDetailContent() {
                     Tailor my CV for this role
                   </button>
                   <button
-                    onClick={() => setRightState("success")}
+                    onClick={() => { setApplyModalOpen(true); setApplyStep("review"); }}
                     className="flex-1 flex items-center justify-center gap-1.5 bg-[#4BC957] hover:bg-[#3ab04b] text-[#0f172a] text-[13px] font-bold py-3 px-3 rounded-xl transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
                   >
                     Apply now
@@ -427,6 +433,147 @@ function JobDetailContent() {
         </div>
 
       </div>
+
+      {/* Apply to Job Modal */}
+      {applyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setApplyModalOpen(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative z-10 w-full max-w-md bg-surface-card border border-surface rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-surface">
+              <h2 className="text-base font-extrabold text-on-surface">Apply to job</h2>
+              <button
+                onClick={() => setApplyModalOpen(false)}
+                className="text-on-surface-muted hover:text-on-surface transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {applyStep === "review" && (
+              <>
+                {/* Progress bar */}
+                <div className="px-6 pt-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex-1 bg-surface-item h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-[#4BC957] h-full rounded-full" style={{ width: "100%" }} />
+                    </div>
+                    <span className="ml-3 text-[13px] font-bold text-on-surface">100%</span>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+                  <h3 className="text-lg font-bold text-on-surface">Review your application</h3>
+
+                  {/* Contact Info */}
+                  <div className="border-t border-surface pt-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-on-surface">Contact Info</h4>
+                      <button className="text-[13px] font-semibold text-[#4BC957] hover:underline">Edit</button>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your name <span className="text-red-400">*</span></label>
+                        <input
+                          type="text"
+                          placeholder="Enter name"
+                          className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#4BC957]/50 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your email <span className="text-red-400">*</span></label>
+                        <input
+                          type="email"
+                          placeholder="Enter email"
+                          className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#4BC957]/50 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your phone <span className="text-red-400">*</span></label>
+                        <input
+                          type="tel"
+                          placeholder="+971 50 000 0000"
+                          className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#4BC957]/50 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+
+                  {/* Additional Questions */}
+                  <div className="border-t border-surface pt-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-on-surface">Additional Questions</h4>
+                      <button className="text-[13px] font-semibold text-[#4BC957] hover:underline">Edit</button>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your Age <span className="text-red-400">*</span></label>
+                        <input
+                          type="number"
+                          placeholder=""
+                          className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#4BC957]/50 transition-colors"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your Expected Salary <span className="text-red-400">*</span></label>
+                        <input
+                          type="text"
+                          placeholder=""
+                          className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#4BC957]/50 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="px-6 py-4 border-t border-surface flex gap-3">
+                  <button
+                    onClick={() => setApplyModalOpen(false)}
+                    className="flex-1 border border-surface hover:bg-surface-item text-on-surface font-bold py-3 rounded-xl text-sm transition-all"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => { setApplyStep("submitted"); setRightState("success"); }}
+                    className="flex-1 bg-[#4BC957] hover:bg-[#3ab04b] text-[#0f172a] font-bold py-3 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </>
+            )}
+
+            {applyStep === "submitted" && (
+              <div className="px-6 py-10 flex flex-col items-center text-center gap-5">
+                <div className="h-14 w-14 bg-[#4BC957]/10 border border-[#4BC957]/20 rounded-full flex items-center justify-center text-[#4BC957] animate-bounce">
+                  <CheckCircle2 className="h-7 w-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-extrabold text-on-surface">Application Submitted!</h3>
+                  <p className="text-sm text-on-surface-muted font-medium">
+                    Your application has been sent to Emirates NBD successfully.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setApplyModalOpen(false)}
+                  className="mt-2 bg-[#4BC957] hover:bg-[#3ab04b] text-[#0f172a] font-bold py-3 px-8 rounded-xl text-sm transition-all"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
