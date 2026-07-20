@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useGetCandidateJobDetailQuery } from "@/store/authApi";
+import { useGetCandidateJobDetailQuery, useApplyToJobMutation } from "@/store/authApi";
 
 function JobDetailContent() {
   const params = useSearchParams();
@@ -31,6 +31,16 @@ function JobDetailContent() {
   const [rightState, setRightState] = useState<"initial" | "tailoring" | "tailored" | "comparison" | "success">(status ?? "initial");
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [applyStep, setApplyStep] = useState<"review" | "submitted">("review");
+  const [applyToJob, { isLoading: isApplying }] = useApplyToJobMutation();
+
+  const [applyForm, setApplyForm] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+    age: "",
+    expected_salary: "",
+  });
+  const [applyError, setApplyError] = useState("");
 
   const [tailoringSteps, setTailoringSteps] = useState([
     { id: 1, text: "Extracting keywords from job description", done: false },
@@ -352,11 +362,11 @@ function JobDetailContent() {
       {/* Apply to Job Modal */}
       {applyModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setApplyModalOpen(false)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isApplying && setApplyModalOpen(false)} />
           <div className="relative z-10 w-full max-w-md bg-surface-card border border-surface rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between px-6 py-4 border-b border-surface">
               <h2 className="text-base font-extrabold text-on-surface">Apply to job</h2>
-              <button onClick={() => setApplyModalOpen(false)} className="text-on-surface-muted hover:text-on-surface transition-colors">
+              <button onClick={() => !isApplying && setApplyModalOpen(false)} className="text-on-surface-muted hover:text-on-surface transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -372,42 +382,72 @@ function JobDetailContent() {
                 </div>
                 <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
                   <h3 className="text-lg font-bold text-on-surface">Review your application</h3>
+                  {applyError && (
+                    <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{applyError}</p>
+                  )}
                   <div className="border-t border-surface pt-5 space-y-4">
                     <h4 className="font-bold text-on-surface">Contact Info</h4>
                     <div className="space-y-3">
                       <div className="space-y-1">
                         <label className="text-[13px] font-semibold text-on-surface-muted">Your name <span className="text-red-400">*</span></label>
-                        <input type="text" placeholder="Enter name" className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
+                        <input type="text" placeholder="Enter name" value={applyForm.full_name} onChange={(e) => setApplyForm(p => ({ ...p, full_name: e.target.value }))} className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[13px] font-semibold text-on-surface-muted">Your email <span className="text-red-400">*</span></label>
-                        <input type="email" placeholder="Enter email" className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
+                        <input type="email" placeholder="Enter email" value={applyForm.email} onChange={(e) => setApplyForm(p => ({ ...p, email: e.target.value }))} className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-[13px] font-semibold text-on-surface-muted">Your phone <span className="text-red-400">*</span></label>
-                        <input type="tel" placeholder="+971 50 000 0000" className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
+                        <input type="tel" placeholder="+971 50 000 0000" value={applyForm.phone} onChange={(e) => setApplyForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
                       </div>
                     </div>
                   </div>
-                  {job.additional_questions.length > 0 && (
-                    <div className="border-t border-surface pt-5 space-y-4">
-                      <h4 className="font-bold text-on-surface">Additional Questions</h4>
-                      <div className="space-y-3">
-                        {job.additional_questions.map((q, i) => (
-                          <div key={i} className="space-y-1">
-                            <label className="text-[13px] font-semibold text-on-surface-muted">
-                              {q.question} {q.required && <span className="text-red-400">*</span>}
-                            </label>
-                            <input type="text" placeholder="Your answer" className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
-                          </div>
-                        ))}
+                  <div className="border-t border-surface pt-5 space-y-4">
+                    <h4 className="font-bold text-on-surface">Additional Questions</h4>
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your Age <span className="text-red-400">*</span></label>
+                        <input type="number" placeholder="e.g. 28" value={applyForm.age} onChange={(e) => setApplyForm(p => ({ ...p, age: e.target.value }))} className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[13px] font-semibold text-on-surface-muted">Your Expected Salary <span className="text-red-400">*</span></label>
+                        <input type="text" placeholder="e.g. AED 15,000" value={applyForm.expected_salary} onChange={(e) => setApplyForm(p => ({ ...p, expected_salary: e.target.value }))} className="w-full bg-surface-item border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-muted focus:outline-none focus:border-[#23C65F]/50 transition-colors" />
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
                 <div className="px-6 py-4 border-t border-surface flex gap-3">
-                  <button onClick={() => setApplyModalOpen(false)} className="flex-1 border border-surface hover:bg-surface-item text-on-surface font-bold py-3 rounded-xl text-sm transition-all">Back</button>
-                  <button onClick={() => { setApplyStep("submitted"); setRightState("success"); }} className="flex-1 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98]">Submit</button>
+                  <button onClick={() => setApplyModalOpen(false)} disabled={isApplying} className="flex-1 border border-surface hover:bg-surface-item text-on-surface font-bold py-3 rounded-xl text-sm transition-all disabled:opacity-50">Back</button>
+                  <button
+                    onClick={async () => {
+                      if (!applyForm.full_name.trim() || !applyForm.email.trim() || !applyForm.phone.trim()) {
+                        setApplyError("Please fill in all contact fields.");
+                        return;
+                      }
+                      setApplyError("");
+                      try {
+                        await applyToJob({
+                          id: job.id,
+                          full_name: applyForm.full_name,
+                          email: applyForm.email,
+                          phone: applyForm.phone,
+                          answers: [
+                            { question: "What is your age?", answer: applyForm.age },
+                            { question: "What is your expected salary?", answer: applyForm.expected_salary },
+                          ],
+                        }).unwrap();
+                        setApplyStep("submitted");
+                        setRightState("success");
+                      } catch (err: unknown) {
+                        setApplyError((err as { data?: { details?: string } })?.data?.details ?? "Failed to submit application.");
+                      }
+                    }}
+                    disabled={isApplying}
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98] disabled:opacity-60"
+                  >
+                    {isApplying && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isApplying ? "Submitting…" : "Submit"}
+                  </button>
                 </div>
               </>
             )}

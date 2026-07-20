@@ -840,6 +840,16 @@ export const authApi = createApi({
       query: (id) => `candidate/jobs/${id}/`,
       providesTags: (_r, _e, id) => [{ type: "CandidateJobDetail", id }],
     }),
+
+    // POST /candidate/jobs/{id}/apply/
+    applyToJob: builder.mutation<ApiResponse<null>, { id: string; full_name: string; email: string; phone: string; answers: { question: string; answer: string }[] }>({
+      query: ({ id, ...body }) => ({
+        url: `candidate/jobs/${id}/apply/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["CandidateApplications"],
+    }),
   }),
 });
 
@@ -890,4 +900,5 @@ export const {
   useGetCandidateApplicationsQuery,
   // Candidate Job Detail
   useGetCandidateJobDetailQuery,
+  useApplyToJobMutation,
 } = authApi;
