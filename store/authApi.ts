@@ -155,6 +155,79 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+// ─── Candidate Dashboard types ───────────────────────────────────────────────
+
+export interface CandidateDashboardMetrics {
+  profile_match_strength: string;
+  active_applications: number;
+  new_matches_today: number;
+  plan_badge: string;
+}
+
+export interface CandidateAutoApply {
+  enabled: boolean;
+  sent_today: number;
+  daily_cap: number;
+}
+
+export interface CandidateCvChecklist {
+  text: string;
+  completed: boolean;
+}
+
+export interface CandidateCvStrength {
+  percentage: number;
+  checklist: CandidateCvChecklist[];
+}
+
+export interface CandidatePreferences {
+  role: string;
+  salary: string;
+  location: string;
+}
+
+export interface CandidateInterviewInvite {
+  id: string;
+  company_name: string;
+  job_title: string;
+  status: string;
+}
+
+export interface CandidateRecommendation {
+  id: string;
+  company_name: string;
+  match_score: string;
+  title: string;
+  posted_time: string;
+  location: string;
+  employment_type: string;
+  salary: string;
+  visa: string;
+  tags: string[];
+}
+
+export interface CandidateRecentApplication {
+  id: string;
+  job_title: string;
+  company_name: string;
+  applied_date: string;
+  ats_score: string;
+  status: string;
+  interview_id: string | null;
+}
+
+export interface CandidateDashboard {
+  candidate_name: string;
+  role_title: string;
+  metrics: CandidateDashboardMetrics;
+  auto_apply: CandidateAutoApply;
+  cv_strength: CandidateCvStrength;
+  preferences: CandidatePreferences;
+  interview_invites: CandidateInterviewInvite[];
+  recommendations: CandidateRecommendation[];
+  recent_applications: CandidateRecentApplication[];
+}
+
 // ─── Admin Application types ─────────────────────────────────────────────────
 
 export interface AdminApplicationItem {
@@ -412,7 +485,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -694,6 +767,14 @@ export const authApi = createApi({
       query: (id) => ({ url: `admin/companies/${id}/suspend/`, method: "DELETE" }),
       invalidatesTags: (_r, _e, id) => ["AdminCompanies", { type: "AdminCompanies", id }],
     }),
+
+    // ── Candidate Dashboard endpoints ─────────────────────────────────────────
+
+    // GET /api/v1/auth/candidate/dashboard/
+    getCandidateDashboard: builder.query<ApiResponse<CandidateDashboard>, void>({
+      query: () => "auth/candidate/dashboard/",
+      providesTags: ["CandidateDashboard"],
+    }),
   }),
 });
 
@@ -738,4 +819,6 @@ export const {
   useResetAdminCompanyPasswordMutation,
   useSuspendAdminCompanyMutation,
   useUnsuspendAdminCompanyMutation,
+  // Candidate Dashboard
+  useGetCandidateDashboardQuery,
 } = authApi;
