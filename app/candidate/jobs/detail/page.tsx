@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import {
   ArrowLeft,
   Check,
@@ -17,19 +17,27 @@ import {
   Globe,
 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { useGetCandidateJobDetailQuery, useApplyToJobMutation, useTailorCandidateCvMutation, authApi } from "@/store/authApi";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useAppDispatch } from "@/store/hooks";
+import { useGetCandidateJobDetailQuery, useApplyToJobMutation, useTailorCandidateCvMutation, authApi, TailoredCv } from "@/store/authApi";
 
 function JobDetailContent() {
   const params = useSearchParams();
+  const router = useRouter();
   const id = params.get("id") ?? "";
 
   const { data, isLoading, isError } = useGetCandidateJobDetailQuery(id);
   const job = data?.data;
 
   const status = params.get("status") as "initial" | "tailoring" | "tailored" | "comparison" | "success" | null;
-  const [rightState, setRightState] = useState<"initial" | "tailoring" | "tailored" | "comparison" | "success">(status ?? "initial");
+  const [rightState, setRightStateRaw] = useState<"initial" | "tailoring" | "tailored" | "comparison" | "success">(status ?? "initial");
+
+  const setRightState = (state: typeof rightState) => {
+    setRightStateRaw(state);
+    const url = new URL(window.location.href);
+    url.searchParams.set("status", state);
+    router.replace(url.toString(), { scroll: false });
+  };
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [applyStep, setApplyStep] = useState<"review" | "submitted">("review");
   const [applyToJob, { isLoading: isApplying }] = useApplyToJobMutation();
@@ -44,7 +52,52 @@ function JobDetailContent() {
   const [applyError, setApplyError] = useState("");
 
   const [tailorCv] = useTailorCandidateCvMutation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+
+  const urlTailoredCvId = params.get("tailoredCvId");
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollStartedRef = useRef(false);
+  const [tailoredCvData, setTailoredCvData] = useState<TailoredCv | null>(null);
+
+  useEffect(() => {
+    if (!urlTailoredCvId || pollStartedRef.current) return;
+    pollStartedRef.current = true;
+
+    let attempts = 0;
+    const maxAttempts = 60;
+
+    const poll = async () => {
+      attempts++;
+      if (attempts > maxAttempts) return;
+      try {
+        const result = await dispatch(
+          authApi.endpoints.getTailoredCv.initiate(urlTailoredCvId, { forceRefetch: true })
+        ).unwrap();
+        const cvStatus = result.data.status;
+        if (cvStatus === "COMPLETED") {
+          setTailoredCvData(result.data);
+          setRightState("tailored");
+          return;
+        }
+        if (cvStatus === "FAILED") {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("tailoredCvId");
+          router.replace(url.toString(), { scroll: false });
+          setRightState("initial");
+          return;
+        }
+        pollingRef.current = setTimeout(poll, 3000);
+      } catch {
+        pollingRef.current = setTimeout(poll, 3000);
+      }
+    };
+
+    pollingRef.current = setTimeout(poll, 2000);
+
+    return () => {
+      if (pollingRef.current) clearTimeout(pollingRef.current);
+    };
+  }, [urlTailoredCvId, dispatch, router]);
 
   const [tailoringSteps, setTailoringSteps] = useState([
     { id: 1, text: "Extracting keywords from job description", done: false },
@@ -81,6 +134,10 @@ function JobDetailContent() {
       const result = await tailorCv(job.id).unwrap();
       const tailoredCvId = result.data.id;
 
+      const url = new URL(window.location.href);
+      url.searchParams.set("tailoredCvId", tailoredCvId);
+      router.replace(url.toString(), { scroll: false });
+
       // Poll until status is COMPLETED or FAILED
       let attempts = 0;
       const maxAttempts = 60; // 60 * 3s = 3 minutes max
@@ -98,6 +155,7 @@ function JobDetailContent() {
           ).unwrap();
           const status = pollResult.data.status;
           if (status === "COMPLETED") {
+            setTailoredCvData(pollResult.data);
             setRightState("tailored");
             return;
           }
@@ -330,7 +388,7 @@ function JobDetailContent() {
           )}
 
           {/* STATE 3: TAILORED */}
-          {rightState === "tailored" && (
+          {rightState === "tailored" && tailoredCvData && (
             <div className="bg-surface-card border border-surface rounded-2xl p-6 space-y-5">
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-on-surface-muted uppercase tracking-wider">Updated Match</h3>
@@ -338,11 +396,11 @@ function JobDetailContent() {
               </div>
               <div className="space-y-1">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-extrabold text-on-surface tracking-tight">{Math.min(matchScore + 20, 99)}%</span>
-                  <span className="text-[13px] font-bold text-[#23C65F] bg-[#23C65F]/10 border border-[#23C65F]/20 px-2 py-0.5 rounded">+{Math.min(20, 99 - matchScore)}</span>
+                  <span className="text-4xl font-extrabold text-on-surface tracking-tight">{tailoredCvData.score_after}%</span>
+                  <span className="text-[13px] font-bold text-[#23C65F] bg-[#23C65F]/10 border border-[#23C65F]/20 px-2 py-0.5 rounded">+{(tailoredCvData.score_after ?? 0) - (tailoredCvData.score_before ?? 0)}</span>
                 </div>
                 <div className="w-full bg-surface-item h-2 rounded-full overflow-hidden">
-                  <div className="bg-[#23C65F] h-full rounded-full" style={{ width: `${Math.min(matchScore + 20, 99)}%` }} />
+                  <div className="bg-[#23C65F] h-full rounded-full" style={{ width: `${tailoredCvData.score_after}%` }} />
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
@@ -356,11 +414,25 @@ function JobDetailContent() {
                   Use tailored CV <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
+              {(tailoredCvData.html_url || tailoredCvData.pdf_url) && (
+                <div className="flex gap-2 pt-1">
+                  {tailoredCvData.html_url && (
+                    <a href={tailoredCvData.html_url} target="_blank" rel="noopener noreferrer" className="flex-1 border border-surface hover:bg-surface-item text-on-surface-muted py-2 rounded-xl text-[13px] font-bold text-center transition-colors">
+                      View HTML
+                    </a>
+                  )}
+                  {tailoredCvData.pdf_url && (
+                    <a href={tailoredCvData.pdf_url} target="_blank" rel="noopener noreferrer" className="flex-1 border border-surface hover:bg-surface-item text-on-surface-muted py-2 rounded-xl text-[13px] font-bold text-center transition-colors">
+                      Download PDF
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* STATE 4: COMPARISON */}
-          {rightState === "comparison" && (
+          {rightState === "comparison" && tailoredCvData && (
             <div className="bg-surface-card border border-surface rounded-2xl p-6 space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-on-surface-muted uppercase tracking-wider">Side-by-side comparison</h3>
@@ -371,13 +443,13 @@ function JobDetailContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-surface-deep border border-surface space-y-3">
                   <span className="text-[13px] font-bold text-on-surface-muted uppercase tracking-wider block">Original</span>
-                  <div className="text-3xl font-extrabold text-on-surface">{matchScore}%</div>
-                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-on-surface-muted h-full rounded-full" style={{ width: `${matchScore}%` }} /></div>
+                  <div className="text-3xl font-extrabold text-on-surface">{tailoredCvData.score_before}%</div>
+                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-on-surface-muted h-full rounded-full" style={{ width: `${tailoredCvData.score_before}%` }} /></div>
                 </div>
                 <div className="p-4 rounded-xl bg-surface-deep border border-[#23C65F]/25 space-y-3">
                   <span className="text-[13px] font-bold text-[#23C65F] uppercase tracking-wider block">Tailored</span>
-                  <div className="text-3xl font-extrabold text-[#23C65F]">{Math.min(matchScore + 20, 99)}%</div>
-                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-[#23C65F] h-full rounded-full" style={{ width: `${Math.min(matchScore + 20, 99)}%` }} /></div>
+                  <div className="text-3xl font-extrabold text-[#23C65F]">{tailoredCvData.score_after}%</div>
+                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-[#23C65F] h-full rounded-full" style={{ width: `${tailoredCvData.score_after}%` }} /></div>
                 </div>
               </div>
               <button onClick={() => setRightState("success")} className="w-full flex items-center justify-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold py-3 px-5 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98]">
