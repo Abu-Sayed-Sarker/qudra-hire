@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Send, Sparkles, ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   useGetConversationsQuery,
   useGetConversationMessagesQuery,
@@ -32,6 +33,7 @@ interface InboxProps {
   subtitle: string;
   showSearch?: boolean;
   showMatchBadge?: boolean;
+  initialConversationId?: string;
 }
 
 export default function Inbox({
@@ -39,7 +41,9 @@ export default function Inbox({
   subtitle,
   showSearch = false,
   showMatchBadge = false,
+  initialConversationId,
 }: InboxProps) {
+  const router = useRouter();
   const [activeConversation, setActiveConversation] = useState<ChatConversation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -82,10 +86,24 @@ export default function Inbox({
   const selectConversation = useCallback((conversation: ChatConversation) => {
     setActiveConversation(conversation);
     setShowChatDetail(true);
+    // Update URL with conversation ID
+    const url = new URL(window.location.href);
+    url.searchParams.set("id", conversation.id);
+    router.push(url.pathname + url.search, { scroll: false });
     if (conversation.unread_count > 0) {
       markConversationRead(conversation.id);
     }
-  }, [markConversationRead]);
+  }, [markConversationRead, router]);
+
+  // Pre-select conversation from URL param
+  useEffect(() => {
+    if (initialConversationId && conversations.length > 0 && !activeConversation) {
+      const match = conversations.find((c) => c.id === initialConversationId);
+      if (match) {
+        selectConversation(match);
+      }
+    }
+  }, [initialConversationId, conversations, activeConversation, selectConversation]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
