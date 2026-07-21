@@ -3,11 +3,15 @@
 import React, { useState, useCallback, useMemo } from "react";
 import {
   Users,
+  Search,
   SlidersHorizontal,
   Sparkles,
-  FilterX,
+  Lock,
+  MessageSquare,
+  Bot,
+  FileText,
   X,
-  Search,
+  FilterX,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -33,9 +36,17 @@ import {
   type CompanyCandidate,
 } from "@/store/authApi";
 import CandidateFilters from "@/components/company/candidate-filters";
-import CandidateCard from "@/components/company/candidate-card";
 
 const EMPTY_FILTERS: CompanyCandidatesFilters = {};
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
 
 export default function CandidatesPage() {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -129,7 +140,7 @@ export default function CandidatesPage() {
             }
           />
 
-          <DialogContent className="max-w-2xl w-full bg-card border border-border p-6 rounded-2xl text-foreground shadow-2xl ring-0 outline-hidden max-h-[85vh] overflow-y-auto">
+          <DialogContent className="max-w-md w-full bg-card border border-border p-6 rounded-2xl text-foreground shadow-2xl! ring-0! outline-hidden">
             <DialogHeader className="flex flex-row items-center justify-between border-b border-border pb-4">
               <DialogTitle className="text-xl font-bold text-foreground tracking-tight">
                 Filters
@@ -156,99 +167,46 @@ export default function CandidatesPage() {
             Active filters:
           </span>
           {appliedFilters.role?.trim() && (
-            <Badge
-              variant="outline"
-              className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium"
-            >
+            <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               Role: {appliedFilters.role}
-              <button
-                onClick={() =>
-                  setFilters((f) => ({ ...f, role: undefined }))
-                }
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <button onClick={() => setFilters((f) => ({ ...f, role: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           )}
           {appliedFilters.skills?.trim() && (
-            <Badge
-              variant="outline"
-              className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium"
-            >
+            <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               Skills: {appliedFilters.skills}
-              <button
-                onClick={() =>
-                  setFilters((f) => ({ ...f, skills: undefined }))
-                }
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <button onClick={() => setFilters((f) => ({ ...f, skills: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           )}
-          {appliedFilters.experience_level &&
-            appliedFilters.experience_level !== "ALL" && (
-              <Badge
-                variant="outline"
-                className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium"
-              >
-                {appliedFilters.experience_level}
-                <button
-                  onClick={() =>
-                    setFilters((f) => ({
-                      ...f,
-                      experience_level: undefined,
-                    }))
-                  }
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            )}
+          {appliedFilters.experience_level && appliedFilters.experience_level !== "ALL" && (
+            <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
+              {appliedFilters.experience_level}
+              <button onClick={() => setFilters((f) => ({ ...f, experience_level: undefined }))} className="text-muted-foreground hover:text-foreground">
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          )}
           {appliedFilters.gender && appliedFilters.gender !== "ALL" && (
-            <Badge
-              variant="outline"
-              className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium"
-            >
+            <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               {appliedFilters.gender}
-              <button
-                onClick={() =>
-                  setFilters((f) => ({ ...f, gender: undefined }))
-                }
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <button onClick={() => setFilters((f) => ({ ...f, gender: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           )}
-          {(appliedFilters.min_age !== undefined ||
-            appliedFilters.max_age !== undefined) && (
-            <Badge
-              variant="outline"
-              className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium"
-            >
-              Age: {appliedFilters.min_age ?? 0}–
-              {appliedFilters.max_age ?? "∞"}
-              <button
-                onClick={() =>
-                  setFilters((f) => ({
-                    ...f,
-                    min_age: undefined,
-                    max_age: undefined,
-                  }))
-                }
-                className="text-muted-foreground hover:text-foreground"
-              >
+          {(appliedFilters.min_age !== undefined || appliedFilters.max_age !== undefined) && (
+            <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
+              Age: {appliedFilters.min_age ?? 0}–{appliedFilters.max_age ?? "∞"}
+              <button onClick={() => setFilters((f) => ({ ...f, min_age: undefined, max_age: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
           )}
-          <button
-            onClick={handleResetFilters}
-            className="text-xs text-[#4BC957] hover:underline font-semibold ml-1"
-          >
+          <button onClick={handleResetFilters} className="text-xs text-[#4BC957] hover:underline font-semibold ml-1">
             Clear all
           </button>
         </div>
@@ -257,21 +215,16 @@ export default function CandidatesPage() {
       {/* Error State */}
       {isError && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-            <FilterX className="h-8 w-8 text-red-500" />
+          <div className="h-16 w-16 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
+            <FilterX className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-1">
-            Something went wrong
-          </h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">Something went wrong</h3>
           <p className="text-sm text-muted-foreground mb-4 max-w-sm">
             {error && "status" in error
               ? `Error ${error.status}: ${JSON.stringify(error.data)}`
               : "Failed to fetch candidates. Please try again."}
           </p>
-          <button
-            onClick={() => refetch()}
-            className="text-sm font-semibold text-[#4BC957] hover:underline"
-          >
+          <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
             Retry
           </button>
         </div>
@@ -286,26 +239,109 @@ export default function CandidatesPage() {
             </div>
           ) : candidates.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-              {candidates.map((candidate) => (
-                <CandidateCard key={candidate.id} candidate={candidate} />
-              ))}
+              {candidates.map((candidate) => {
+                const initials = getInitials(candidate.name);
+                const matchDisplay = candidate.match_score !== null && candidate.match_score !== undefined
+                  ? `${candidate.match_score}%`
+                  : "N/A";
+
+                return (
+                  <div
+                    key={candidate.id}
+                    className="bg-card border border-border rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-[#4BC957]/30 transition-all duration-300 relative group cursor-pointer shadow-sm"
+                  >
+                    {/* Top row: Avatar, Name, Role, Match score */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center font-bold text-foreground text-sm shadow-inner flex-shrink-0">
+                          {initials}
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-foreground tracking-tight">{candidate.name}</h3>
+                          <p className="text-sm text-muted-foreground font-medium">{candidate.role_title}</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-semibold text-[#4BC957] bg-[#4BC957]/10 border border-[#4BC957]/20 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" />
+                        {matchDisplay}
+                      </span>
+                    </div>
+
+                    {/* Meta info */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground font-medium">
+                      <span>{candidate.industry}</span>
+                      <span className="hidden sm:inline text-border">|</span>
+                      <span>{candidate.location}</span>
+                    </div>
+
+                    {/* Experience & Personal Info */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground font-medium">
+                      <span>
+                        {candidate.years_experience} yrs experience
+                        {candidate.experience_level && (
+                          <span className="ml-1.5 text-[#4BC957]">({candidate.experience_level})</span>
+                        )}
+                      </span>
+                      <span className="hidden sm:inline text-border">|</span>
+                      <span>Age: {candidate.age !== null && candidate.age !== undefined ? candidate.age : "N/A"}</span>
+                      <span className="hidden sm:inline text-border">|</span>
+                      <span>Gender: {candidate.gender ? candidate.gender : "N/A"}</span>
+                    </div>
+
+                    {/* Skills Badges */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {candidate.skills.map((skill, sIdx) => (
+                        <span key={sIdx} className="bg-muted border border-border text-muted-foreground text-[13px] font-semibold px-2.5 py-1 rounded-md">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Unlock Status */}
+                    <div className="flex items-center gap-2 text-sm">
+                      {candidate.is_unlocked ? (
+                        <Badge variant="outline" className="bg-[#4BC957]/10 text-[#4BC957] border-[#4BC957]/20">
+                          Unlocked
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-muted text-muted-foreground">
+                          <Lock className="h-3 w-3 mr-1" />
+                          {candidate.unlock_cost} credits
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Footer actions */}
+                    <div className="flex items-center gap-2 pt-1.5 flex-wrap">
+                      <a
+                        href={`/company/candidates/profile?id=${candidate.id}`}
+                        className="flex-1 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-2.5 px-4 rounded-xl text-sm flex items-center justify-center gap-1.5 transition-all shadow-md shadow-[#4BC957]/5 active:scale-[0.98]"
+                      >
+                        <Lock className="h-3.5 w-3.5" />
+                        View profile
+                      </a>
+                      <a href={`/company/inbox?id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
+                        <MessageSquare className="h-4 w-4" />
+                      </a>
+                      <a href={`/company/candidates/interview?id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
+                        <Bot className="h-4 w-4" />
+                      </a>
+                      <button className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
+                        <FileText className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="h-16 w-16 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
                 <FilterX className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-1">
-                No candidates found
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                Try adjusting your filters or removing some to see more
-                results.
-              </p>
-              <button
-                onClick={handleResetFilters}
-                className="text-sm font-semibold text-[#4BC957] hover:underline"
-              >
+              <h3 className="text-lg font-bold text-foreground mb-1">No candidates found</h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-sm">Try adjusting your filters or removing some to see more results.</p>
+              <button onClick={handleResetFilters} className="text-sm font-semibold text-[#4BC957] hover:underline">
                 Reset all filters
               </button>
             </div>
