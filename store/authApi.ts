@@ -166,6 +166,46 @@ export interface CompanyCandidatesFilters {
   max_age?: number;
 }
 
+export interface CandidateEducation {
+  id: number;
+  school: string;
+  degree: string;
+  field_of_study: string;
+  start_year: string;
+  end_year: string | null;
+}
+
+export interface CandidateExperience {
+  id: number;
+  company: string;
+  job_title: string;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  description: string;
+}
+
+export interface CandidateDetail {
+  id: number;
+  name: string;
+  email: string;
+  role_title: string;
+  industry: string;
+  about_me: string;
+  phone_whatsapp: string;
+  location: string;
+  linkedin: string | null;
+  website_portfolio: string | null;
+  cv: string | null;
+  years_experience: number;
+  experience_level: string | null;
+  skills: string[];
+  match_score: number | null;
+  educations: CandidateEducation[];
+  experiences: CandidateExperience[];
+  created_at: string;
+}
+
 // ─── Admin Job types ──────────────────────────────────────────────────────────
 
 export interface AdminJobListItem {
@@ -799,6 +839,12 @@ export const authApi = createApi({
       providesTags: ["CompanyCandidates"],
     }),
 
+    // GET /candidates/{id}/
+    getCompanyCandidateDetail: builder.query<ApiResponse<CandidateDetail>, number>({
+      query: (id) => `candidates/${id}/`,
+      providesTags: (_r, _e, id) => [{ type: "CompanyCandidates", id }],
+    }),
+
     // ── Admin Job endpoints ────────────────────────────────────────────────────
 
     // GET /admin/jobs/
@@ -1110,6 +1156,7 @@ export const {
   useGetTailoredCvQuery,
   // Company Candidates
   useGetCompanyCandidatesQuery,
+  useGetCompanyCandidateDetailQuery,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
