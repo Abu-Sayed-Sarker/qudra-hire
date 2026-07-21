@@ -139,7 +139,34 @@ export interface AdminCandidatePatchPayload {
   plan_id?: string;
 }
 
-// ─── Admin Job types ─────────────────────────────────────────────────────────
+// ─── Company Candidate types ────────────────────────────────────────────────────
+
+export interface CompanyCandidate {
+  id: number;
+  name: string;
+  role_title: string;
+  industry: string;
+  location: string;
+  years_experience: number;
+  experience_level: string | null;
+  skills: string[];
+  match_score: number | null;
+  is_unlocked: boolean;
+  unlock_cost: number;
+  age: number | null;
+  gender: string | null;
+}
+
+export interface CompanyCandidatesFilters {
+  role?: string;
+  skills?: string;
+  experience_level?: string;
+  gender?: string;
+  min_age?: number;
+  max_age?: number;
+}
+
+// ─── Admin Job types ──────────────────────────────────────────────────────────
 
 export interface AdminJobListItem {
   id: string;
@@ -611,7 +638,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -751,6 +778,25 @@ export const authApi = createApi({
         method: "POST",
         body: { new_password },
       }),
+    }),
+
+    // ── Company Candidate endpoints ────────────────────────────────────────────
+
+    // GET /candidates/
+    getCompanyCandidates: builder.query<ApiResponse<CompanyCandidate[]>, CompanyCandidatesFilters | void>({
+      query: (filters) => {
+        if (!filters) return "candidates/";
+        const params = new URLSearchParams();
+        if (filters.role) params.set("role", filters.role);
+        if (filters.skills) params.set("skills", filters.skills);
+        if (filters.experience_level) params.set("experience_level", filters.experience_level);
+        if (filters.gender) params.set("gender", filters.gender);
+        if (filters.min_age !== undefined) params.set("min_age", String(filters.min_age));
+        if (filters.max_age !== undefined) params.set("max_age", String(filters.max_age));
+        const qs = params.toString();
+        return qs ? `candidates/?${qs}` : "candidates/";
+      },
+      providesTags: ["CompanyCandidates"],
     }),
 
     // ── Admin Job endpoints ────────────────────────────────────────────────────
@@ -1062,6 +1108,8 @@ export const {
   useApplyToJobMutation,
   useTailorCandidateCvMutation,
   useGetTailoredCvQuery,
+  // Company Candidates
+  useGetCompanyCandidatesQuery,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
