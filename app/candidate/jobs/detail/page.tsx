@@ -122,12 +122,12 @@ function JobDetailContent() {
       { id: 5, text: "Updating skills section", done: false },
     ]);
 
-    // Start animation steps
+    // Start animation steps — max 80% until COMPLETED
     const timings = [500, 1200, 2000, 2800, 3600];
     timings.forEach((ms, idx) => {
       setTimeout(() => {
         setTailoringSteps(prev => prev.map((step, i) => i === idx ? { ...step, done: true } : step));
-        setProgressWidth((idx + 1) * 20);
+        setProgressWidth(Math.min((idx + 1) * 20, 80));
       }, ms);
     });
 
@@ -414,7 +414,7 @@ function JobDetailContent() {
                 <button onClick={() => setRightState("comparison")} className="border border-surface hover:bg-surface-item text-on-surface py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-1">
                   <Eye className="h-3 w-3" /> Compare
                 </button>
-                <button onClick={() => setRightState("success")} className="bg-[#23C65F] hover:bg-[#1DA852] text-white py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-1">
+                <button onClick={() => { setApplyModalOpen(true); setApplyStep("review"); }} className="bg-[#23C65F] hover:bg-[#1DA852] text-white py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-1">
                   Use tailored CV <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -447,16 +447,16 @@ function JobDetailContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-surface-deep border border-surface space-y-3">
                   <span className="text-[13px] font-bold text-on-surface-muted uppercase tracking-wider block">Original</span>
-                  <div className="text-3xl font-extrabold text-on-surface">{tailoredCvData.score_before}%</div>
-                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-on-surface-muted h-full rounded-full" style={{ width: `${tailoredCvData.score_before}%` }} /></div>
+                  <div className="text-3xl font-extrabold text-on-surface">{tailoredCvData.score_before ?? 0}%</div>
+                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-on-surface-muted h-full rounded-full transition-all duration-700" style={{ width: `${tailoredCvData.score_before ?? 0}%` }} /></div>
                 </div>
                 <div className="p-4 rounded-xl bg-surface-deep border border-[#23C65F]/25 space-y-3">
                   <span className="text-[13px] font-bold text-[#23C65F] uppercase tracking-wider block">Tailored</span>
-                  <div className="text-3xl font-extrabold text-[#23C65F]">{tailoredCvData.score_after}%</div>
-                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-[#23C65F] h-full rounded-full" style={{ width: `${tailoredCvData.score_after}%` }} /></div>
+                  <div className="text-3xl font-extrabold text-[#23C65F]">{tailoredCvData.score_after ?? 0}%</div>
+                  <div className="w-full bg-surface-item h-1.5 rounded-full overflow-hidden"><div className="bg-[#23C65F] h-full rounded-full transition-all duration-700" style={{ width: `${tailoredCvData.score_after ?? 0}%` }} /></div>
                 </div>
               </div>
-              <button onClick={() => setRightState("success")} className="w-full flex items-center justify-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold py-3 px-5 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98]">
+              <button onClick={() => { setApplyModalOpen(true); setApplyStep("review"); }} className="w-full flex items-center justify-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold py-3 px-5 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98]">
                 Use tailored CV <ArrowRight className="h-4 w-4" />
               </button>
             </div>
