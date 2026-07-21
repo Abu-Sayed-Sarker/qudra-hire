@@ -239,9 +239,7 @@ export default function CandidateDashboard() {
           <div className="bg-surface-card border border-surface rounded-2xl p-5 space-y-3">
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-bold text-on-surface">Preferences</h3>
-              <button className="text-on-surface-subtle hover:text-on-surface transition-colors">
-                <Pencil className="h-3.5 w-3.5" />
-              </button>
+           
             </div>
             <div className="space-y-2 text-on-surface-muted text-sm font-medium">
               <p>Role. <span className="text-on-surface font-semibold">{pref.role}</span></p>
