@@ -3,14 +3,19 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Send, Sparkles, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
 import {
   useGetConversationsQuery,
   useGetConversationMessagesQuery,
-  useSendMessageMutation,
   useMarkConversationReadMutation,
   type ChatConversation,
   type ChatMessage,
 } from "@/store/authApi";
+
+const WS_BASE_URL =
+  (process.env.NEXT_PUBLIC_API_URL ?? "http://10.10.29.169:8020/api/v1")
+    .replace(/^http/, "ws")
+    .replace(/\/api\/v1$/, "");
 
 function timeAgo(dateStr: string): string {
   const now = new Date();
@@ -44,12 +49,17 @@ export default function Inbox({
   initialConversationId,
 }: InboxProps) {
   const router = useRouter();
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
+
   const [activeConversation, setActiveConversation] = useState<ChatConversation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [inputText, setInputText] = useState("");
   const [showChatDetail, setShowChatDetail] = useState(false);
+  const [wsMessages, setWsMessages] = useState<ChatMessage[]>([]);
+  const [connected, setConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -63,37 +73,109 @@ export default function Inbox({
   const { data: conversationsData, isLoading: conversationsLoading } =
     useGetConversationsQuery(debouncedSearch || undefined);
 
-  // Fetch messages for selected conversation
+  // Fetch initial messages via REST API
   const { data: messagesData, isLoading: messagesLoading } =
     useGetConversationMessagesQuery(activeConversation?.id ?? "", {
       skip: !activeConversation,
     });
 
-  // Send message mutation
-  const [sendMessage, { isLoading: sendingMessage }] = useSendMessageMutation();
-
   // Mark conversation as read mutation
   const [markConversationRead] = useMarkConversationReadMutation();
 
   const conversations = conversationsData?.data ?? [];
-  const messages = messagesData?.data ?? [];
+  const restMessages = messagesData?.data ?? [];
+
+  // Combine REST-fetched messages with WebSocket messages
+  const messages = [...restMessages, ...wsMessages];
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const selectConversation = useCallback((conversation: ChatConversation) => {
-    setActiveConversation(conversation);
-    setShowChatDetail(true);
-    // Update URL with conversation ID
-    const url = new URL(window.location.href);
-    url.searchParams.set("id", conversation.id);
-    router.push(url.pathname + url.search, { scroll: false });
-    if (conversation.unread_count > 0) {
-      markConversationRead(conversation.id);
+  // WebSocket connection
+  const connectWebSocket = useCallback(
+    (conversationId: string) => {
+      // Close existing connection
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+        setConnected(false);
+      }
+
+      if (!accessToken) return;
+
+      const wsUrl = `${WS_BASE_URL}/ws/chat/${conversationId}/?token=${accessToken}`;
+      const ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        setConnected(true);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          const newMessage: ChatMessage = {
+            id: data.id || crypto.randomUUID(),
+            conversation: conversationId,
+            sender: data.sender || "",
+            sender_name: data.sender_name || "",
+            is_mine: data.is_mine ?? false,
+            content: data.content || data.message || "",
+            is_read: data.is_read ?? false,
+            created_at: data.created_at || new Date().toISOString(),
+          };
+          setWsMessages((prev) => [...prev, newMessage]);
+        } catch {
+          // Ignore malformed messages
+        }
+      };
+
+      ws.onclose = () => {
+        setConnected(false);
+      };
+
+      ws.onerror = () => {
+        setConnected(false);
+      };
+
+      wsRef.current = ws;
+    },
+    [accessToken]
+  );
+
+  // Disconnect WebSocket when conversation changes or component unmounts
+  useEffect(() => {
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, [activeConversation?.id]);
+
+  // Connect WebSocket when conversation is selected
+  useEffect(() => {
+    if (activeConversation) {
+      setWsMessages([]);
+      connectWebSocket(activeConversation.id);
     }
-  }, [markConversationRead, router]);
+  }, [activeConversation, connectWebSocket]);
+
+  const selectConversation = useCallback(
+    (conversation: ChatConversation) => {
+      setActiveConversation(conversation);
+      setShowChatDetail(true);
+      // Update URL with conversation ID
+      const url = new URL(window.location.href);
+      url.searchParams.set("id", conversation.id);
+      router.push(url.pathname + url.search, { scroll: false });
+      if (conversation.unread_count > 0) {
+        markConversationRead(conversation.id);
+      }
+    },
+    [markConversationRead, router]
+  );
 
   // Pre-select conversation from URL param
   useEffect(() => {
@@ -105,21 +187,16 @@ export default function Inbox({
     }
   }, [initialConversationId, conversations, activeConversation, selectConversation]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || !activeConversation || sendingMessage) return;
+    if (!inputText.trim() || !activeConversation || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN)
+      return;
 
     const content = inputText.trim();
     setInputText("");
 
-    try {
-      await sendMessage({
-        conversationId: activeConversation.id,
-        content,
-      }).unwrap();
-    } catch {
-      // Message send failed - input already cleared
-    }
+    // Send via WebSocket — server echo will add the message
+    wsRef.current.send(JSON.stringify({ message: content }));
   };
 
   const selectedParty = activeConversation?.other_party;
@@ -218,6 +295,9 @@ export default function Inbox({
                       {selectedParty?.role_title}
                     </p>
                   </div>
+                  {connected && (
+                    <span className="h-2 w-2 rounded-full bg-green-500" title="Connected" />
+                  )}
                 </div>
                 {showMatchBadge && (
                   <span className="text-[#4BC957] bg-[#4BC957]/10 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 border border-[#4BC957]/20">
@@ -239,26 +319,26 @@ export default function Inbox({
                   </div>
                 ) : (
                   messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col space-y-1 max-w-[85%] md:max-w-[70%] ${msg.is_mine ? "ml-auto items-end" : "items-start"}`}
+                    >
+                      {!msg.is_mine && (
+                        <span className="text-[11px] text-on-surface-muted font-medium px-1">
+                          {msg.sender_name}
+                        </span>
+                      )}
                       <div
-                        key={msg.id}
-                        className={`flex flex-col space-y-1 max-w-[85%] md:max-w-[70%] ${msg.is_mine ? "ml-auto items-end" : "items-start"}`}
+                        className={`px-4 py-3 rounded-2xl font-medium leading-relaxed ${
+                          msg.is_mine
+                            ? "bg-[#4BC957] text-white rounded-tr-none"
+                            : "bg-surface-item text-on-surface border border-surface rounded-tl-none"
+                        }`}
                       >
-                        {!msg.is_mine && (
-                          <span className="text-[11px] text-on-surface-muted font-medium px-1">
-                            {msg.sender_name}
-                          </span>
-                        )}
-                        <div
-                          className={`px-4 py-3 rounded-2xl font-medium leading-relaxed ${
-                            msg.is_mine
-                              ? "bg-[#4BC957] text-white rounded-tr-none"
-                              : "bg-surface-item text-on-surface border border-surface rounded-tl-none"
-                          }`}
-                        >
-                          {msg.content}
-                        </div>
+                        {msg.content}
                       </div>
-                    ))
+                    </div>
+                  ))
                 )}
                 <div ref={messagesEndRef} />
               </div>
@@ -274,7 +354,7 @@ export default function Inbox({
                 />
                 <button
                   type="submit"
-                  disabled={sendingMessage || !inputText.trim()}
+                  disabled={!connected || !inputText.trim()}
                   className="bg-[#4BC957] hover:bg-[#00B96E] text-white p-3 rounded-xl transition-all duration-200 shadow-md shadow-[#4BC957]/10 flex-shrink-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="h-4 w-4" />
