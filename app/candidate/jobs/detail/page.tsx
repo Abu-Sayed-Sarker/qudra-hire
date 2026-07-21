@@ -76,7 +76,9 @@ function JobDetailContent() {
         const cvStatus = result.data.status;
         if (cvStatus === "COMPLETED") {
           setTailoredCvData(result.data);
-          setRightState("tailored");
+          setTailoringSteps(prev => prev.map(step => ({ ...step, done: true })));
+          setProgressWidth(100);
+          setTimeout(() => setRightState("tailored"), 500);
           return;
         }
         if (cvStatus === "FAILED") {
@@ -156,7 +158,9 @@ function JobDetailContent() {
           const status = pollResult.data.status;
           if (status === "COMPLETED") {
             setTailoredCvData(pollResult.data);
-            setRightState("tailored");
+            setTailoringSteps(prev => prev.map(step => ({ ...step, done: true })));
+            setProgressWidth(100);
+            setTimeout(() => setRightState("tailored"), 500);
             return;
           }
           if (status === "FAILED") {
