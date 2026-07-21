@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import CompanySidebar from "@/components/company/CompanySidebar";
+import NotificationBell from "@/components/shared/NotificationBell";
 
 export default function CompanyMobileNav() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,8 +34,8 @@ export default function CompanyMobileNav() {
           <Menu className="h-6 w-6" />
         </button>
         <span className="text-lg font-bold text-foreground">CareerSprint</span>
+        <NotificationBell />
         <ThemeToggle />
-        <div className="w-6" />
       </div>
     </>
   );

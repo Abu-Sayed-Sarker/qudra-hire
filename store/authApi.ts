@@ -548,6 +548,17 @@ export interface AdminCompanyRejectPayload {
   reason: string;
 }
 
+// ─── Notification types ──────────────────────────────────────────────────────
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  notification_type: string;
+  is_read: boolean;
+  created_at: string;
+}
+
 // ─── RTK Query API ────────────────────────────────────────────────────────────
 
 export const authApi = createApi({
@@ -563,7 +574,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "Notifications"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -900,6 +911,32 @@ export const authApi = createApi({
     getSubscriptionPlans: builder.query<ApiResponse<SubscriptionPlan[]>, void>({
       query: () => "subscriptions/plans/",
     }),
+
+    // ── Notification endpoints ──────────────────────────────────────────────
+
+    // GET /notifications/
+    getNotifications: builder.query<ApiResponse<NotificationItem[]>, void>({
+      query: () => "notifications/",
+      providesTags: ["Notifications"],
+    }),
+
+    // POST /notifications/{id}/read/
+    markNotificationRead: builder.mutation<ApiResponse<null>, string>({
+      query: (id) => ({
+        url: `notifications/${id}/read/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Notifications"],
+    }),
+
+    // POST /notifications/read-all/
+    markAllNotificationsRead: builder.mutation<ApiResponse<null>, void>({
+      query: () => ({
+        url: "notifications/read-all/",
+        method: "POST",
+      }),
+      invalidatesTags: ["Notifications"],
+    }),
   }),
 });
 
@@ -956,4 +993,8 @@ export const {
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
+  // Notifications
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
 } = authApi;

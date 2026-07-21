@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
+import NotificationBell from "@/components/shared/NotificationBell";
 
 export default function AdminTopbar() {
   return (
@@ -18,10 +19,7 @@ export default function AdminTopbar() {
       {/* Right: Notifications + Profile */}
       <div className="flex items-center gap-2">
         {/* Notifications */}
-        <button className="relative p-2.5 rounded-xl hover:bg-muted transition-colors duration-200">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary ring-2 ring-card" />
-        </button>
+        <NotificationBell />
 
         {/* Divider */}
         <div className="w-px h-6 bg-border mx-1" />

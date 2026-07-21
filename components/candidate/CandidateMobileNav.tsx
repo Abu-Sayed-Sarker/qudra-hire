@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import CandidateSidebar from "@/components/candidate/CandidateSidebar";
+import NotificationBell from "@/components/shared/NotificationBell";
 
 export default function CandidateMobileNav() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,8 +34,11 @@ export default function CandidateMobileNav() {
           <Menu className="h-5 w-5" />
         </button>
         <h1 className="text-xl font-bold text-foreground">Welcome</h1>
-        <div className="ml-auto md:hidden">
-          <ThemeToggle />
+        <div className="ml-auto flex items-center gap-1">
+          <NotificationBell />
+          <div className="md:hidden">
+            <ThemeToggle />
+          </div>
         </div>
       </header>
     </>
