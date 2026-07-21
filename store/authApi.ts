@@ -548,6 +548,40 @@ export interface AdminCompanyRejectPayload {
   reason: string;
 }
 
+// ─── Chat types ───────────────────────────────────────────────────────────────
+
+export interface ChatOtherParty {
+  type: string;
+  id: string;
+  user_id: string;
+  name: string;
+  role_title: string;
+}
+
+export interface ChatLastMessage {
+  id: string;
+  content: string;
+  sender: string;
+  created_at: string;
+}
+
+export interface ChatConversation {
+  id: string;
+  other_party: ChatOtherParty;
+  last_message: ChatLastMessage | null;
+  unread_count: number;
+  last_message_at: string;
+  created_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversation: string;
+  sender: string;
+  content: string;
+  created_at: string;
+}
+
 // ─── Notification types ──────────────────────────────────────────────────────
 
 export interface NotificationItem {
@@ -574,7 +608,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "Notifications"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -937,6 +971,32 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["Notifications"],
     }),
+
+    // ── Chat endpoints ─────────────────────────────────────────────────────
+
+    // GET /chat/conversations/?search=
+    getConversations: builder.query<ApiResponse<ChatConversation[]>, string | void>({
+      query: (search) => ({
+        url: "chat/conversations/",
+        params: search ? { search } : undefined,
+      }),
+      providesTags: ["ChatConversations"],
+    }),
+
+    // GET /chat/conversations/{id}/messages/
+    getConversationMessages: builder.query<ApiResponse<ChatMessage[]>, string>({
+      query: (id) => `chat/conversations/${id}/messages/`,
+    }),
+
+    // POST /chat/conversations/{id}/messages/
+    sendMessage: builder.mutation<ApiResponse<ChatMessage>, { conversationId: string; content: string }>({
+      query: ({ conversationId, content }) => ({
+        url: `chat/conversations/${conversationId}/messages/`,
+        method: "POST",
+        body: { content },
+      }),
+      invalidatesTags: ["ChatConversations"],
+    }),
   }),
 });
 
@@ -997,4 +1057,8 @@ export const {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
+  // Chat
+  useGetConversationsQuery,
+  useGetConversationMessagesQuery,
+  useSendMessageMutation,
 } = authApi;

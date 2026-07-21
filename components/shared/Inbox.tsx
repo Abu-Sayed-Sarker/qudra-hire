@@ -1,28 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Send, Sparkles, ChevronLeft } from "lucide-react";
+import {
+  useGetConversationsQuery,
+  useGetConversationMessagesQuery,
+  useSendMessageMutation,
+  type ChatConversation,
+  type ChatMessage,
+} from "@/store/authApi";
 
-interface Message {
-  sender: "me" | "them";
-  text: string;
-}
+function timeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-interface Chat {
-  id: number;
-  name: string;
-  role: string;
-  location?: string;
-  time: string;
-  lastMsg: string;
-  unread: number;
-  initials?: string;
-  match?: number;
-  messages: Message[];
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days}d`;
+  return date.toLocaleDateString();
 }
 
 interface InboxProps {
-  chats: Chat[];
   title: string;
   subtitle: string;
   showSearch?: boolean;
@@ -30,39 +34,70 @@ interface InboxProps {
 }
 
 export default function Inbox({
-  chats: initialChats,
   title,
   subtitle,
   showSearch = false,
   showMatchBadge = false,
 }: InboxProps) {
-  const [activeChat, setActiveChat] = useState(0);
+  const [activeConversation, setActiveConversation] = useState<ChatConversation | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [inputText, setInputText] = useState("");
-  const [currentChats, setCurrentChats] = useState(initialChats);
   const [showChatDetail, setShowChatDetail] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-    const updated = [...currentChats];
-    updated[activeChat].messages.push({ sender: "me", text: inputText.trim() });
-    updated[activeChat].lastMsg = inputText.trim();
-    setCurrentChats(updated);
-    setInputText("");
-  };
+  // Fetch conversations
+  const { data: conversationsData, isLoading: conversationsLoading } =
+    useGetConversationsQuery(debouncedSearch || undefined);
 
-  const selectChat = (idx: number) => {
-    setActiveChat(idx);
-    if (currentChats[idx].unread > 0) {
-      const updated = [...currentChats];
-      updated[idx].unread = 0;
-      setCurrentChats(updated);
-    }
+  // Fetch messages for selected conversation
+  const { data: messagesData, isLoading: messagesLoading } =
+    useGetConversationMessagesQuery(activeConversation?.id ?? "", {
+      skip: !activeConversation,
+    });
+
+  // Send message mutation
+  const [sendMessage, { isLoading: sendingMessage }] = useSendMessageMutation();
+
+  const conversations = conversationsData?.data ?? [];
+  const messages = messagesData?.data ?? [];
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const selectConversation = useCallback((conversation: ChatConversation) => {
+    setActiveConversation(conversation);
     setShowChatDetail(true);
+  }, []);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || !activeConversation || sendingMessage) return;
+
+    const content = inputText.trim();
+    setInputText("");
+
+    try {
+      await sendMessage({
+        conversationId: activeConversation.id,
+        content,
+      }).unwrap();
+    } catch {
+      // Message send failed - input already cleared
+    }
   };
 
-  const selectedChat = currentChats[activeChat];
+  const selectedParty = activeConversation?.other_party;
 
   return (
     <div className="p-4 md:p-8 max-w-full mx-auto h-[calc(100vh-2rem)] flex flex-col space-y-4 md:space-y-6">
@@ -81,107 +116,149 @@ export default function Inbox({
                 <input
                   type="text"
                   placeholder="Search messages..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-surface-deep border border-surface rounded-lg py-1.5 pl-9 pr-4 text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957]"
                 />
               </div>
             </div>
           )}
           <div className="flex-1 overflow-y-auto divide-y divide-surface">
-            {currentChats.map((chat, idx) => (
-              <div
-                key={chat.id}
-                onClick={() => selectChat(idx)}
-                className={`p-4 lg:p-5 flex gap-3 cursor-pointer transition-colors text-left ${activeChat === idx && showChatDetail ? "bg-surface-item" : "hover:bg-surface-item/50"
-                  }`}
-              >
-                <div className="h-10 w-10 rounded-xl bg-surface-item border border-surface flex items-center justify-center font-bold text-on-surface text-sm flex-shrink-0">
-                  {chat.initials ?? chat.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className=" font-semibold text-on-surface truncate">{chat.name}</p>
-                    <span className="text-[13px] text-on-surface-subtle flex-shrink-0 ml-2">{chat.time}</span>
-                  </div>
-                  <p className="text-[13px] text-[#4BC957] truncate mt-0.5 font-medium">{chat.role}</p>
-                  <p className=" text-on-surface-muted truncate mt-1">{chat.lastMsg}</p>
-                </div>
-                {chat.unread > 0 && (
-                  <span className="h-5 w-5 rounded-full bg-[#4BC957] flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0 self-center">
-                    {chat.unread}
-                  </span>
-                )}
+            {conversationsLoading ? (
+              <div className="flex items-center justify-center py-8 text-sm text-on-surface-muted">
+                Loading conversations...
               </div>
-            ))}
+            ) : conversations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-on-surface-muted">
+                <p className="text-sm">No conversations found</p>
+              </div>
+            ) : (
+              conversations.map((conversation) => (
+                <div
+                  key={conversation.id}
+                  onClick={() => selectConversation(conversation)}
+                  className={`p-4 lg:p-5 flex gap-3 cursor-pointer transition-colors text-left ${
+                    activeConversation?.id === conversation.id && showChatDetail
+                      ? "bg-surface-item"
+                      : "hover:bg-surface-item/50"
+                  }`}
+                >
+                  <div className="h-10 w-10 rounded-xl bg-surface-item border border-surface flex items-center justify-center font-bold text-on-surface text-sm flex-shrink-0">
+                    {conversation.other_party.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-on-surface truncate">{conversation.other_party.name}</p>
+                      <span className="text-[13px] text-on-surface-subtle flex-shrink-0 ml-2">
+                        {conversation.last_message ? timeAgo(conversation.last_message_at) : ""}
+                      </span>
+                    </div>
+                    <p className="text-[13px] text-[#4BC957] truncate mt-0.5 font-medium">
+                      {conversation.other_party.role_title}
+                    </p>
+                    <p className="text-on-surface-muted truncate mt-1">
+                      {conversation.last_message?.content ?? "No messages yet"}
+                    </p>
+                  </div>
+                  {conversation.unread_count > 0 && (
+                    <span className="h-5 w-5 rounded-full bg-[#4BC957] flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0 self-center">
+                      {conversation.unread_count}
+                    </span>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Chat Area */}
         <div className={`${!showChatDetail ? "hidden" : "flex"} md:flex flex-1 flex-col bg-surface-deep`}>
-          {/* Chat Header */}
-          <div className="p-4 lg:p-5 border-b border-surface bg-surface-card flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowChatDetail(false)}
-                className="md:hidden text-on-surface-muted hover:text-on-surface transition-colors p-1"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="h-10 w-10 rounded-xl bg-surface-item border border-surface flex items-center justify-center font-bold text-on-surface text-sm flex-shrink-0">
-                {selectedChat.initials ?? selectedChat.name.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-on-surface">{selectedChat.name}</p>
-                <p className=" text-on-surface-muted font-medium">
-                  {selectedChat.role}{selectedChat.location ? ` • ${selectedChat.location}` : ""}
-                </p>
-              </div>
-            </div>
-            {showMatchBadge && selectedChat.match && (
-              <span className=" text-[#4BC957] bg-[#4BC957]/10 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 border border-[#4BC957]/20">
-                <Sparkles className="h-3 w-3" />
-                {selectedChat.match}% Match
-              </span>
-            )}
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-4">
-            {selectedChat.messages.map((msg, idx) => {
-              const isMe = msg.sender === "me";
-              return (
-                <div
-                  key={idx}
-                  className={`flex flex-col space-y-1 max-w-[85%] md:max-w-[70%] ${isMe ? "ml-auto items-end" : "items-start"}`}
-                >
-                  <div
-                    className={`px-4 py-3 rounded-2xl font-medium leading-relaxed ${isMe
-                      ? "bg-[#4BC957] text-white rounded-tr-none"
-                      : "bg-surface-item text-on-surface border border-surface rounded-tl-none"
-                      }`}
+          {activeConversation ? (
+            <>
+              {/* Chat Header */}
+              <div className="p-4 lg:p-5 border-b border-surface bg-surface-card flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowChatDetail(false)}
+                    className="md:hidden text-on-surface-muted hover:text-on-surface transition-colors p-1"
                   >
-                    {msg.text}
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <div className="h-10 w-10 rounded-xl bg-surface-item border border-surface flex items-center justify-center font-bold text-on-surface text-sm flex-shrink-0">
+                    {selectedParty?.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-on-surface">{selectedParty?.name}</p>
+                    <p className="text-on-surface-muted font-medium">
+                      {selectedParty?.role_title}
+                    </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+                {showMatchBadge && (
+                  <span className="text-[#4BC957] bg-[#4BC957]/10 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 border border-[#4BC957]/20">
+                    <Sparkles className="h-3 w-3" />
+                    Match
+                  </span>
+                )}
+              </div>
 
-          {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="p-4 border-t border-surface bg-surface-card flex gap-3">
-            <input
-              type="text"
-              placeholder="Write a message..."
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 bg-surface-deep border border-surface rounded-xl px-4 py-3 text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957] transition-colors"
-            />
-            <button
-              type="submit"
-              className="bg-[#4BC957] hover:bg-[#00B96E] text-white p-3 rounded-xl transition-all duration-200 shadow-md shadow-[#4BC957]/10 flex-shrink-0 active:scale-[0.98]"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </form>
+              {/* Messages */}
+              <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-4">
+                {messagesLoading ? (
+                  <div className="flex items-center justify-center py-8 text-sm text-on-surface-muted">
+                    Loading messages...
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-on-surface-muted">
+                    <p className="text-sm">No messages yet. Start the conversation!</p>
+                  </div>
+                ) : (
+                  messages.map((msg) => {
+                    const isMe = msg.sender !== activeConversation.other_party.user_id;
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`flex flex-col space-y-1 max-w-[85%] md:max-w-[70%] ${isMe ? "ml-auto items-end" : "items-start"}`}
+                      >
+                        <div
+                          className={`px-4 py-3 rounded-2xl font-medium leading-relaxed ${
+                            isMe
+                              ? "bg-[#4BC957] text-white rounded-tr-none"
+                              : "bg-surface-item text-on-surface border border-surface rounded-tl-none"
+                          }`}
+                        >
+                          {msg.content}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Message Input */}
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-surface bg-surface-card flex gap-3">
+                <input
+                  type="text"
+                  placeholder="Write a message..."
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  className="flex-1 bg-surface-deep border border-surface rounded-xl px-4 py-3 text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957] transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={sendingMessage || !inputText.trim()}
+                  className="bg-[#4BC957] hover:bg-[#00B96E] text-white p-3 rounded-xl transition-all duration-200 shadow-md shadow-[#4BC957]/10 flex-shrink-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-on-surface-muted">
+              <p className="text-sm">Select a conversation to start chatting</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
