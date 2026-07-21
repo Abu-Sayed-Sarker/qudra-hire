@@ -378,6 +378,18 @@ export interface SubscriptionPlanPayload {
   features: string[];
 }
 
+export interface SubscriptionHistoryItem {
+  id: string;
+  plan: string;
+  plan_name: string;
+  category: string;
+  price: string;
+  currency: string;
+  sub_status: string;
+  started_at: string;
+  expires_at: string;
+}
+
 // ─── Admin Settings types ────────────────────────────────────────────────────
 
 export interface AdminSettings {
@@ -876,6 +888,18 @@ export const authApi = createApi({
     getTailoredCv: builder.query<ApiResponse<TailoredCv>, string>({
       query: (id) => `candidate/tailored-cvs/${id}/`,
     }),
+
+    // ── Subscription endpoints ──────────────────────────────────────────────
+
+    // GET /subscriptions/history/
+    getSubscriptionHistory: builder.query<ApiResponse<SubscriptionHistoryItem[]>, void>({
+      query: () => "subscriptions/history/",
+    }),
+
+    // GET /subscriptions/plans/
+    getSubscriptionPlans: builder.query<ApiResponse<SubscriptionPlan[]>, void>({
+      query: () => "subscriptions/plans/",
+    }),
   }),
 });
 
@@ -929,4 +953,7 @@ export const {
   useApplyToJobMutation,
   useTailorCandidateCvMutation,
   useGetTailoredCvQuery,
+  // Subscriptions
+  useGetSubscriptionHistoryQuery,
+  useGetSubscriptionPlansQuery,
 } = authApi;
