@@ -578,7 +578,10 @@ export interface ChatMessage {
   id: string;
   conversation: string;
   sender: string;
+  sender_name: string;
+  is_mine: boolean;
   content: string;
+  is_read: boolean;
   created_at: string;
 }
 
@@ -997,6 +1000,15 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["ChatConversations"],
     }),
+
+    // POST /chat/conversations/{id}/read/
+    markConversationRead: builder.mutation<ApiResponse<null>, string>({
+      query: (id) => ({
+        url: `chat/conversations/${id}/read/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["ChatConversations"],
+    }),
   }),
 });
 
@@ -1061,4 +1073,5 @@ export const {
   useGetConversationsQuery,
   useGetConversationMessagesQuery,
   useSendMessageMutation,
+  useMarkConversationReadMutation,
 } = authApi;

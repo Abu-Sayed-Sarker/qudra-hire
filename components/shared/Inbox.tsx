@@ -6,6 +6,7 @@ import {
   useGetConversationsQuery,
   useGetConversationMessagesQuery,
   useSendMessageMutation,
+  useMarkConversationReadMutation,
   type ChatConversation,
   type ChatMessage,
 } from "@/store/authApi";
@@ -67,6 +68,9 @@ export default function Inbox({
   // Send message mutation
   const [sendMessage, { isLoading: sendingMessage }] = useSendMessageMutation();
 
+  // Mark conversation as read mutation
+  const [markConversationRead] = useMarkConversationReadMutation();
+
   const conversations = conversationsData?.data ?? [];
   const messages = messagesData?.data ?? [];
 
@@ -78,7 +82,10 @@ export default function Inbox({
   const selectConversation = useCallback((conversation: ChatConversation) => {
     setActiveConversation(conversation);
     setShowChatDetail(true);
-  }, []);
+    if (conversation.unread_count > 0) {
+      markConversationRead(conversation.id);
+    }
+  }, [markConversationRead]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,16 +220,19 @@ export default function Inbox({
                     <p className="text-sm">No messages yet. Start the conversation!</p>
                   </div>
                 ) : (
-                  messages.map((msg) => {
-                    const isMe = msg.sender !== activeConversation.other_party.user_id;
-                    return (
+                  messages.map((msg) => (
                       <div
                         key={msg.id}
-                        className={`flex flex-col space-y-1 max-w-[85%] md:max-w-[70%] ${isMe ? "ml-auto items-end" : "items-start"}`}
+                        className={`flex flex-col space-y-1 max-w-[85%] md:max-w-[70%] ${msg.is_mine ? "ml-auto items-end" : "items-start"}`}
                       >
+                        {!msg.is_mine && (
+                          <span className="text-[11px] text-on-surface-muted font-medium px-1">
+                            {msg.sender_name}
+                          </span>
+                        )}
                         <div
                           className={`px-4 py-3 rounded-2xl font-medium leading-relaxed ${
-                            isMe
+                            msg.is_mine
                               ? "bg-[#4BC957] text-white rounded-tr-none"
                               : "bg-surface-item text-on-surface border border-surface rounded-tl-none"
                           }`}
@@ -230,8 +240,7 @@ export default function Inbox({
                           {msg.content}
                         </div>
                       </div>
-                    );
-                  })
+                    ))
                 )}
                 <div ref={messagesEndRef} />
               </div>
