@@ -350,7 +350,7 @@ function EditJobInner() {
               <Button
                 type="submit"
                 disabled={isLoadingDetail || isUpdating}
-                className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
+                className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-5 flex justify-center items-center   rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
               >
                 {(isLoadingDetail || isUpdating) ? (
                   <>
