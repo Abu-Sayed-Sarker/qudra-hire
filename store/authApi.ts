@@ -206,6 +206,58 @@ export interface CandidateDetail {
   created_at: string;
 }
 
+// ─── Company Job types ─────────────────────────────────────────────────────────
+
+export interface CompanyJob {
+  id: string;
+  company_name: string;
+  title: string;
+  description: string;
+  requirements: string;
+  requirements_list: string[];
+  skills: string[];
+  preferred_skills: string[];
+  benefits: string[];
+  location: string;
+  employment_type: string;
+  currency: string;
+  salary_min: number;
+  salary_max: number;
+  salary_period: string;
+  visa_sponsorship: boolean;
+  emiratization: boolean;
+  saudization: boolean;
+  open_to_remote: boolean;
+  job_status: string;
+  rejection_reason: string | null;
+  ai_matches_count: number;
+  applications_count: number;
+  published_at: string;
+  created_at: string;
+  updated_at: string;
+  additional_questions: any[];
+}
+
+export interface CompanyJobPayload {
+  title: string;
+  description: string;
+  requirements: string;
+  skills: string[];
+  preferred_skills: string[];
+  benefits: string[];
+  location: string;
+  employment_type: string;
+  currency: string;
+  salary_min: number;
+  salary_max: number;
+  salary_period: string;
+  visa_sponsorship: boolean;
+  emiratization: boolean;
+  saudization: boolean;
+  open_to_remote: boolean;
+  additional_questions: any[];
+}
+
 // ─── Admin Job types ──────────────────────────────────────────────────────────
 
 export interface AdminJobListItem {
@@ -678,7 +730,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "CompanyJobs", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -843,6 +895,49 @@ export const authApi = createApi({
     getCompanyCandidateDetail: builder.query<ApiResponse<CandidateDetail>, number>({
       query: (id) => `candidates/${id}/`,
       providesTags: (_r, _e, id) => [{ type: "CompanyCandidates", id }],
+    }),
+
+    // ── Company Job endpoints ───────────────────────────────────────────────────
+
+    // GET /jobs/
+    getCompanyJobs: builder.query<ApiResponse<CompanyJob[]>, void>({
+      query: () => "jobs/",
+      providesTags: ["CompanyJobs"],
+    }),
+
+    // GET /jobs/{id}/
+    getCompanyJobDetail: builder.query<ApiResponse<CompanyJob>, string>({
+      query: (id) => `jobs/${id}/`,
+      providesTags: (_r, _e, id) => [{ type: "CompanyJobs", id }],
+    }),
+
+    // POST /jobs/
+    createCompanyJob: builder.mutation<ApiResponse<CompanyJob>, CompanyJobPayload>({
+      query: (body) => ({
+        url: "jobs/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["CompanyJobs"],
+    }),
+
+    // PATCH /jobs/{id}/
+    updateCompanyJob: builder.mutation<ApiResponse<CompanyJob>, { id: string } & Partial<CompanyJobPayload>>({
+      query: ({ id, ...body }) => ({
+        url: `jobs/${id}/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_r, _e, { id }) => ["CompanyJobs", { type: "CompanyJobs", id }],
+    }),
+
+    // DELETE /jobs/{id}/
+    deleteCompanyJob: builder.mutation<ApiResponse<null>, string>({
+      query: (id) => ({
+        url: `jobs/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["CompanyJobs"],
     }),
 
     // ── Admin Job endpoints ────────────────────────────────────────────────────
@@ -1157,6 +1252,12 @@ export const {
   // Company Candidates
   useGetCompanyCandidatesQuery,
   useGetCompanyCandidateDetailQuery,
+  // Company Jobs
+  useGetCompanyJobsQuery,
+  useGetCompanyJobDetailQuery,
+  useCreateCompanyJobMutation,
+  useUpdateCompanyJobMutation,
+  useDeleteCompanyJobMutation,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,

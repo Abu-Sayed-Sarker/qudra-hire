@@ -1,15 +1,69 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  useCreateCompanyJobMutation,
+} from "@/store/authApi";
+import type { CompanyJobPayload } from "@/store/authApi";
+
+const EMPTY_PAYLOAD: CompanyJobPayload = {
+  title: "",
+  description: "",
+  requirements: "",
+  skills: [],
+  preferred_skills: [],
+  benefits: [],
+  location: "",
+  employment_type: "FULL_TIME",
+  currency: "",
+  salary_min: 0,
+  salary_max: 0,
+  salary_period: "MONTH",
+  visa_sponsorship: false,
+  emiratization: false,
+  saudization: false,
+  open_to_remote: false,
+  additional_questions: [],
+};
 
 export default function PostJobPage() {
-  const [visaSp, setVisaSp] = useState(true);
-  const [emiratization, setEmiratization] = useState(true);
+  const router = useRouter();
+  const [visaSp, setVisaSp] = useState(false);
+  const [emiratization, setEmiratization] = useState(false);
   const [saudization, setSaudization] = useState(false);
   const [remote, setRemote] = useState(false);
+  const [form, setForm] = useState<CompanyJobPayload>(EMPTY_PAYLOAD);
+  const [error, setError] = useState<string | null>(null);
+
+  const [createJob, { isLoading }] = useCreateCompanyJobMutation();
+
+  const updateField = <K extends keyof CompanyJobPayload>(key: K, value: CompanyJobPayload[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      await createJob({
+        ...form,
+        visa_sponsorship: visaSp,
+        emiratization,
+        saudization,
+        open_to_remote: remote,
+      }).unwrap();
+      router.push("/company/jobs");
+    } catch (err) {
+      setError("Failed to create job. Please try again.");
+    }
+  };
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
@@ -17,7 +71,7 @@ export default function PostJobPage() {
       <div className="space-y-3">
         <Link
           href="/company/jobs"
-          className="inline-flex items-center gap-2 font-semibold text-on-surface-muted hover:text-on-surface transition-colors"
+          className="inline-flex items-center gap-2 font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -25,8 +79,8 @@ export default function PostJobPage() {
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-on-surface tracking-tight">Post a new job</h1>
-            <p className="text-sm text-on-surface-muted mt-1">AI will shortlist your top 10 matches within minutes.</p>
+            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Post a new job</h1>
+            <p className="text-sm text-muted-foreground mt-1">AI will shortlist your top 10 matches within minutes.</p>
           </div>
           <span className="bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4" />
@@ -35,198 +89,247 @@ export default function PostJobPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Main Form (2/3 width) */}
-        <div className="lg:col-span-2 bg-surface-card border border-surface rounded-2xl p-6 space-y-6">
-
-          {/* Job Title */}
-          <div className="space-y-2">
-            <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Job title</label>
-            <input
-              type="text"
-              defaultValue="Senior Product Designer"
-              placeholder="e.g. Lead Developer"
-              className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-            />
-          </div>
-
-          {/* Skills Tag input */}
-          <div className="space-y-2">
-            <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Skills</label>
-            <input
-              type="text"
-              placeholder="Enter Skills"
-              className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-            />
-          </div>
-
-          {/* Location & Employment Type (2 Columns) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Location</label>
-              <input
-                type="text"
-                defaultValue="Dubai, UAE"
-                placeholder="e.g. Riyadh, KSA"
-                className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Employment type</label>
-              <input
-                type="text"
-                defaultValue="Full-time"
-                placeholder="e.g. Contract, Part-time"
-                className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Currency & Salary Range (2 Columns) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Currency</label>
-              <input
-                type="text"
-                defaultValue="AED"
-                placeholder="e.g. SAR, USD"
-                className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Salary range</label>
-              <input
-                type="text"
-                defaultValue="28,000 — 36,000 / month"
-                placeholder="e.g. 15,000 - 20,000"
-                className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Job Description */}
-          <div className="space-y-2">
-            <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Job description</label>
-            <textarea
-              rows={4}
-              defaultValue="Own end-to-end design of our flagship banking app..."
-              className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
-            />
-          </div>
-
-          {/* Requirements */}
-          <div className="space-y-2">
-            <label className=" font-bold text-on-surface-muted uppercase tracking-wider">Requirements (one per line)</label>
-            <textarea
-              rows={4}
-              defaultValue={"6+ years product design\nFintech experience\nFluent English; Arabic a plus"}
-              className="w-full bg-surface-deep border border-surface focus:border-[#4BC957] text-on-surface placeholder:text-on-surface-subtle rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
-            />
-          </div>
-
-          {/* GCC Flags Switches Group */}
-          <div className="border border-surface rounded-xl p-5 space-y-4">
-            <h3 className=" font-bold text-on-surface-muted uppercase tracking-wider mb-2">GCC flags</h3>
-
-            {/* Visa */}
-            <div className="flex items-center justify-between">
-              <span className=" font-semibold text-on-surface">Visa sponsorship offered</span>
-              <Switch
-                checked={visaSp}
-                onCheckedChange={setVisaSp}
-                className="data-checked:bg-[#4BC957]!"
-              />
-            </div>
-
-            {/* Emiratization */}
-            <div className="flex items-center justify-between">
-              <span className=" font-semibold text-on-surface">Emiratization (UAE national priority)</span>
-              <Switch
-                checked={emiratization}
-                onCheckedChange={setEmiratization}
-                className="data-checked:bg-[#4BC957]!"
-              />
-            </div>
-
-            {/* Saudization */}
-            <div className="flex items-center justify-between">
-              <span className=" font-semibold text-on-surface">Saudization (Nitaqat-aligned)</span>
-              <Switch
-                checked={saudization}
-                onCheckedChange={setSaudization}
-                className="data-checked:bg-[#4BC957]!"
-              />
-            </div>
-
-            {/* Remote */}
-            <div className="flex items-center justify-between">
-              <span className=" font-semibold text-on-surface">Open to remote</span>
-              <Switch
-                checked={remote}
-                onCheckedChange={setRemote}
-                className="data-checked:bg-[#4BC957]!"
-              />
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex justify-start gap-3 border-t border-surface pt-6">
-            <Link
-              href="/company/jobs"
-              className="border border-surface hover:bg-surface-item text-on-surface font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors text-center"
-            >
-              Cancel
-            </Link>
-            <button className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]">
-              Publish & get approved
-            </button>
-          </div>
-
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+          <p className="text-sm text-red-500 font-medium">{error}</p>
         </div>
+      )}
 
-        {/* Sidebar Info Columns (1/3 width) */}
-        <div className="space-y-6">
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          {/* Main Form (2/3 width) */}
+          <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">
 
-          {/* What happens next */}
-          <div className="bg-surface-card border border-surface rounded-2xl p-6 space-y-4">
-            <h3 className="text-sm font-bold text-on-surface flex items-center gap-1.5">
-              <Sparkles className="h-4.5 w-4.5 text-[#4BC957]" />
-              What happens next
-            </h3>
-            <ol className="space-y-3.5 text-on-surface-muted list-decimal pl-4 leading-relaxed font-medium">
-              <li>AI scans 50,000+ candidate profiles</li>
-              <li>Top 10 ranked shortlist within minutes</li>
-              <li>Candidates appear anonymised — unlock with credits</li>
-              <li>Message directly inside the platform</li>
-            </ol>
-          </div>
+            {/* Job Title */}
+            <div className="space-y-2">
+              <label className="font-bold text-muted-foreground uppercase tracking-wider">Job title</label>
+              <Input
+                type="text"
+                value={form.title}
+                onChange={(e) => updateField("title", e.target.value)}
+                placeholder="e.g. Lead Developer"
+                className="bg-background border-border focus:border-[#4BC957]"
+                required
+              />
+            </div>
 
-          {/* Cost breakdown */}
-          <div className="bg-surface-card border border-surface rounded-2xl p-6 space-y-5">
-            <h3 className="text-sm font-bold text-on-surface">Cost</h3>
+            {/* Skills Tag input */}
+            <div className="space-y-2">
+              <label className="font-bold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
+              <Input
+                type="text"
+                value={form.skills.join(", ")}
+                onChange={(e) => updateField("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                placeholder="e.g. Figma, React, TypeScript"
+                className="bg-background border-border focus:border-[#4BC957]"
+              />
+            </div>
 
-            <div className="space-y-3.5 font-semibold">
-              <div className="flex justify-between items-center text-on-surface-muted">
-                <span>Job post</span>
-                <span className="text-on-surface">5 credits</span>
+            {/* Location & Employment Type (2 Columns) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Location</label>
+                <Input
+                  type="text"
+                  value={form.location}
+                  onChange={(e) => updateField("location", e.target.value)}
+                  placeholder="e.g. Riyadh, KSA"
+                  className="bg-background border-border focus:border-[#4BC957]"
+                  required
+                />
               </div>
-              <div className="flex justify-between items-center text-on-surface-muted">
-                <span>Top 10 shortlist</span>
-                <span className="text-on-surface">Free</span>
-              </div>
-              <div className="flex justify-between items-center text-on-surface-muted">
-                <span>Per unlock</span>
-                <span className="text-on-surface">2 credits</span>
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Employment type</label>
+                <Input
+                  type="text"
+                  value={form.employment_type}
+                  onChange={(e) => updateField("employment_type", e.target.value.toUpperCase())}
+                  placeholder="e.g. FULL_TIME"
+                  className="bg-background border-border focus:border-[#4BC957]"
+                  required
+                />
               </div>
             </div>
 
-            <div className="border-t border-surface pt-4 font-bold text-[#4BC957]">
-              Balance: 1,240 credits
+            {/* Currency & Salary Range (2 Columns) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Currency</label>
+                <Input
+                  type="text"
+                  value={form.currency}
+                  onChange={(e) => updateField("currency", e.target.value)}
+                  placeholder="e.g. SAR, USD"
+                  className="bg-background border-border focus:border-[#4BC957]"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Salary range</label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={form.salary_min || ""}
+                    onChange={(e) => updateField("salary_min", Number(e.target.value))}
+                    placeholder="Min"
+                    className="bg-background border-border focus:border-[#4BC957]"
+                    required
+                  />
+                  <span className="text-muted-foreground">—</span>
+                  <Input
+                    type="number"
+                    value={form.salary_max || ""}
+                    onChange={(e) => updateField("salary_max", Number(e.target.value))}
+                    placeholder="Max"
+                    className="bg-background border-border focus:border-[#4BC957]"
+                    required
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* Job Description */}
+            <div className="space-y-2">
+              <label className="font-bold text-muted-foreground uppercase tracking-wider">Job description</label>
+              <textarea
+                rows={4}
+                value={form.description}
+                onChange={(e) => updateField("description", e.target.value)}
+                placeholder="Describe the role..."
+                className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
+                required
+              />
+            </div>
+
+            {/* Requirements */}
+            <div className="space-y-2">
+              <label className="font-bold text-muted-foreground uppercase tracking-wider">Requirements (one per line)</label>
+              <textarea
+                rows={4}
+                value={form.requirements}
+                onChange={(e) => updateField("requirements", e.target.value)}
+                placeholder={"Requirement 1\nRequirement 2\nRequirement 3"}
+                className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
+                required
+              />
+            </div>
+
+            {/* GCC Flags Switches Group */}
+            <div className="border border-border rounded-xl p-5 space-y-4">
+              <h3 className="font-bold text-muted-foreground uppercase tracking-wider mb-2">GCC flags</h3>
+
+              {/* Visa */}
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">Visa sponsorship offered</span>
+                <Switch
+                  checked={visaSp}
+                  onCheckedChange={setVisaSp}
+                  className="data-checked:bg-[#4BC957]!"
+                />
+              </div>
+
+              {/* Emiratization */}
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">Emiratization (UAE national priority)</span>
+                <Switch
+                  checked={emiratization}
+                  onCheckedChange={setEmiratization}
+                  className="data-checked:bg-[#4BC957]!"
+                />
+              </div>
+
+              {/* Saudization */}
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">Saudization (Nitaqat-aligned)</span>
+                <Switch
+                  checked={saudization}
+                  onCheckedChange={setSaudization}
+                  className="data-checked:bg-[#4BC957]!"
+                />
+              </div>
+
+              {/* Remote */}
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-foreground">Open to remote</span>
+                <Switch
+                  checked={remote}
+                  onCheckedChange={setRemote}
+                  className="data-checked:bg-[#4BC957]!"
+                />
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex justify-start gap-3 border-t border-border pt-6">
+              <Link
+                href="/company/jobs"
+                className="border border-border hover:bg-muted text-foreground font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors text-center"
+              >
+                Cancel
+              </Link>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  "Publish & get approved"
+                )}
+              </Button>
+            </div>
+
           </div>
 
+          {/* Sidebar Info Columns (1/3 width) */}
+          <div className="space-y-6">
+
+            {/* What happens next */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                <Sparkles className="h-4.5 w-4.5 text-[#4BC957]" />
+                What happens next
+              </h3>
+              <ol className="space-y-3.5 text-muted-foreground list-decimal pl-4 leading-relaxed font-medium">
+                <li>AI scans 50,000+ candidate profiles</li>
+                <li>Top 10 ranked shortlist within minutes</li>
+                <li>Candidates appear anonymised — unlock with credits</li>
+                <li>Message directly inside the platform</li>
+              </ol>
+            </div>
+
+            {/* Cost breakdown */}
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+              <h3 className="text-sm font-bold text-foreground">Cost</h3>
+
+              <div className="space-y-3.5 font-semibold">
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Job post</span>
+                  <span className="text-foreground">5 credits</span>
+                </div>
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Top 10 shortlist</span>
+                  <span className="text-foreground">Free</span>
+                </div>
+                <div className="flex justify-between items-center text-muted-foreground">
+                  <span>Per unlock</span>
+                  <span className="text-foreground">2 credits</span>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-4 font-bold text-[#4BC957]">
+                Balance: 1,240 credits
+              </div>
+            </div>
+
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
