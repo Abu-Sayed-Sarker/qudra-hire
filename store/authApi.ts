@@ -186,6 +186,19 @@ export interface CandidateJobDetail {
   has_saved_cv: boolean;
 }
 
+export interface TailoredCv {
+  id: string;
+  job: string;
+  job_title: string;
+  status: string;
+  error: string | null;
+  score_before: number | null;
+  score_after: number | null;
+  html_url: string | null;
+  pdf_url: string | null;
+  created_at: string;
+}
+
 // ─── Candidate Application types ─────────────────────────────────────────────
 
 export interface CandidateApplicationAnswer {
@@ -850,6 +863,19 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["CandidateApplications"],
     }),
+
+    // POST /candidate/jobs/{id}/tailor-cv/
+    tailorCandidateCv: builder.mutation<ApiResponse<TailoredCv>, string>({
+      query: (id) => ({
+        url: `candidate/jobs/${id}/tailor-cv/`,
+        method: "POST",
+      }),
+    }),
+
+    // GET /candidate/tailored-cvs/{id}/
+    getTailoredCv: builder.query<ApiResponse<TailoredCv>, string>({
+      query: (id) => `candidate/tailored-cvs/${id}/`,
+    }),
   }),
 });
 
@@ -901,4 +927,6 @@ export const {
   // Candidate Job Detail
   useGetCandidateJobDetailQuery,
   useApplyToJobMutation,
+  useTailorCandidateCvMutation,
+  useGetTailoredCvQuery,
 } = authApi;

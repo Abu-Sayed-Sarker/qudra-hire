@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useGetCandidateJobDetailQuery, useApplyToJobMutation } from "@/store/authApi";
+import { useDispatch } from "react-redux";
+import { useGetCandidateJobDetailQuery, useApplyToJobMutation, useTailorCandidateCvMutation, authApi } from "@/store/authApi";
 
 function JobDetailContent() {
   const params = useSearchParams();
@@ -42,6 +43,9 @@ function JobDetailContent() {
   });
   const [applyError, setApplyError] = useState("");
 
+  const [tailorCv] = useTailorCandidateCvMutation();
+  const dispatch = useDispatch();
+
   const [tailoringSteps, setTailoringSteps] = useState([
     { id: 1, text: "Extracting keywords from job description", done: false },
     { id: 2, text: "Comparing your skills", done: false },
@@ -51,7 +55,8 @@ function JobDetailContent() {
   ]);
   const [progressWidth, setProgressWidth] = useState(0);
 
-  const startTailoring = () => {
+  const startTailoring = async () => {
+    if (!job) return;
     setRightState("tailoring");
     setProgressWidth(0);
     setTailoringSteps([
@@ -61,6 +66,8 @@ function JobDetailContent() {
       { id: 4, text: "Matching experience", done: false },
       { id: 5, text: "Updating skills section", done: false },
     ]);
+
+    // Start animation steps
     const timings = [500, 1200, 2000, 2800, 3600];
     timings.forEach((ms, idx) => {
       setTimeout(() => {
@@ -68,7 +75,50 @@ function JobDetailContent() {
         setProgressWidth((idx + 1) * 20);
       }, ms);
     });
-    setTimeout(() => setRightState("tailored"), 4500);
+
+    try {
+      // Call the tailor-cv API
+      const result = await tailorCv(job.id).unwrap();
+      const tailoredCvId = result.data.id;
+
+      // Poll until status is COMPLETED or FAILED
+      let attempts = 0;
+      const maxAttempts = 60; // 60 * 3s = 3 minutes max
+
+      const poll = async () => {
+        attempts++;
+        if (attempts > maxAttempts) {
+          setRightState("tailored");
+          return;
+        }
+        try {
+          // Use forceRefetch to bypass RTK Query cache
+          const pollResult = await dispatch(
+            authApi.endpoints.getTailoredCv.initiate(tailoredCvId, { forceRefetch: true })
+          ).unwrap();
+          const status = pollResult.data.status;
+          if (status === "COMPLETED") {
+            setRightState("tailored");
+            return;
+          }
+          if (status === "FAILED") {
+            setRightState("initial");
+            return;
+          }
+          // Still PROCESSING or PENDING — poll again after 3s
+          setTimeout(poll, 3000);
+        } catch {
+          // Transient error — retry after 3s
+          setTimeout(poll, 3000);
+        }
+      };
+
+      // Start first poll after 3s
+      setTimeout(poll, 3000);
+    } catch {
+      // API call failed, still show animation result
+      setTimeout(() => setRightState("tailored"), 4500);
+    }
   };
 
   if (isLoading) {
