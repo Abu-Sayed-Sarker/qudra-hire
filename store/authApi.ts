@@ -312,6 +312,28 @@ export interface CompanyInterviewQuestionPayload {
   order: number;
 }
 
+export interface CompanyJobApplicationAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface CompanyJobApplication {
+  id: string;
+  job: string;
+  job_title: string;
+  company_name: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  answers: CompanyJobApplicationAnswer[];
+  resume_url: string | null;
+  application_status: string;
+  status_reason: string;
+  created_at: string;
+  candidate_id: string;
+  candidate_email: string;
+}
+
 export interface CompanyInterview {
   id: string;
   company: number;
@@ -1081,6 +1103,12 @@ export const authApi = createApi({
       }),
     }),
 
+    // GET /company/jobs/{id}/applications/
+    getCompanyJobApplications: builder.query<ApiResponse<CompanyJobApplication[]>, string>({
+      query: (jobId) => `company/jobs/${jobId}/applications/`,
+      providesTags: (_r, _e, jobId) => [{ type: "CompanyJobs", id: jobId }],
+    }),
+
     // ── Admin Job endpoints ────────────────────────────────────────────────────
 
     // GET /admin/jobs/
@@ -1408,6 +1436,7 @@ export const {
   useDeleteCompanyInterviewQuestionMutation,
   useGenerateCompanyInterviewQuestionsMutation,
   useSendCompanyInterviewMutation,
+  useGetCompanyJobApplicationsQuery,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
