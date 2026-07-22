@@ -308,10 +308,7 @@ export default function PostJobPage() {
               <h3 className="text-sm font-bold text-foreground">Cost</h3>
 
               <div className="space-y-3.5 font-semibold">
-                <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Job post</span>
-                  <span className="text-foreground">5 credits</span>
-                </div>
+            
                 <div className="flex justify-between items-center text-muted-foreground">
                   <span>Top 10 shortlist</span>
                   <span className="text-foreground">Free</span>

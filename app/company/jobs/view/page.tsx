@@ -241,10 +241,7 @@ function JobViewContent() {
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
               <h3 className="text-sm font-bold text-foreground">Cost</h3>
               <div className="space-y-2 text-sm font-semibold">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Listing</span>
-                  <span className="text-foreground">5 credits</span>
-                </div>
+                
                 <div className="flex justify-between text-muted-foreground">
                   <span>Top 10 shortlist</span>
                   <span className="text-foreground">Free</span>

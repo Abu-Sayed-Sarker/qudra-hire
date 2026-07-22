@@ -24,7 +24,7 @@ import {
   useGenerateCompanyInterviewQuestionsMutation,
   useSendCompanyInterviewMutation,
 } from "@/store/authApi";
-import type { CompanyInterviewPayload } from "@/store/authApi";
+import type { CompanyJob, CompanyInterviewPayload } from "@/store/authApi";
 
 const EMPTY_PAYLOAD: CompanyInterviewPayload = {
   candidate_profile_id: 0,
@@ -50,7 +50,7 @@ function SetAIInterviewInner() {
   const interview = interviewData?.data;
 
   const [numQuestions, setNumQuestions] = useState(5);
-  const [selectedJobId, setSelectedJobId] = useState<string>("");
+  const [selectedJob, setSelectedJob] = useState<CompanyJob | null>(null);
   const [allowVoice, setAllowVoice] = useState(true);
   const [notifyComplete, setNotifyComplete] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,25 +75,25 @@ function SetAIInterviewInner() {
   const isJobLocked = !!jobIdFromUrl;
 
   React.useEffect(() => {
-    if (jobIdFromUrl && !selectedJobId) {
-      setSelectedJobId(jobIdFromUrl);
-    } else if (!jobIdFromUrl && interview?.job && !selectedJobId) {
-      setSelectedJobId(interview.job);
+    if (jobIdFromUrl && !selectedJob) {
+      const job = jobs.find((j) => j.id === jobIdFromUrl);
+      if (job) setSelectedJob(job);
+    } else if (!jobIdFromUrl && interview?.job && !selectedJob) {
+      const job = jobs.find((j) => j.id === interview.job);
+      if (job) setSelectedJob(job);
     }
-  }, [jobIdFromUrl, interview, selectedJobId]);
-
-  const selectedJob = jobs.find((j) => j.id === selectedJobId);
+  }, [jobIdFromUrl, interview, selectedJob, jobs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!candidateId || !selectedJobId) return;
+    if (!candidateId || !selectedJob) return;
     setIsSubmitting(true);
     setError(null);
 
     try {
       const result = await createInterview({
         candidate_profile_id: Number(candidateId),
-        job_id: selectedJobId,
+        job_id: selectedJob.id,
         num_questions: numQuestions,
       }).unwrap();
       window.location.href = `/company/candidates/interview?id=${candidateId}&interview_id=${result.data.id}`;
@@ -168,6 +168,7 @@ function SetAIInterviewInner() {
 
     try {
       const generated = await generateQuestions({
+        candidate_profile_id: interview.candidate_profile,
         job_id: interview.job,
         job_description: interview.role_context || "",
         num_questions: numQuestions,
@@ -196,7 +197,7 @@ function SetAIInterviewInner() {
     setSendError(null);
 
     try {
-      await sendInterview(interviewId).unwrap();
+      await sendInterview({ interview_id: interviewId }).unwrap();
       window.location.href = "/company/candidates/interview/sent";
     } catch (err: any) {
       const apiError = err?.data || err;
@@ -241,9 +242,9 @@ function SetAIInterviewInner() {
             {/* Job Selection */}
             <div className="space-y-2">
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Select Job</label>
-              <Select value={selectedJobId} onValueChange={(val) => val && setSelectedJobId(val)} disabled={isJobLocked}>
+               <Select value={selectedJob} onValueChange={(val) => setSelectedJob(val)} disabled={isJobLocked}>
                 <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
-                  <SelectValue placeholder="Select a job" />
+                  <SelectValue render={(item: any) => <span>{item?.title}</span>} placeholder="Select a job" />
                 </SelectTrigger>
                 <SelectContent>
                   {jobs.map((job) => (
@@ -274,12 +275,12 @@ function SetAIInterviewInner() {
               </div>
 
               {/* Create Interview Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting || !selectedJobId}
-              className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleSubmit}
-            >
+             <button
+               type="submit"
+               disabled={isSubmitting || !selectedJob}
+               className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+               onClick={handleSubmit}
+             >
               {isSubmitting ? (
                 <>
                   <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -485,10 +486,7 @@ function SetAIInterviewInner() {
                 <span>Questions</span>
                 <span className="text-foreground">{numQuestions}</span>
               </div>
-              <div className="flex justify-between items-center text-muted-foreground">
-                <span>Cost</span>
-                <span className="text-foreground">5 credits</span>
-              </div>
+         
              </div>
 
              {sendError && (

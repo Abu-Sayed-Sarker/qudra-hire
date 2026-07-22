@@ -1086,16 +1086,17 @@ export const authApi = createApi({
     }),
 
     // POST /company/interviews/{id}/send/
-    sendCompanyInterview: builder.mutation<ApiResponse<CompanyInterview>, string>({
-      query: (id) => ({
-        url: `company/interviews/${id}/send/`,
+    sendCompanyInterview: builder.mutation<ApiResponse<CompanyInterview>, { interview_id: string }>({
+      query: ({ interview_id }) => ({
+        url: `company/interviews/${interview_id}/send/`,
         method: "POST",
+        body: { interview_id },
       }),
-      invalidatesTags: (_r, _e, id) => [{ type: "CompanyInterviews", id }],
+      invalidatesTags: (_r, _e, { interview_id }) => [{ type: "CompanyInterviews", id: interview_id }],
     }),
 
     // POST /candidate/interview/generate-questions/
-    generateCompanyInterviewQuestions: builder.mutation<ApiResponse<string[]>, { job_id: string; job_description: string; num_questions: number }>({
+    generateCompanyInterviewQuestions: builder.mutation<ApiResponse<string[]>, { candidate_profile_id: number; job_id: string; job_description: string; num_questions: number }>({
       query: (body) => ({
         url: "candidate/interview/generate-questions/",
         method: "POST",
