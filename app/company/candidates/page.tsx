@@ -320,7 +320,7 @@ export default function CandidatesPage() {
                         <Lock className="h-3.5 w-3.5" />
                         View profile
                       </a>
-                      <a href={`/company/inbox?id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
+                      <a href={`/company/inbox?user_id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
                         <MessageSquare className="h-4 w-4" />
                       </a>
                       <a href={`/company/candidates/interview?id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">

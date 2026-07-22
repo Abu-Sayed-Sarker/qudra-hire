@@ -146,7 +146,7 @@ function CandidateProfileInner() {
             </div>
 
             <div className="flex items-center gap-2.5 self-start md:self-center">
-              <Link href={`/company/inbox?id=${candidate?.id}`} className="flex items-center gap-1.5 border border-border hover:bg-muted text-foreground px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]">
+              <Link href={`/company/inbox?user_id=${candidate?.id}`} className="flex items-center gap-1.5 border border-border hover:bg-muted text-foreground px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]">
                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
                 Message
               </Link>

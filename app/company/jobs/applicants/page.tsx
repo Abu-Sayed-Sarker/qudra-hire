@@ -441,7 +441,7 @@ export default function JobApplicantsPage() {
               <div className="flex items-center gap-2">
                 <button onClick={(e) => {
                   e.stopPropagation();
-                  router.push(`/company/inbox?id=${candidate.id}`);
+                  router.push(`/company/inbox?user_id=${candidate.id}`);
 
 
                 }} className="flex items-center gap-1.5 border border-slate-700/80 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-xl  font-bold transition-all active:scale-[0.98]">
