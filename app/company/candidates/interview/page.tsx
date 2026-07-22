@@ -22,6 +22,7 @@ import {
   useCreateCompanyInterviewQuestionMutation,
   useDeleteCompanyInterviewQuestionMutation,
   useGenerateCompanyInterviewQuestionsMutation,
+  useSendCompanyInterviewMutation,
 } from "@/store/authApi";
 import type { CompanyInterviewPayload } from "@/store/authApi";
 
@@ -58,16 +59,25 @@ function SetAIInterviewInner() {
   const [createQuestion] = useCreateCompanyInterviewQuestionMutation();
   const [deleteQuestion] = useDeleteCompanyInterviewQuestionMutation();
   const [generateQuestions] = useGenerateCompanyInterviewQuestionsMutation();
+  const [sendInterview] = useSendCompanyInterviewMutation();
 
   const [newQuestionText, setNewQuestionText] = useState("");
   const [newAnswerText, setNewAnswerText] = useState("");
   const [newQuestionOrder, setNewQuestionOrder] = useState<number>(0);
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
+  const [isSendingInterview, setIsSendingInterview] = useState(false);
   const [questionError, setQuestionError] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
+
+  React.useEffect(() => {
+    if (interview?.job && !selectedJobId) {
+      setSelectedJobId(interview.job);
+    }
+  }, [interview, selectedJobId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,6 +178,21 @@ function SetAIInterviewInner() {
       setGenerateError("Failed to generate questions. Please try again.");
     } finally {
       setIsGeneratingQuestions(false);
+    }
+  };
+
+  const handleSendInterview = async () => {
+    if (!interviewId) return;
+    setIsSendingInterview(true);
+    setSendError(null);
+
+    try {
+      await sendInterview(interviewId).unwrap();
+      window.location.href = "/company/candidates/interview/sent";
+    } catch (err) {
+      setSendError("Failed to send interview. Please try again.");
+    } finally {
+      setIsSendingInterview(false);
     }
   };
 
@@ -454,16 +479,32 @@ function SetAIInterviewInner() {
                 <span>Cost</span>
                 <span className="text-foreground">5 credits</span>
               </div>
-            </div>
+             </div>
 
-            <Link
-              href="/company/candidates/interview/sent"
-              className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98]"
-            >
-              <Send className="h-4 w-4" />
-              Send interview
-            </Link>
-          </div>
+             {sendError && (
+               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                 <p className="text-xs text-red-500 font-medium">{sendError}</p>
+               </div>
+             )}
+
+             <button
+               onClick={handleSendInterview}
+               disabled={isSendingInterview || !interviewId}
+               className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+             >
+               {isSendingInterview ? (
+                 <>
+                   <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                   Sending...
+                 </>
+               ) : (
+                 <>
+                   <Send className="h-4 w-4" />
+                   Send interview
+                 </>
+               )}
+             </button>
+           </div>
 
           {/* Under-sidebar info box */}
           <div className="border border-border bg-muted/50 rounded-2xl p-4">
