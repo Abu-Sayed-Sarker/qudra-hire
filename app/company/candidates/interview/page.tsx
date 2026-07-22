@@ -36,6 +36,7 @@ function SetAIInterviewInner() {
   const searchParams = useSearchParams();
   const candidateId = searchParams.get("id");
   const interviewId = searchParams.get("interview_id");
+  const jobIdFromUrl = searchParams.get("job_id");
   const { data: jobsData } = useGetCompanyJobsQuery();
   const { data: candidateData } = useGetCompanyCandidateDetailQuery(Number(candidateId), {
     skip: !candidateId,
@@ -71,13 +72,17 @@ function SetAIInterviewInner() {
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  const selectedJob = jobs.find((j) => j.id === selectedJobId);
+  const isJobLocked = !!jobIdFromUrl;
 
   React.useEffect(() => {
-    if (interview?.job && !selectedJobId) {
+    if (jobIdFromUrl && !selectedJobId) {
+      setSelectedJobId(jobIdFromUrl);
+    } else if (!jobIdFromUrl && interview?.job && !selectedJobId) {
       setSelectedJobId(interview.job);
     }
-  }, [interview, selectedJobId]);
+  }, [jobIdFromUrl, interview, selectedJobId]);
+
+  const selectedJob = jobs.find((j) => j.id === selectedJobId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,13 +241,13 @@ function SetAIInterviewInner() {
             {/* Job Selection */}
             <div className="space-y-2">
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Select Job</label>
-              <Select value={selectedJobId} onValueChange={(val) => val && setSelectedJobId(val)}>
+              <Select value={selectedJobId} onValueChange={(val) => val && setSelectedJobId(val)} disabled={isJobLocked}>
                 <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
                   <SelectValue placeholder="Select a job" />
                 </SelectTrigger>
                 <SelectContent>
                   {jobs.map((job) => (
-                    <SelectItem key={job.id} value={job.id}>
+                    <SelectItem key={job.id} value={job}>
                       {job.title} — {job.location}
                     </SelectItem>
                   ))}
