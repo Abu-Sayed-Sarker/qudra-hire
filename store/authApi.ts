@@ -166,6 +166,47 @@ export interface CompanyCandidatesFilters {
   max_age?: number;
 }
 
+export interface CompanyDashboardPipelineCandidate {
+  key: string;
+  label: string;
+  count: number;
+  candidates: string[];
+}
+
+export interface CompanyDashboardTopMatch {
+  id: string;
+  name: string;
+  role_title: string;
+  match_score: string;
+}
+
+export interface CompanyDashboardOpenRole {
+  id: string;
+  title: string;
+  location: string;
+  employment_type: string;
+  open_to_remote: boolean;
+  meta: string;
+  applicants: number;
+  status: string;
+}
+
+export interface CompanyDashboardStats {
+  active_jobs: number;
+  shortlisted: number;
+  messaged: number;
+  plan: string;
+}
+
+export interface CompanyDashboard {
+  company_name: string;
+  workspace_label: string;
+  stats: CompanyDashboardStats;
+  pipeline: CompanyDashboardPipelineCandidate[];
+  top_ai_matches: CompanyDashboardTopMatch[];
+  open_roles: CompanyDashboardOpenRole[];
+}
+
 export interface CandidateEducation {
   id: number;
   school: string;
@@ -730,7 +771,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "CompanyJobs", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -870,6 +911,14 @@ export const authApi = createApi({
         method: "POST",
         body: { new_password },
       }),
+    }),
+
+    // ── Company Dashboard endpoints ─────────────────────────────────────────────
+
+    // GET /company/dashboard/
+    getCompanyDashboard: builder.query<ApiResponse<CompanyDashboard>, void>({
+      query: () => "auth/company/dashboard/",
+      providesTags: ["CompanyDashboard"],
     }),
 
     // ── Company Candidate endpoints ────────────────────────────────────────────
@@ -1249,6 +1298,8 @@ export const {
   useApplyToJobMutation,
   useTailorCandidateCvMutation,
   useGetTailoredCvQuery,
+  // Company Dashboard
+  useGetCompanyDashboardQuery,
   // Company Candidates
   useGetCompanyCandidatesQuery,
   useGetCompanyCandidateDetailQuery,
