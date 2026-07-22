@@ -105,6 +105,7 @@ function JobApplicantsInner() {
       email: app.email,
       phone: app.phone,
       application_id: app.id,
+      job: app.job,
     };
   });
 
