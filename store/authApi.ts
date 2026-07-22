@@ -299,6 +299,37 @@ export interface CompanyJobPayload {
   additional_questions: any[];
 }
 
+export interface CompanyInterviewQuestion {
+  id: string;
+  question_text: string;
+  answer_text: string;
+  order: number;
+}
+
+export interface CompanyInterview {
+  id: string;
+  company: number;
+  company_name: string;
+  candidate_profile: number;
+  job: string;
+  role_context: string;
+  duration_minutes: number;
+  allow_voice_answers: boolean;
+  notify_when_complete: boolean;
+  status: string;
+  questions: CompanyInterviewQuestion[];
+  candidate_name: string;
+  job_title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanyInterviewPayload {
+  candidate_profile_id: number;
+  job_id: string;
+  num_questions: number;
+}
+
 // ─── Admin Job types ──────────────────────────────────────────────────────────
 
 export interface AdminJobListItem {
@@ -771,7 +802,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -987,6 +1018,24 @@ export const authApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: ["CompanyJobs"],
+    }),
+
+    // ── Company Interview endpoints ─────────────────────────────────────────────
+
+    // POST /company/interviews/
+    createCompanyInterview: builder.mutation<ApiResponse<CompanyInterview>, CompanyInterviewPayload>({
+      query: (body) => ({
+        url: "company/interviews/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["CompanyInterviews"],
+    }),
+
+    // GET /company/interviews/{id}/
+    getCompanyInterviewDetail: builder.query<ApiResponse<CompanyInterview>, string>({
+      query: (id) => `company/interviews/${id}/`,
+      providesTags: (_r, _e, id) => [{ type: "CompanyInterviews", id }],
     }),
 
     // ── Admin Job endpoints ────────────────────────────────────────────────────
@@ -1309,6 +1358,9 @@ export const {
   useCreateCompanyJobMutation,
   useUpdateCompanyJobMutation,
   useDeleteCompanyJobMutation,
+  // Company Interviews
+  useCreateCompanyInterviewMutation,
+  useGetCompanyInterviewDetailQuery,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
