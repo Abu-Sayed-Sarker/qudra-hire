@@ -92,8 +92,9 @@ function SetAIInterviewInner() {
         num_questions: numQuestions,
       }).unwrap();
       window.location.href = `/company/candidates/interview?id=${candidateId}&interview_id=${result.data.id}`;
-    } catch (err) {
-      setError("Failed to create interview. Please try again.");
+    } catch (err: any) {
+      const apiError = err?.data || err;
+      setError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to create interview. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -137,8 +138,9 @@ function SetAIInterviewInner() {
       setNewQuestionText("");
       setNewAnswerText("");
       setNewQuestionOrder(questions.length + 1);
-    } catch (err) {
-      setQuestionError("Failed to add question. Please try again.");
+    } catch (err: any) {
+      const apiError = err?.data || err;
+      setQuestionError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to add question. Please try again.");
     } finally {
       setIsAddingQuestion(false);
     }
@@ -148,8 +150,9 @@ function SetAIInterviewInner() {
     if (!interviewId) return;
     try {
       await deleteQuestion({ interviewId, questionId }).unwrap();
-    } catch (err) {
-      setQuestionError("Failed to delete question. Please try again.");
+    } catch (err: any) {
+      const apiError = err?.data || err;
+      setQuestionError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to delete question. Please try again.");
     }
   };
 
@@ -174,8 +177,9 @@ function SetAIInterviewInner() {
           order: questions.length + i,
         }).unwrap();
       }
-    } catch (err) {
-      setGenerateError("Failed to generate questions. Please try again.");
+    } catch (err: any) {
+      const apiError = err?.data || err;
+      setGenerateError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to generate questions. Please try again.");
     } finally {
       setIsGeneratingQuestions(false);
     }
@@ -189,8 +193,9 @@ function SetAIInterviewInner() {
     try {
       await sendInterview(interviewId).unwrap();
       window.location.href = "/company/candidates/interview/sent";
-    } catch (err) {
-      setSendError("Failed to send interview. Please try again.");
+    } catch (err: any) {
+      const apiError = err?.data || err;
+      setSendError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to send interview. Please try again.");
     } finally {
       setIsSendingInterview(false);
     }
