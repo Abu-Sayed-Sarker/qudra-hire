@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,8 @@ import {
   useGetCompanyCandidateDetailQuery,
   useCreateCompanyInterviewMutation,
   useGetCompanyInterviewDetailQuery,
+  useCreateCompanyInterviewQuestionMutation,
+  useDeleteCompanyInterviewQuestionMutation,
 } from "@/store/authApi";
 import type { CompanyInterviewPayload } from "@/store/authApi";
 
@@ -51,6 +54,14 @@ function SetAIInterviewInner() {
   const [error, setError] = useState<string | null>(null);
 
   const [createInterview] = useCreateCompanyInterviewMutation();
+  const [createQuestion] = useCreateCompanyInterviewQuestionMutation();
+  const [deleteQuestion] = useDeleteCompanyInterviewQuestionMutation();
+
+  const [newQuestionText, setNewQuestionText] = useState("");
+  const [newAnswerText, setNewAnswerText] = useState("");
+  const [newQuestionOrder, setNewQuestionOrder] = useState<number>(0);
+  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [questionError, setQuestionError] = useState<string | null>(null);
 
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
 
@@ -95,6 +106,38 @@ function SetAIInterviewInner() {
         return sum + (scoreMatch ? parseInt(scoreMatch[1], 10) : 0);
       }, 0) / questions.length)
     : 0;
+
+  const handleAddQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!interviewId || !newQuestionText.trim()) return;
+    setIsAddingQuestion(true);
+    setQuestionError(null);
+
+    try {
+      await createQuestion({
+        interviewId,
+        question_text: newQuestionText.trim(),
+        answer_text: newAnswerText.trim() || "Pending answer",
+        order: newQuestionOrder,
+      }).unwrap();
+      setNewQuestionText("");
+      setNewAnswerText("");
+      setNewQuestionOrder(questions.length + 1);
+    } catch (err) {
+      setQuestionError("Failed to add question. Please try again.");
+    } finally {
+      setIsAddingQuestion(false);
+    }
+  };
+
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (!interviewId) return;
+    try {
+      await deleteQuestion({ interviewId, questionId }).unwrap();
+    } catch (err) {
+      setQuestionError("Failed to delete question. Please try again.");
+    }
+  };
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
@@ -252,6 +295,54 @@ function SetAIInterviewInner() {
                       Transcript &amp; per-question scoring
                     </div>
 
+                    {questionError && (
+                      <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                        <p className="text-xs text-red-500 font-medium">{questionError}</p>
+                      </div>
+                    )}
+
+                    {/* Add Question Form */}
+                    <form onSubmit={handleAddQuestion} className="bg-background border border-border rounded-xl p-5 space-y-3">
+                      <h4 className="text-sm font-bold text-foreground uppercase tracking-wider">Add Question</h4>
+                      <Input
+                        type="text"
+                        placeholder="Question text"
+                        value={newQuestionText}
+                        onChange={(e) => setNewQuestionText(e.target.value)}
+                        className="bg-background border-border focus:border-[#4BC957]"
+                        required
+                      />
+                      <textarea
+                        rows={2}
+                        placeholder="Answer text"
+                        value={newAnswerText}
+                        onChange={(e) => setNewAnswerText(e.target.value)}
+                        className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-3 text-sm focus:outline-none transition-colors resize-none"
+                      />
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Order:</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={newQuestionOrder}
+                          onChange={(e) => setNewQuestionOrder(Number(e.target.value))}
+                          className="w-20 bg-background border border-border focus:border-[#4BC957] text-foreground rounded-xl px-3 py-2 text-sm focus:outline-none transition-colors"
+                        />
+                        <button
+                          type="submit"
+                          disabled={isAddingQuestion || !newQuestionText.trim()}
+                          className="flex items-center gap-1.5 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-4 py-2 rounded-xl text-sm transition-all active:scale-[0.98] disabled:opacity-50"
+                        >
+                          {isAddingQuestion ? (
+                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            <Plus className="h-4 w-4" />
+                          )}
+                          Add
+                        </button>
+                      </div>
+                    </form>
+
                     <div className="space-y-3">
                       {questions.map((item, idx) => {
                         const scoreMatch = item.answer_text.match(/(\d+)\/100/);
@@ -278,6 +369,16 @@ function SetAIInterviewInner() {
                                 className="bg-[#4BC957] h-full rounded-full transition-all duration-500"
                                 style={{ width: `${score}%` }}
                               />
+                            </div>
+
+                            <div className="flex justify-end pt-1">
+                              <button
+                                onClick={() => handleDeleteQuestion(item.id)}
+                                className="flex items-center gap-1.5 text-red-500 hover:text-red-600 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Delete
+                              </button>
                             </div>
                           </div>
                         );

@@ -306,6 +306,12 @@ export interface CompanyInterviewQuestion {
   order: number;
 }
 
+export interface CompanyInterviewQuestionPayload {
+  question_text: string;
+  answer_text: string;
+  order: number;
+}
+
 export interface CompanyInterview {
   id: string;
   company: number;
@@ -1038,6 +1044,25 @@ export const authApi = createApi({
       providesTags: (_r, _e, id) => [{ type: "CompanyInterviews", id }],
     }),
 
+    // POST /company/interviews/{id}/questions/
+    createCompanyInterviewQuestion: builder.mutation<ApiResponse<CompanyInterviewQuestion>, { interviewId: string } & CompanyInterviewQuestionPayload>({
+      query: ({ interviewId, ...body }) => ({
+        url: `company/interviews/${interviewId}/questions/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_r, _e, { interviewId }) => [{ type: "CompanyInterviews", interviewId }],
+    }),
+
+    // DELETE /company/interviews/{id}/questions/{question_pk}/
+    deleteCompanyInterviewQuestion: builder.mutation<ApiResponse<null>, { interviewId: string; questionId: string }>({
+      query: ({ interviewId, questionId }) => ({
+        url: `company/interviews/${interviewId}/questions/${questionId}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_r, _e, { interviewId }) => [{ type: "CompanyInterviews", interviewId }],
+    }),
+
     // ── Admin Job endpoints ────────────────────────────────────────────────────
 
     // GET /admin/jobs/
@@ -1361,6 +1386,8 @@ export const {
   // Company Interviews
   useCreateCompanyInterviewMutation,
   useGetCompanyInterviewDetailQuery,
+  useCreateCompanyInterviewQuestionMutation,
+  useDeleteCompanyInterviewQuestionMutation,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
