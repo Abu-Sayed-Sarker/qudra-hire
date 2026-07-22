@@ -21,6 +21,7 @@ import {
   useGetCompanyInterviewDetailQuery,
   useCreateCompanyInterviewQuestionMutation,
   useDeleteCompanyInterviewQuestionMutation,
+  useGenerateCompanyInterviewQuestionsMutation,
 } from "@/store/authApi";
 import type { CompanyInterviewPayload } from "@/store/authApi";
 
@@ -56,12 +57,15 @@ function SetAIInterviewInner() {
   const [createInterview] = useCreateCompanyInterviewMutation();
   const [createQuestion] = useCreateCompanyInterviewQuestionMutation();
   const [deleteQuestion] = useDeleteCompanyInterviewQuestionMutation();
+  const [generateQuestions] = useGenerateCompanyInterviewQuestionsMutation();
 
   const [newQuestionText, setNewQuestionText] = useState("");
   const [newAnswerText, setNewAnswerText] = useState("");
   const [newQuestionOrder, setNewQuestionOrder] = useState<number>(0);
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [questionError, setQuestionError] = useState<string | null>(null);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const selectedJob = jobs.find((j) => j.id === selectedJobId);
 
@@ -139,6 +143,34 @@ function SetAIInterviewInner() {
     }
   };
 
+  const handleGenerateQuestions = async () => {
+    if (!interviewId || !interview) return;
+    setIsGeneratingQuestions(true);
+    setGenerateError(null);
+
+    try {
+      const generated = await generateQuestions({
+        job_id: interview.job,
+        job_description: interview.role_context || "",
+        num_questions: numQuestions,
+      }).unwrap();
+
+      const questionsList = Array.isArray(generated.data) ? generated.data : [];
+      for (let i = 0; i < questionsList.length; i++) {
+        await createQuestion({
+          interviewId,
+          question_text: questionsList[i],
+          answer_text: "Pending answer",
+          order: questions.length + i,
+        }).unwrap();
+      }
+    } catch (err) {
+      setGenerateError("Failed to generate questions. Please try again.");
+    } finally {
+      setIsGeneratingQuestions(false);
+    }
+  };
+
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
       {/* Top Navigation Back */}
@@ -186,22 +218,27 @@ function SetAIInterviewInner() {
                   ))}
                 </SelectContent>
               </Select>
+              {selectedJob && (
+                <p className="text-sm text-muted-foreground font-medium pt-1">
+                  Selected: <span className="text-foreground font-semibold">{selectedJob.title}</span>
+                </p>
+              )}
             </div>
 
-            {/* Number of Questions */}
-            <div className="space-y-2">
-              <label className="font-bold text-muted-foreground uppercase tracking-wider">Number of questions</label>
-              <input
-                type="number"
-                min={1}
-                max={20}
-                value={numQuestions}
-                onChange={(e) => setNumQuestions(Number(e.target.value))}
-                className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-              />
-            </div>
+             {/* Number of Questions */}
+             <div className="space-y-2">
+               <label className="font-bold text-muted-foreground uppercase tracking-wider">Number of questions</label>
+               <input
+                 type="number"
+                 min={1}
+                 max={20}
+                 value={numQuestions}
+                 onChange={(e) => setNumQuestions(Number(e.target.value))}
+                 className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
+               />
+              </div>
 
-            {/* Create Interview Button */}
+              {/* Create Interview Button */}
             <button
               type="submit"
               disabled={isSubmitting || !selectedJobId}
@@ -267,26 +304,31 @@ function SetAIInterviewInner() {
                 </div>
               ) : (
                 <>
-                  {/* AI Overall Score Card */}
-                  <div className="bg-background border border-border rounded-xl p-6 space-y-4">
-                    <div className="flex items-center gap-2 text-xs text-[#4BC957] font-bold uppercase tracking-wider">
-                      <Sparkles className="h-4 w-4" />
-                      AI Overall Score
+                  {/* AI Generate Questions Button */}
+                  <button
+                    type="button"
+                    disabled={isGeneratingQuestions}
+                    onClick={handleGenerateQuestions}
+                    className="w-full flex items-center justify-center gap-2 bg-muted hover:bg-muted/80 border border-border text-foreground font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isGeneratingQuestions ? (
+                      <>
+                        <div className="h-4 w-4 border-2 border-muted-foreground/30 border-t-muted-foreground rounded-full animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 text-[#4BC957]" />
+                        AI Generate Questions
+                      </>
+                    )}
+                  </button>
+
+                  {generateError && (
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                      <p className="text-xs text-red-500 font-medium">{generateError}</p>
                     </div>
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-5xl font-extrabold text-foreground tracking-tight">{averageScore}</span>
-                      <span className="text-xl text-muted-foreground font-semibold">/ 100</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground font-medium">
-                      Strong hire signal. Top 8% of candidates interviewed for this role.
-                    </p>
-                    <div>
-                      <span className="inline-flex items-center gap-1.5 border border-[#4BC957]/30 text-[#4BC957] text-sm font-bold px-3 py-1.5 rounded-full bg-[#4BC957]/10">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Recommended: Move to onsite
-                      </span>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Transcript & Per-question Scoring */}
                   <div className="space-y-4">

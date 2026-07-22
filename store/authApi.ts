@@ -1063,6 +1063,15 @@ export const authApi = createApi({
       invalidatesTags: (_r, _e, { interviewId }) => [{ type: "CompanyInterviews", interviewId }],
     }),
 
+    // POST /candidate/interview/generate-questions/
+    generateCompanyInterviewQuestions: builder.mutation<ApiResponse<string[]>, { job_id: string; job_description: string; num_questions: number }>({
+      query: (body) => ({
+        url: "candidate/interview/generate-questions/",
+        method: "POST",
+        body,
+      }),
+    }),
+
     // ── Admin Job endpoints ────────────────────────────────────────────────────
 
     // GET /admin/jobs/
@@ -1388,6 +1397,7 @@ export const {
   useGetCompanyInterviewDetailQuery,
   useCreateCompanyInterviewQuestionMutation,
   useDeleteCompanyInterviewQuestionMutation,
+  useGenerateCompanyInterviewQuestionsMutation,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
