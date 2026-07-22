@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { ArrowLeft, Sparkles, Trash2, Plus, Send } from "lucide-react";
+import React, { useState, Suspense } from "react";
+import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -12,9 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useGetCompanyJobsQuery,
+  useGetCompanyCandidateDetailQuery,
   useCreateCompanyInterviewMutation,
+  useGetCompanyInterviewDetailQuery,
 } from "@/store/authApi";
 import type { CompanyInterviewPayload } from "@/store/authApi";
 
@@ -24,30 +27,32 @@ const EMPTY_PAYLOAD: CompanyInterviewPayload = {
   num_questions: 5,
 };
 
-export default function SetAIInterviewPage() {
+function SetAIInterviewInner() {
   const searchParams = useSearchParams();
   const candidateId = searchParams.get("id");
+  const interviewId = searchParams.get("interview_id");
   const { data: jobsData } = useGetCompanyJobsQuery();
+  const { data: candidateData } = useGetCompanyCandidateDetailQuery(Number(candidateId), {
+    skip: !candidateId,
+  });
+  const { data: interviewData, isLoading: isLoadingInterview, isError: isInterviewError } = useGetCompanyInterviewDetailQuery(interviewId ?? "", {
+    skip: !interviewId,
+  });
   const jobs = jobsData?.data ?? [];
+  const candidate = candidateData?.data;
+  const candidateName = candidate?.name ?? "Candidate";
+  const interview = interviewData?.data;
 
-  const [roleContext, setRoleContext] = useState("Senior Product Designer");
-  const [duration, setDuration] = useState("20 min");
-  const [selectedPack, setSelectedPack] = useState("Product design • Senior");
   const [numQuestions, setNumQuestions] = useState(5);
+  const [selectedJobId, setSelectedJobId] = useState<string>("");
   const [allowVoice, setAllowVoice] = useState(true);
   const [notifyComplete, setNotifyComplete] = useState(true);
-  const [selectedJobId, setSelectedJobId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [createInterview] = useCreateCompanyInterviewMutation();
 
-  const packs = [
-    { name: "Product design • Senior", qCount: 6, time: "20 min" },
-    { name: "Full-stack engineer • Mid", qCount: 8, time: "30 min" },
-    { name: "Behavioural • Leadership", qCount: 5, time: "15 min" },
-    { name: "Culture fit • GCC", qCount: 4, time: "12 min" }
-  ];
+  const selectedJob = jobs.find((j) => j.id === selectedJobId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,12 +61,12 @@ export default function SetAIInterviewPage() {
     setError(null);
 
     try {
-      await createInterview({
+      const result = await createInterview({
         candidate_profile_id: Number(candidateId),
         job_id: selectedJobId,
         num_questions: numQuestions,
       }).unwrap();
-      window.location.href = "/company/candidates/interview/sent";
+      window.location.href = `/company/candidates/interview?id=${candidateId}&interview_id=${result.data.id}`;
     } catch (err) {
       setError("Failed to create interview. Please try again.");
       setIsSubmitting(false);
@@ -81,6 +86,15 @@ export default function SetAIInterviewPage() {
       </div>
     );
   }
+
+  const questions = interview?.questions ?? [];
+
+  const averageScore = questions.length > 0
+    ? Math.round(questions.reduce((sum, q) => {
+        const scoreMatch = q.answer_text.match(/(\d+)\/100/);
+        return sum + (scoreMatch ? parseInt(scoreMatch[1], 10) : 0);
+      }, 0) / questions.length)
+    : 0;
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
@@ -102,20 +116,17 @@ export default function SetAIInterviewPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="h-14 w-14 rounded-full bg-muted border-2 border-border flex items-center justify-center font-extrabold text-foreground text-lg shadow-md flex-shrink-0">
-          {candidateId}
-        </div>
-        <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">AI interview setup</h1>
-          <p className="text-muted-foreground font-semibold mt-1">Candidate ID: {candidateId}</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">AI interview</h1>
+        <p className="text-muted-foreground font-semibold mt-1">{candidateName}</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Main Configuration Card (2/3 width) */}
-          <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        {/* Main Column (2/3 width) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Create Interview Form */}
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
+            <h2 className="text-lg font-bold text-foreground">Create Interview</h2>
 
             {/* Job Selection */}
             <div className="space-y-2">
@@ -134,28 +145,6 @@ export default function SetAIInterviewPage() {
               </Select>
             </div>
 
-            {/* Role Context & Duration inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="font-bold text-muted-foreground uppercase tracking-wider">Role context</label>
-                <input
-                  type="text"
-                  value={roleContext}
-                  onChange={(e) => setRoleContext(e.target.value)}
-                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="font-bold text-muted-foreground uppercase tracking-wider">Duration</label>
-                <input
-                  type="text"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
-                />
-              </div>
-            </div>
-
             {/* Number of Questions */}
             <div className="space-y-2">
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Number of questions</label>
@@ -169,28 +158,25 @@ export default function SetAIInterviewPage() {
               />
             </div>
 
-            {/* Preloaded Question Packs Grid */}
-            <div className="space-y-3">
-              <label className="font-bold text-muted-foreground uppercase tracking-wider block">Preloaded question packs</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {packs.map((pack) => {
-                  const isSelected = selectedPack === pack.name;
-                  return (
-                    <div
-                      key={pack.name}
-                      onClick={() => setSelectedPack(pack.name)}
-                      className={`p-4 rounded-xl border cursor-pointer transition-all ${isSelected
-                        ? "bg-muted border-[#4BC957]/50 shadow-[0_0_15px_-3px_rgba(0,208,124,0.15)]"
-                        : "bg-background border-border hover:border-muted-foreground/30"
-                        }`}
-                    >
-                      <p className="text-sm font-bold text-foreground">{pack.name}</p>
-                      <p className="text-[13px] text-muted-foreground font-semibold mt-1">{pack.qCount} questions • {pack.time}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Create Interview Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting || !selectedJobId}
+              className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Create Interview
+                </>
+              )}
+            </button>
 
             {/* Settings Switches */}
             <div className="border-t border-border pt-6 space-y-4">
@@ -204,65 +190,160 @@ export default function SetAIInterviewPage() {
                 <Switch checked={notifyComplete} onCheckedChange={setNotifyComplete} className="data-checked:bg-[#4BC957]!" />
               </div>
             </div>
-
           </div>
 
-          {/* Sidebar Preview Details (1/3 width) */}
-          <div className="space-y-4">
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
-              <span className="text-[13px] text-[#4BC957] bg-[#4BC957]/10 border border-[#4BC957]/20 px-2.5 py-1 rounded-full flex items-center gap-1 font-bold uppercase tracking-wider w-fit">
-                <Sparkles className="h-3.5 w-3.5" />
-                Preview
-              </span>
-
-              <p className="text-muted-foreground leading-relaxed font-medium">
-                CareerSprint AI will conduct a {numQuestions}-question interview, transcribe voice, and score answers on clarity, depth and rubric fit.
-              </p>
-
-              <div className="space-y-3.5 font-semibold pt-2">
-                <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Questions</span>
-                  <span className="text-foreground">{numQuestions}</span>
-                </div>
-                <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Estimated duration</span>
-                  <span className="text-foreground">{duration}</span>
-                </div>
-                <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Cost</span>
-                  <span className="text-foreground">5 credits</span>
+          {/* Interview Details Section (shown when interview_id is present) */}
+          {interviewId && (
+            <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-foreground">Interview Details</h2>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Status:</span>
+                  <span className="text-xs font-bold text-[#4BC957] bg-[#4BC957]/10 border border-[#4BC957]/20 px-2.5 py-1 rounded-full">
+                    {interview?.status ?? "DRAFT"}
+                  </span>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting || !selectedJobId}
-                className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Send interview
-                  </>
-                )}
-              </button>
+              {isLoadingInterview ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="bg-background border border-border rounded-xl p-5 space-y-3">
+                      <Skeleton className="h-4 w-full rounded" />
+                      <Skeleton className="h-3 w-3/4 rounded" />
+                      <Skeleton className="h-2 w-full rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : isInterviewError ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <p className="text-sm text-red-500 font-medium mb-2">Failed to load interview details.</p>
+                  <button onClick={() => window.location.reload()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* AI Overall Score Card */}
+                  <div className="bg-background border border-border rounded-xl p-6 space-y-4">
+                    <div className="flex items-center gap-2 text-xs text-[#4BC957] font-bold uppercase tracking-wider">
+                      <Sparkles className="h-4 w-4" />
+                      AI Overall Score
+                    </div>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-5xl font-extrabold text-foreground tracking-tight">{averageScore}</span>
+                      <span className="text-xl text-muted-foreground font-semibold">/ 100</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground font-medium">
+                      Strong hire signal. Top 8% of candidates interviewed for this role.
+                    </p>
+                    <div>
+                      <span className="inline-flex items-center gap-1.5 border border-[#4BC957]/30 text-[#4BC957] text-sm font-bold px-3 py-1.5 rounded-full bg-[#4BC957]/10">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Recommended: Move to onsite
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Transcript & Per-question Scoring */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-bold uppercase tracking-wider">
+                      <Mic className="h-4 w-4 text-muted-foreground shrink-0" />
+                      Transcript &amp; per-question scoring
+                    </div>
+
+                    <div className="space-y-3">
+                      {questions.map((item, idx) => {
+                        const scoreMatch = item.answer_text.match(/(\d+)\/100/);
+                        const score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+                        return (
+                          <div
+                            key={item.id}
+                            className="bg-background border border-border rounded-xl p-5 space-y-2 transition-all"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <p className="text-sm font-bold text-foreground leading-snug">{item.question_text}</p>
+                              <span className="text-sm font-bold text-[#4BC957] bg-[#4BC957]/10 border border-[#4BC957]/20 px-2.5 py-1 rounded-lg flex-shrink-0">
+                                {score}/100
+                              </span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Mic className="h-3.5 w-3.5 text-[#4BC957] mt-0.5 flex-shrink-0" />
+                              <p className="text-sm text-[#4BC957] font-medium leading-relaxed">{item.answer_text}</p>
+                            </div>
+
+                            {/* Per-question progress bar */}
+                            <div className="w-full bg-muted h-1 rounded-full overflow-hidden mt-2">
+                              <div
+                                className="bg-[#4BC957] h-full rounded-full transition-all duration-500"
+                                style={{ width: `${score}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar Preview Details (1/3 width) */}
+        <div className="space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
+            <span className="text-[13px] text-[#4BC957] bg-[#4BC957]/10 border border-[#4BC957]/20 px-2.5 py-1 rounded-full flex items-center gap-1 font-bold uppercase tracking-wider w-fit">
+              <Sparkles className="h-3.5 w-3.5" />
+              Preview
+            </span>
+
+            <p className="text-muted-foreground leading-relaxed font-medium">
+              CareerSprint AI will conduct a {numQuestions}-question interview, transcribe voice, and score answers on clarity, depth and rubric fit.
+            </p>
+
+            <div className="space-y-3.5 font-semibold pt-2">
+              <div className="flex justify-between items-center text-muted-foreground">
+                <span>Questions</span>
+                <span className="text-foreground">{numQuestions}</span>
+              </div>
+              <div className="flex justify-between items-center text-muted-foreground">
+                <span>Cost</span>
+                <span className="text-foreground">5 credits</span>
+              </div>
             </div>
 
-            {/* Under-sidebar info box */}
-            <div className="border border-border bg-muted/50 rounded-2xl p-4">
-              <p className="text-[13px] text-muted-foreground leading-relaxed font-medium">
-                Candidates get a link to complete the interview anytime within 48 hours. You receive a scored report instantly after submission.
-              </p>
-            </div>
+            <Link
+              href="/company/candidates/interview/sent"
+              className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98]"
+            >
+              <Send className="h-4 w-4" />
+              Send interview
+            </Link>
           </div>
 
+          {/* Under-sidebar info box */}
+          <div className="border border-border bg-muted/50 rounded-2xl p-4">
+            <p className="text-[13px] text-muted-foreground leading-relaxed font-medium">
+              Candidates get a link to complete the interview anytime within 48 hours. You receive a scored report instantly after submission.
+            </p>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
+  );
+}
+
+export default function SetAIInterviewPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-[#4BC957]" />
+        </div>
+      </div>
+    }>
+      <SetAIInterviewInner />
+    </Suspense>
   );
 }
