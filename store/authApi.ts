@@ -1522,6 +1522,18 @@ export const authApi = createApi({
       query: () => "subscriptions/plans/",
     }),
 
+    // POST /subscriptions/stripe/checkout-session/
+    createStripeCheckoutSession: builder.mutation<
+      ApiResponse<{ checkout_url: string; session_id: string }>,
+      { plan_id: string; profile_id: number }
+    >({
+      query: (body) => ({
+        url: "subscriptions/stripe/checkout-session/",
+        method: "POST",
+        body,
+      }),
+    }),
+
     // ── Notification endpoints ──────────────────────────────────────────────
 
     // GET /notifications/
@@ -1670,6 +1682,7 @@ export const {
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,
+  useCreateStripeCheckoutSessionMutation,
   // Notifications
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,

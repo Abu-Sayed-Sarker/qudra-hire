@@ -1,18 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Zap, Star, ShieldCheck, Lock, Loader2 } from "lucide-react";
-import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useSwitchCandidateProfileMutation } from "@/store/authApi";
+import { Check, Zap, Star, ShieldCheck, Lock, Loader2, CreditCard } from "lucide-react";
+import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useSwitchCandidateProfileMutation, useCreateStripeCheckoutSessionMutation } from "@/store/authApi";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function CandidateSubscriptionPage() {
   const { data: historyData, isLoading: historyLoading } = useGetSubscriptionHistoryQuery();
   const { data: plansData, isLoading: plansLoading } = useGetSubscriptionPlansQuery();
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [switchProfile, { isLoading: isSwitching }] = useSwitchCandidateProfileMutation();
+  const [createCheckoutSession, { isLoading: isCheckingOut }] = useCreateStripeCheckoutSessionMutation();
 
   const [yearly, setYearly] = useState(false);
   const [switchingId, setSwitchingId] = useState<number | null>(null);
+
+  // Checkout popup state
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{ id: string; name: string; price: string } | null>(null);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
 
   const history = historyData?.data ?? [];
   const allPlans = plansData?.data ?? [];
@@ -34,6 +48,32 @@ export default function CandidateSubscriptionPage() {
       toast.error("Failed to switch profile");
     } finally {
       setSwitchingId(null);
+    }
+  };
+
+  const openCheckout = (plan: { id: string; name: string; price: string }) => {
+    setSelectedPlan(plan);
+    // Default to first profile if only one exists
+    if (profiles.length === 1) {
+      setSelectedProfileId(profiles[0].id);
+    } else {
+      setSelectedProfileId(null);
+    }
+    setCheckoutOpen(true);
+  };
+
+  const handleCheckout = async () => {
+    if (!selectedPlan || !selectedProfileId) return;
+    try {
+      const result = await createCheckoutSession({
+        plan_id: selectedPlan.id,
+        profile_id: selectedProfileId,
+      }).unwrap();
+      setCheckoutOpen(false);
+      // Redirect to Stripe checkout
+      window.location.href = result.data.checkout_url;
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to create checkout session");
     }
   };
 
@@ -193,7 +233,14 @@ export default function CandidateSubscriptionPage() {
                     <span className="text-3xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
                     <span className="text-sm text-muted-foreground">{freePlan.renewal}</span>
                   </div>
-                  <button className="w-full h-11 rounded-xl font-bold text-sm border border-border text-foreground hover:bg-muted transition-all mb-5">
+                  <button
+                    onClick={() => {
+                      if (activeSub?.plan_name !== freePlan.name) {
+                        openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price });
+                      }
+                    }}
+                    className="w-full h-11 rounded-xl font-bold text-sm border border-border text-foreground hover:bg-muted transition-all mb-5"
+                  >
                     {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
                   </button>
                   <div className="border-t border-border mb-4" />
@@ -225,7 +272,14 @@ export default function CandidateSubscriptionPage() {
                   <span className="text-3xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
                   <span className="text-sm text-slate-600 dark:text-slate-400">/ month</span>
                 </div>
-                <button className="w-full h-11 rounded-xl font-bold text-sm bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/20 transition-all mb-5">
+                <button
+                  onClick={() => {
+                    if (activeSub?.plan_name !== premiumPlan.name) {
+                      openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price });
+                    }
+                  }}
+                  className="w-full h-11 rounded-xl font-bold text-sm bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/20 transition-all mb-5"
+                >
                   {activeSub?.plan_name === premiumPlan.name ? "Active" : "Upgrade to Premium"}
                 </button>
                 <div className="border-t border-green-200 dark:border-white/10 mb-4" />
@@ -286,6 +340,87 @@ export default function CandidateSubscriptionPage() {
         </div>
 
       </div>
+
+      {/* Checkout Popup */}
+      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-[#4BC957]" />
+              Confirm Purchase
+            </DialogTitle>
+            <DialogDescription>
+              Select a profile for this subscription, then confirm to proceed to checkout.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Plan summary */}
+            {selectedPlan && (
+              <div className="bg-muted/50 border border-border rounded-xl px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-foreground">{selectedPlan.name}</p>
+                  <p className="text-xs text-muted-foreground">Subscription plan</p>
+                </div>
+                <p className="text-lg font-extrabold text-foreground">AED {Number(selectedPlan.price)}</p>
+              </div>
+            )}
+
+            {/* Profile selection */}
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-2">Select profile</p>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {profiles.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">No profiles found. Create a profile first.</p>
+                ) : (
+                  profiles.map((profile) => (
+                    <label
+                      key={profile.id}
+                      className={`flex items-center gap-3 border rounded-xl px-4 py-3 cursor-pointer transition-all ${
+                        selectedProfileId === profile.id
+                          ? "border-[#4BC957] bg-[#4BC957]/5"
+                          : "border-border hover:border-muted-foreground/30"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="checkout-profile"
+                        value={profile.id}
+                        checked={selectedProfileId === profile.id}
+                        onChange={() => setSelectedProfileId(profile.id)}
+                        className="accent-[#4BC957]"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{profile.role_title || `Profile ${profile.id}`}</p>
+                        <p className="text-xs text-muted-foreground truncate">{profile.industry || "No industry"} &bull; {profile.location || "No location"}</p>
+                      </div>
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={() => setCheckoutOpen(false)}
+              disabled={isCheckingOut}
+              className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCheckout}
+              disabled={!selectedProfileId || isCheckingOut}
+              className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {isCheckingOut && <Loader2 className="h-4 w-4 animate-spin" />}
+              <CreditCard className="h-4 w-4" />
+              Confirm & Pay
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
