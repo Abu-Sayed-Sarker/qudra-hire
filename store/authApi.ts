@@ -525,6 +525,26 @@ export interface CandidateCvData {
   parsed_skills: string[];
 }
 
+export interface AutoSuggestTaskData {
+  task_id: string;
+  candidate_id: string;
+  status: string;
+  status_url: string;
+}
+
+export interface AutoSuggestResultData {
+  ats_score: number;
+  parsed_skills: string[];
+  suggestions: string[];
+}
+
+export interface AutoSuggestStatusData {
+  task_id: string;
+  status: string;
+  result: AutoSuggestResultData;
+  error: string | null;
+}
+
 // ─── Admin Application types ─────────────────────────────────────────────────
 
 export interface AdminApplicationItem {
@@ -1343,12 +1363,17 @@ export const authApi = createApi({
     }),
 
     // POST /auth/candidate/cv/auto-suggest/
-    autoSuggestCandidateCv: builder.mutation<ApiResponse<{ suggestions: string[] }>, void>({
+    autoSuggestCandidateCv: builder.mutation<ApiResponse<AutoSuggestTaskData>, void>({
       query: () => ({
         url: "auth/candidate/cv/auto-suggest/",
         method: "POST",
       }),
       invalidatesTags: ["CandidateCv"],
+    }),
+
+    // GET /auth/candidate/cv/auto-suggest/status/{task_id}/
+    getAutoSuggestStatus: builder.query<ApiResponse<AutoSuggestStatusData>, string>({
+      query: (taskId) => `auth/candidate/cv/auto-suggest/status/${taskId}/`,
     }),
 
     // ── Subscription endpoints ──────────────────────────────────────────────
@@ -1481,6 +1506,7 @@ export const {
   useUploadCandidateCvMutation,
   useDownloadCandidateCvMutation,
   useAutoSuggestCandidateCvMutation,
+  useGetAutoSuggestStatusQuery,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates
