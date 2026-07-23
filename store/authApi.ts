@@ -1346,9 +1346,9 @@ export const authApi = createApi({
       invalidatesTags: ["CandidateCv"],
     }),
 
-    // GET /auth/candidate/cv/download/ → returns binary blob
-    downloadCandidateCv: builder.mutation<Blob, void>({
-      queryFn: async (_arg: void, queryApi: any) => {
+    // GET /auth/candidate/cv/download/ → triggers browser download
+    downloadCandidateCv: builder.mutation<void, { filename?: string }>({
+      queryFn: async (_arg, queryApi) => {
         const token = (queryApi.getState() as RootState).auth.accessToken;
         const response: Response = await fetch(`${BASE_URL}/auth/candidate/cv/download/`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -1357,9 +1357,16 @@ export const authApi = createApi({
           return { error: { status: response.status, data: response.statusText } };
         }
         const blob: Blob = await response.blob();
-        return { data: blob };
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = _arg?.filename || "cv.pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return { data: undefined };
       },
-      invalidatesTags: ["CandidateCv"],
     }),
 
     // POST /auth/candidate/cv/auto-suggest/

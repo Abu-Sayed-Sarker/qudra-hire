@@ -139,15 +139,7 @@ export default function CandidateCVPage() {
 
   const handleDownload = async () => {
     try {
-      const blob = await downloadCv(undefined).unwrap();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = cvData?.data?.cv_name || "cv.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      await downloadCv({ filename: cvData?.data?.cv_name || "cv.pdf" }).unwrap();
       toast.success("Download started");
     } catch {
       toast.error("Failed to download CV");
