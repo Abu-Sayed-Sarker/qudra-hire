@@ -254,23 +254,25 @@ export default function CandidateCVPage() {
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <button
-                onClick={(e) => { e.stopPropagation(); handleUpload(); }}
-                disabled={!selectedFile || isUploading}
-                className="bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white font-bold px-5 py-2.5 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isUploading ? (
-                  <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Uploading...</span>
-                ) : (
-                  "Upload CV"
-                )}
-              </button>
               {selectedFile && (
                 <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-xs">
                   Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                 </p>
               )}
             </div>
+
+            {/* Upload Button (outside dropzone) */}
+            <button
+              onClick={handleUpload}
+              disabled={!selectedFile || isUploading}
+              className="w-full bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white font-bold px-5 py-3 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploading ? (
+                <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Uploading...</span>
+              ) : (
+                <span className="flex items-center justify-center gap-2"><Upload className="h-4 w-4" /> Upload CV</span>
+              )}
+            </button>
           </div>
 
           {/* Action buttons */}

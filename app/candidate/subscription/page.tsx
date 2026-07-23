@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Check, Zap, Star, ShieldCheck, Lock, Loader2, CreditCard } from "lucide-react";
-import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useSwitchCandidateProfileMutation, useCreateStripeCheckoutSessionMutation } from "@/store/authApi";
+import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useCreateStripeCheckoutSessionMutation } from "@/store/authApi";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -17,11 +17,9 @@ export default function CandidateSubscriptionPage() {
   const { data: historyData, isLoading: historyLoading } = useGetSubscriptionHistoryQuery();
   const { data: plansData, isLoading: plansLoading } = useGetSubscriptionPlansQuery();
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
-  const [switchProfile, { isLoading: isSwitching }] = useSwitchCandidateProfileMutation();
   const [createCheckoutSession, { isLoading: isCheckingOut }] = useCreateStripeCheckoutSessionMutation();
 
   const [yearly, setYearly] = useState(false);
-  const [switchingId, setSwitchingId] = useState<number | null>(null);
 
   // Checkout popup state
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -38,18 +36,6 @@ export default function CandidateSubscriptionPage() {
   const premiumPlan = plans.find((p) => p.plan_type === "Premium");
 
   const isLoading = historyLoading || plansLoading || profilesLoading;
-
-  const handleSwitchProfile = async (profileId: number) => {
-    setSwitchingId(profileId);
-    try {
-      const result = await switchProfile(profileId).unwrap();
-      toast.success(result.details || "Profile switched successfully");
-    } catch {
-      toast.error("Failed to switch profile");
-    } finally {
-      setSwitchingId(null);
-    }
-  };
 
   const openCheckout = (plan: { id: string; name: string; price: string }) => {
     setSelectedPlan(plan);
@@ -123,54 +109,6 @@ export default function CandidateSubscriptionPage() {
           </div>
         </div>
 
-        {/* Career Profiles */}
-        <div>
-          <h2 className="text-lg font-bold text-foreground mb-3">Your career profiles</h2>
-          <div className="space-y-3">
-            {profiles.length === 0 ? (
-              <div className="bg-card border border-border rounded-xl px-5 py-8 shadow-sm text-center">
-                <p className="text-sm text-muted-foreground">No profiles yet. Create one from the CV page.</p>
-              </div>
-            ) : (
-              profiles.map((profile) => {
-                const isActive = profile.ai_status === "ACTIVE" || profile.id === profiles[0]?.id;
-                const isSwitching = switchingId === profile.id;
-                return (
-                  <div key={profile.id} className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-[#4BC957]/15">
-                          <Check className="w-4 h-4 text-[#4BC957]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-foreground text-sm leading-tight">{profile.role_title || `Profile ${profile.id}`}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{profile.industry || "No industry"} &bull; {profile.location || "No location"}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{profile.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {isActive ? (
-                          <span className="text-[11px] font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 rounded px-2 py-0.5">
-                            Active
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleSwitchProfile(profile.id)}
-                            disabled={isSwitching}
-                            className="text-xs font-bold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isSwitching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Select"}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
         {/* Active Subscription */}
         {activeSub && (
           <div>
@@ -234,14 +172,10 @@ export default function CandidateSubscriptionPage() {
                     <span className="text-sm text-muted-foreground">{freePlan.renewal}</span>
                   </div>
                   <button
-                    onClick={() => {
-                      if (activeSub?.plan_name !== freePlan.name) {
-                        openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price });
-                      }
-                    }}
+                    onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
                     className="w-full h-11 rounded-xl font-bold text-sm border border-border text-foreground hover:bg-muted transition-all mb-5"
                   >
-                    {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
+                    Get started free
                   </button>
                   <div className="border-t border-border mb-4" />
                   <ul className="space-y-2.5 flex-1">
@@ -273,14 +207,10 @@ export default function CandidateSubscriptionPage() {
                   <span className="text-sm text-slate-600 dark:text-slate-400">/ month</span>
                 </div>
                 <button
-                  onClick={() => {
-                    if (activeSub?.plan_name !== premiumPlan.name) {
-                      openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price });
-                    }
-                  }}
+                  onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
                   className="w-full h-11 rounded-xl font-bold text-sm bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/20 transition-all mb-5"
                 >
-                  {activeSub?.plan_name === premiumPlan.name ? "Active" : "Upgrade to Premium"}
+                  Upgrade to Premium
                 </button>
                 <div className="border-t border-green-200 dark:border-white/10 mb-4" />
                 <ul className="space-y-2.5 flex-1">

@@ -18,6 +18,7 @@ import {
   Loader2,
   AlertCircle,
   Pencil,
+  Star,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -45,6 +46,8 @@ export default function CandidateProfilePage() {
   const [deleteProfile, { isLoading: isDeleting }] = useDeleteCandidateProfileMutation();
 
   const profile = profileRes?.data;
+
+  const [isDefault, setIsDefault] = useState(false);
 
   // ── Form state ──
   const [form, setForm] = useState({
@@ -100,6 +103,7 @@ export default function CandidateProfilePage() {
     setSkills(profile.skills ?? []);
     setProjects(profile.projects ?? []);
     setCertifications(profile.certifications ?? []);
+    setIsDefault(profile.is_default ?? false);
   }, [profile]);
 
   // ── Generic field updater ──
@@ -245,6 +249,17 @@ export default function CandidateProfilePage() {
     }
   }
 
+  // ── Set as default ──
+  async function handleSetDefault() {
+    try {
+      await patchProfile({ id, body: { is_default: true } as any }).unwrap();
+      setIsDefault(true);
+      toast.success("Profile set as default");
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to set default profile");
+    }
+  }
+
   // ── Loading / Error states ──
   if (isLoading) {
     return (
@@ -293,6 +308,15 @@ export default function CandidateProfilePage() {
               </>
             ) : (
               <>
+                {isDefault ? (
+                  <span className="text-sm font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 px-4 py-2 rounded-lg flex items-center gap-1.5">
+                    <Star className="h-3.5 w-3.5 fill-[#4BC957]" /> Default
+                  </span>
+                ) : (
+                  <button onClick={handleSetDefault} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+                    <Star className="h-3.5 w-3.5" /> Set as default
+                  </button>
+                )}
                 <button onClick={handleDelete} disabled={isDeleting} className="text-sm font-semibold border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
                   {isDeleting ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : <Trash2 className="h-4 w-4 inline mr-1" />}
                   Delete
