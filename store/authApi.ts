@@ -545,6 +545,29 @@ export interface AutoSuggestStatusData {
   error: string | null;
 }
 
+export interface CandidateProfile {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role_title: string;
+  industry: string;
+  about_me: string | null;
+  phone_whatsapp: string;
+  location: string;
+  linkedin: string | null;
+  website_portfolio: string | null;
+  cv: string;
+  age: string | null;
+  gender: string | null;
+  ai_status: string;
+  educations: any[];
+  experiences: any[];
+  skills: string[];
+  projects: any[];
+  certifications: any[];
+}
+
 // ─── Admin Application types ─────────────────────────────────────────────────
 
 export interface AdminApplicationItem {
@@ -862,7 +885,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1383,6 +1406,25 @@ export const authApi = createApi({
       query: (taskId) => `auth/candidate/cv/auto-suggest/status/${taskId}/`,
     }),
 
+    // ── Candidate Profile endpoints ────────────────────────────────────────────
+
+    // GET /auth/candidate/profiles/
+    getCandidateProfiles: builder.query<ApiResponse<CandidateProfile[]>, void>({
+      query: () => "auth/candidate/profiles/",
+      providesTags: ["CandidateProfiles"],
+    }),
+
+    // POST /auth/candidate/profiles/  (multipart/form-data)
+    createCandidateProfile: builder.mutation<ApiResponse<CandidateProfile>, FormData>({
+      query: (formData) => ({
+        url: "auth/candidate/profiles/",
+        method: "POST",
+        body: formData,
+        formData: true,
+      }),
+      invalidatesTags: ["CandidateProfiles"],
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1514,6 +1556,9 @@ export const {
   useDownloadCandidateCvMutation,
   useAutoSuggestCandidateCvMutation,
   useGetAutoSuggestStatusQuery,
+  // Candidate Profiles
+  useGetCandidateProfilesQuery,
+  useCreateCandidateProfileMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates

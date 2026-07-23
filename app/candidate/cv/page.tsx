@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Upload,
   FileText,
@@ -74,13 +74,8 @@ export default function CandidateCVPage() {
     }
   }, [statusData?.data?.status, taskId]);
 
-  useEffect(() => {
-    if (cvData?.data && !taskId && !analysis) {
-      triggerAutoSuggest();
-    }
-  }, [cvData?.data]);
-
-  const triggerAutoSuggest = async () => {
+  const triggerAutoSuggest = useCallback(async () => {
+    if (!cvData?.data) return;
     try {
       const result = await autoSuggest(undefined).unwrap();
       if (result.data?.task_id) {
@@ -91,7 +86,13 @@ export default function CandidateCVPage() {
     } catch {
       toast.error("Failed to start auto-suggest");
     }
-  };
+  }, [autoSuggest, cvData]);
+
+  useEffect(() => {
+    if (mounted && cvData?.data && !taskId && !analysis) {
+      triggerAutoSuggest();
+    }
+  }, [mounted, cvData, taskId, analysis, triggerAutoSuggest]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -131,7 +132,6 @@ export default function CandidateCVPage() {
       setAnalysis(null);
       setTaskId(null);
       await refetchCv();
-      triggerAutoSuggest();
     } catch {
       toast.error("Failed to upload CV");
     }
@@ -146,20 +146,7 @@ export default function CandidateCVPage() {
     }
   };
 
-  if (!mounted) {
-    return (
-      <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto text-slate-900 dark:text-white">
-        <div className="space-y-2">
-          <div className="h-8 w-64 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
-          <div className="h-4 w-80 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
-        </div>
-        <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse" />
-        <div className="h-80 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse" />
-      </div>
-    );
-  }
-
-  if (isLoading) {
+  if (!mounted || isLoading) {
     return (
       <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto text-slate-900 dark:text-white">
         <div className="space-y-2">
@@ -188,6 +175,18 @@ export default function CandidateCVPage() {
   const atsScore = analysis?.ats_score ?? 0;
   const parsedSkills = analysis?.parsed_skills ?? [];
   const suggestions = analysis?.suggestions ?? [];
+
+  const suggestIcon = isAnalyzing || isSuggesting ? (
+    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+  ) : (
+    <Sparkles className="h-3.5 w-3.5" />
+  );
+
+  const downloadIcon = isDownloading ? (
+    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+  ) : (
+    <Download className="h-3.5 w-3.5" />
+  );
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto text-slate-900 dark:text-white">
@@ -281,7 +280,7 @@ export default function CandidateCVPage() {
               disabled={!hasCv || isAnalyzing || isPolling}
               className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-md shadow-green-500/10 dark:shadow-[#4BC957]/10 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-             
+              {suggestIcon}
               Auto suggest
             </button>
             <button
@@ -289,7 +288,7 @@ export default function CandidateCVPage() {
               disabled={!hasCv || isDownloading}
               className="flex items-center gap-1.5 border border-slate-300 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              
+              {downloadIcon}
               Download
             </button>
           </div>
