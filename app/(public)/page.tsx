@@ -254,7 +254,7 @@ export default function HomePage() {
                 <h3 className="text-2xl font-bold text-on-surface mb-3">For Candidates</h3>
                 <p className="text-on-surface-muted mb-8 text-sm leading-relaxed">Land roles faster with AI-tailored CVs, cover letters, and daily matches.</p>
                 <ul className="space-y-4 mb-10 flex-1">
-                  {["Auto-apply", "ATS tracking", "Application tracking", "Direct messaging", "Credit wallet"].map(item => (
+                  {["AI Auto-apply", "ATS tracking", "Application tracking", "Company direct messaging", "Ai resume builder"].map(item => (
                     <li key={item} className="flex items-center gap-3 text-sm text-on-surface-muted font-medium">
                       <CheckCircle2 className="h-4 w-4 text-[#4BC957]" />{item}
                     </li>
@@ -276,7 +276,7 @@ export default function HomePage() {
                 <h3 className="text-2xl font-bold text-on-surface mb-3">For Companies</h3>
                 <p className="text-on-surface-muted mb-8 text-sm leading-relaxed">Instantly shortlisted candidates, ranked by fit. Hire in days, not months.</p>
                 <ul className="space-y-4 mb-10 flex-1">
-                  {["AI candidate ranking", "Instant shortlists", "Top candidate Unlock by credits", "Pipeline overview", "Bilingual posts"].map(item => (
+                  {["AI candidate ranking", "Instant shortlists","3 Job posts per subscription",  "Pipeline overview", "AI Candidate Interview"].map(item => (
                     <li key={item} className="flex items-center gap-3 text-sm text-on-surface-muted font-medium">
                       <CheckCircle2 className="h-4 w-4 text-[#4BC957]" />{item}
                     </li>

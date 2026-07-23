@@ -356,6 +356,9 @@ export interface CompanyInterviewPayload {
   candidate_profile_id: number;
   job_id: string;
   num_questions: number;
+  allow_voice_answers: boolean;
+  notify_when_complete: boolean;
+  duration_minutes: number;
 }
 
 // ─── Admin Job types ──────────────────────────────────────────────────────────
@@ -730,7 +733,7 @@ export interface AdminCompanyListItem {
   approval_status: string;
   is_suspended: boolean;
   since: string;
-  subscription:string;
+  subscription: string;
 }
 
 export interface AdminCompanyDetail {
@@ -1102,6 +1105,7 @@ export const authApi = createApi({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["CompanyInterviews"],
     }),
 
     // GET /company/jobs/{id}/applications/

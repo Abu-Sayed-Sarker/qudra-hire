@@ -26,11 +26,6 @@ import {
 } from "@/store/authApi";
 import type { CompanyJob, CompanyInterviewPayload } from "@/store/authApi";
 
-const EMPTY_PAYLOAD: CompanyInterviewPayload = {
-  candidate_profile_id: 0,
-  job_id: "",
-  num_questions: 5,
-};
 
 function SetAIInterviewInner() {
   const searchParams = useSearchParams();
@@ -53,6 +48,7 @@ function SetAIInterviewInner() {
   const [selectedJob, setSelectedJob] = useState<CompanyJob | null>(null);
   const [allowVoice, setAllowVoice] = useState(true);
   const [notifyComplete, setNotifyComplete] = useState(true);
+  const [durationMinutes, setDurationMinutes] = useState(20);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +91,9 @@ function SetAIInterviewInner() {
         candidate_profile_id: Number(candidateId),
         job_id: selectedJob.id,
         num_questions: numQuestions,
+        allow_voice_answers: allowVoice,
+        notify_when_complete: notifyComplete,
+        duration_minutes: durationMinutes,
       }).unwrap();
       window.location.href = `/company/candidates/interview?id=${candidateId}&interview_id=${result.data.id}`;
     } catch (err: any) {
@@ -272,9 +271,22 @@ function SetAIInterviewInner() {
                  onChange={(e) => setNumQuestions(Number(e.target.value))}
                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
                />
-              </div>
+             </div>
 
-              {/* Create Interview Button */}
+             {/* Duration Minutes */}
+             <div className="space-y-2">
+               <label className="font-bold text-muted-foreground uppercase tracking-wider">Duration (minutes)</label>
+               <input
+                 type="number"
+                 min={1}
+                 max={120}
+                 value={durationMinutes}
+                 onChange={(e) => setDurationMinutes(Number(e.target.value))}
+                 className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
+               />
+             </div>
+
+             {/* Create Interview Button */}
              <button
                type="submit"
                disabled={isSubmitting || !selectedJob}
