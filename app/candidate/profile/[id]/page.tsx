@@ -589,42 +589,46 @@ export default function CandidateProfilePage() {
               <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◆</span>
               <h2 className="text-base font-bold text-foreground">Projects</h2>
             </div>
-            <button onClick={addProject} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-              <Plus className="w-3 h-3" /> Add project
-            </button>
+            {isEditing && (
+              <button onClick={addProject} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                <Plus className="w-3 h-3" /> Add project
+              </button>
+            )}
           </div>
 
           <div className="space-y-6">
             {projects.map((proj, i) => (
               <div key={proj.id ?? `new-proj-${i}`} className="border border-border rounded-xl p-5 relative">
-                <button onClick={() => removeProject(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {isEditing && (
+                  <button onClick={() => removeProject(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{proj.title || `Project ${i + 1}`}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2 space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Title *</label>
-                    <input type="text" value={proj.title} onChange={(e) => updateProject(i, "title", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={proj.title} onChange={(e) => updateProject(i, "title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="col-span-2 space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
-                    <textarea rows={2} value={proj.description} onChange={(e) => updateProject(i, "description", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
+                    <textarea rows={2} value={proj.description} onChange={(e) => updateProject(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">URL</label>
-                    <input type="text" value={proj.url} onChange={(e) => updateProject(i, "url", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={proj.url} onChange={(e) => updateProject(i, "url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Technologies</label>
-                    <input type="text" value={proj.technologies} onChange={(e) => updateProject(i, "technologies", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={proj.technologies} onChange={(e) => updateProject(i, "technologies", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Start date</label>
-                    <input type="date" value={proj.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "start_date", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="date" value={proj.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">End date</label>
-                    <input type="date" value={proj.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "end_date", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="date" value={proj.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "end_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                 </div>
               </div>
@@ -642,42 +646,46 @@ export default function CandidateProfilePage() {
               <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◈</span>
               <h2 className="text-base font-bold text-foreground">Certifications</h2>
             </div>
-            <button onClick={addCertification} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-              <Plus className="w-3 h-3" /> Add certification
-            </button>
+            {isEditing && (
+              <button onClick={addCertification} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                <Plus className="w-3 h-3" /> Add certification
+              </button>
+            )}
           </div>
 
           <div className="space-y-6">
             {certifications.map((cert, i) => (
               <div key={cert.id ?? `new-cert-${i}`} className="border border-border rounded-xl p-5 relative">
-                <button onClick={() => removeCertification(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {isEditing && (
+                  <button onClick={() => removeCertification(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{cert.name || `Certification ${i + 1}`}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Name *</label>
-                    <input type="text" value={cert.name} onChange={(e) => updateCertification(i, "name", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={cert.name} onChange={(e) => updateCertification(i, "name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Issuing organization</label>
-                    <input type="text" value={cert.issuing_organization} onChange={(e) => updateCertification(i, "issuing_organization", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={cert.issuing_organization} onChange={(e) => updateCertification(i, "issuing_organization", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Issue date</label>
-                    <input type="date" value={cert.issue_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "issue_date", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="date" value={cert.issue_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "issue_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Expiration date</label>
-                    <input type="date" value={cert.expiration_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "expiration_date", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="date" value={cert.expiration_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "expiration_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Credential ID</label>
-                    <input type="text" value={cert.credential_id} onChange={(e) => updateCertification(i, "credential_id", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={cert.credential_id} onChange={(e) => updateCertification(i, "credential_id", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Credential URL</label>
-                    <input type="text" value={cert.credential_url} onChange={(e) => updateCertification(i, "credential_url", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={cert.credential_url} onChange={(e) => updateCertification(i, "credential_url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                 </div>
               </div>
@@ -689,15 +697,17 @@ export default function CandidateProfilePage() {
         </div>
 
         {/* Footer actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-border mt-8">
-          <button onClick={() => router.back()} className="text-sm font-semibold text-foreground hover:bg-muted px-4 py-2 rounded-lg transition-colors">
-            Cancel
-          </button>
-          <button onClick={handleSave} disabled={isSaving} className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-50">
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />}
-            Save changes
-          </button>
-        </div>
+        {isEditing && (
+          <div className="flex justify-end gap-3 pt-4 border-t border-border mt-8">
+            <button onClick={handleCancel} className="text-sm font-semibold text-foreground hover:bg-muted px-4 py-2 rounded-lg transition-colors">
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={isSaving} className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-50">
+              {isSaving && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />}
+              Save changes
+            </button>
+          </div>
+        )}
 
       </div>
     </div>
