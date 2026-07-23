@@ -545,6 +545,50 @@ export interface AutoSuggestStatusData {
   error: string | null;
 }
 
+export interface ProfileEducation {
+  id?: number;
+  school: string;
+  degree: string;
+  field_of_study: string;
+  start_year: string;
+  end_year: string | null;
+}
+
+export interface ProfileExperience {
+  id?: number;
+  company: string;
+  job_title: string;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
+  description: string;
+}
+
+export interface ProfileSkill {
+  id?: number;
+  name: string;
+}
+
+export interface ProfileProject {
+  id?: number;
+  title: string;
+  description: string;
+  url: string;
+  technologies: string;
+  start_date: string;
+  end_date: string | null;
+}
+
+export interface ProfileCertification {
+  id?: number;
+  name: string;
+  issuing_organization: string;
+  issue_date: string;
+  expiration_date: string | null;
+  credential_id: string;
+  credential_url: string;
+}
+
 export interface CandidateProfile {
   id: number;
   email: string;
@@ -558,14 +602,15 @@ export interface CandidateProfile {
   linkedin: string | null;
   website_portfolio: string | null;
   cv: string;
-  age: string | null;
+  age: number | null;
   gender: string | null;
   ai_status: string;
-  educations: any[];
-  experiences: any[];
-  skills: string[];
-  projects: any[];
-  certifications: any[];
+  is_default: boolean;
+  educations: ProfileEducation[];
+  experiences: ProfileExperience[];
+  skills: ProfileSkill[];
+  projects: ProfileProject[];
+  certifications: ProfileCertification[];
 }
 
 // ─── Admin Application types ─────────────────────────────────────────────────
@@ -1434,6 +1479,37 @@ export const authApi = createApi({
       invalidatesTags: ["CandidateProfiles", "CandidateDashboard", "CandidateApplications", "CandidateCv"],
     }),
 
+    // GET /auth/candidate/profiles/{id}/
+    getCandidateProfileById: builder.query<ApiResponse<CandidateProfile>, number>({
+      query: (id) => `auth/candidate/profiles/${id}/`,
+      providesTags: (result, error, id) => [{ type: "CandidateProfiles", id }],
+    }),
+
+    // PATCH /auth/candidate/profiles/{id}/
+    patchCandidateProfile: builder.mutation<
+      ApiResponse<CandidateProfile>,
+      { id: number; body: Partial<CandidateProfile> }
+    >({
+      query: ({ id, body }) => ({
+        url: `auth/candidate/profiles/${id}/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        "CandidateProfiles",
+        { type: "CandidateProfiles", id },
+      ],
+    }),
+
+    // DELETE /auth/candidate/profiles/{id}/
+    deleteCandidateProfile: builder.mutation<ApiResponse<null>, number>({
+      query: (id) => ({
+        url: `auth/candidate/profiles/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["CandidateProfiles"],
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1569,6 +1645,9 @@ export const {
   useGetCandidateProfilesQuery,
   useCreateCandidateProfileMutation,
   useSwitchCandidateProfileMutation,
+  useGetCandidateProfileByIdQuery,
+  usePatchCandidateProfileMutation,
+  useDeleteCandidateProfileMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates
