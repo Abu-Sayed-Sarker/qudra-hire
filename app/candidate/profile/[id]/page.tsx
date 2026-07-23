@@ -382,19 +382,19 @@ export default function CandidateProfilePage() {
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#4BC957]"/> Phone (WhatsApp)</label>
-              <input type="text" value={form.phone_whatsapp} onChange={(e) => setField("phone_whatsapp", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+              <input type="text" value={form.phone_whatsapp} onChange={(e) => setField("phone_whatsapp", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3 text-[#4BC957]"/> Location</label>
-              <input type="text" value={form.location} onChange={(e) => setField("location", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+              <input type="text" value={form.location} onChange={(e) => setField("location", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]"/> LinkedIn</label>
-              <input type="text" value={form.linkedin} onChange={(e) => setField("linkedin", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+              <input type="text" value={form.linkedin} onChange={(e) => setField("linkedin", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]"/> Website / Portfolio</label>
-              <input type="text" value={form.website_portfolio} onChange={(e) => setField("website_portfolio", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+              <input type="text" value={form.website_portfolio} onChange={(e) => setField("website_portfolio", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
           </div>
         </div>
@@ -442,39 +442,43 @@ export default function CandidateProfilePage() {
               <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◇</span>
               <h2 className="text-base font-bold text-foreground">Education</h2>
             </div>
-            <button onClick={addEducation} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-              <Plus className="w-3 h-3" /> Add education
-            </button>
+            {isEditing && (
+              <button onClick={addEducation} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                <Plus className="w-3 h-3" /> Add education
+              </button>
+            )}
           </div>
 
           <div className="space-y-6">
             {educations.map((edu, i) => (
               <div key={edu.id ?? `new-edu-${i}`} className="border border-border rounded-xl p-5 relative">
-                <button onClick={() => removeEducation(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {isEditing && (
+                  <button onClick={() => removeEducation(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{edu.school || `Education ${i + 1}`}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">School / University *</label>
-                    <input type="text" value={edu.school} onChange={(e) => updateEducation(i, "school", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={edu.school} onChange={(e) => updateEducation(i, "school", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Degree</label>
-                    <input type="text" value={edu.degree} onChange={(e) => updateEducation(i, "degree", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={edu.degree} onChange={(e) => updateEducation(i, "degree", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Field of study</label>
-                    <input type="text" value={edu.field_of_study} onChange={(e) => updateEducation(i, "field_of_study", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={edu.field_of_study} onChange={(e) => updateEducation(i, "field_of_study", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-semibold text-muted-foreground">From</label>
-                      <input type="date" value={edu.start_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "start_year", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                      <input type="date" value={edu.start_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "start_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-semibold text-muted-foreground">To</label>
-                      <input type="date" value={edu.end_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "end_year", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                      <input type="date" value={edu.end_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "end_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
                   </div>
                 </div>
@@ -493,44 +497,48 @@ export default function CandidateProfilePage() {
               <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">▤</span>
               <h2 className="text-base font-bold text-foreground">Experience</h2>
             </div>
-            <button onClick={addExperience} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-              <Plus className="w-3 h-3" /> Add experience
-            </button>
+            {isEditing && (
+              <button onClick={addExperience} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                <Plus className="w-3 h-3" /> Add experience
+              </button>
+            )}
           </div>
 
           <div className="space-y-6">
             {experiences.map((exp, i) => (
               <div key={exp.id ?? `new-exp-${i}`} className="border border-border rounded-xl p-5 relative">
-                <button onClick={() => removeExperience(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {isEditing && (
+                  <button onClick={() => removeExperience(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{exp.job_title || `Experience ${i + 1}`}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Company / Organization *</label>
-                    <input type="text" value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Job Title</label>
-                    <input type="text" value={exp.job_title} onChange={(e) => updateExperience(i, "job_title", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                    <input type="text" value={exp.job_title} onChange={(e) => updateExperience(i, "job_title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-semibold text-muted-foreground">From</label>
-                      <input type="date" value={exp.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "start_date", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+                      <input type="date" value={exp.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-semibold text-muted-foreground">To</label>
-                      <input type="date" value={exp.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "end_date", e.target.value)} disabled={exp.is_current} className="w-full bg-background border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50" />
+                      <input type="date" value={exp.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "end_date", e.target.value)} disabled={ro || exp.is_current} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${(ro || exp.is_current) ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
                   </div>
                   <div className="col-span-2 flex items-center gap-2">
-                    <input type="checkbox" checked={exp.is_current} onChange={(e) => updateExperience(i, "is_current", e.target.checked)} id={`current-${i}`} className="accent-[#4BC957]" />
+                    <input type="checkbox" checked={exp.is_current} onChange={(e) => updateExperience(i, "is_current", e.target.checked)} id={`current-${i}`} disabled={ro} className="accent-[#4BC957]" />
                     <label htmlFor={`current-${i}`} className="text-[11px] font-semibold text-muted-foreground">Currently working here</label>
                   </div>
                   <div className="col-span-2 space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
-                    <textarea rows={3} value={exp.description} onChange={(e) => updateExperience(i, "description", e.target.value)} className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none" />
+                    <textarea rows={3} value={exp.description} onChange={(e) => updateExperience(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
                 </div>
               </div>
@@ -550,24 +558,28 @@ export default function CandidateProfilePage() {
             {skills.map((skill, i) => (
               <span key={skill.id ?? `skill-${i}`} className="inline-flex items-center gap-1.5 bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1 rounded-full text-xs font-semibold">
                 {skill.name}
-                <button onClick={() => removeSkill(i)} className="hover:text-[#3DAF49]"><X className="w-3 h-3" /></button>
+                {isEditing && (
+                  <button onClick={() => removeSkill(i)} className="hover:text-[#3DAF49]"><X className="w-3 h-3" /></button>
+                )}
               </span>
             ))}
           </div>
 
-          <div className="relative">
-            <input
-              type="text"
-              value={skillInput}
-              onChange={(e) => setSkillInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
-              placeholder="Add a skill (e.g. Project Management)"
-              className="w-full bg-background border border-border rounded-lg px-3 py-2 pr-16 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-            />
-            <button onClick={addSkill} className="absolute right-2 top-1.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground px-2 py-1 rounded">
-              + Add
-            </button>
-          </div>
+          {isEditing && (
+            <div className="relative">
+              <input
+                type="text"
+                value={skillInput}
+                onChange={(e) => setSkillInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
+                placeholder="Add a skill (e.g. Project Management)"
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 pr-16 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              <button onClick={addSkill} className="absolute right-2 top-1.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground px-2 py-1 rounded">
+                + Add
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Projects */}
