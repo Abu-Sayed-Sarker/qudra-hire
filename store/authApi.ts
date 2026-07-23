@@ -516,6 +516,15 @@ export interface CandidateDashboard {
   recent_applications: CandidateRecentApplication[];
 }
 
+export interface CandidateCvData {
+  cv_name: string;
+  cv_url: string;
+  updated_at: string;
+  ai_status: string;
+  ats_score: number;
+  parsed_skills: string[];
+}
+
 // ─── Admin Application types ─────────────────────────────────────────────────
 
 export interface AdminApplicationItem {
@@ -833,7 +842,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1298,6 +1307,50 @@ export const authApi = createApi({
       query: (id) => `candidate/tailored-cvs/${id}/`,
     }),
 
+    // ── Candidate CV endpoints ──────────────────────────────────────────────────
+
+    // GET /auth/candidate/cv/
+    getCandidateCv: builder.query<ApiResponse<CandidateCvData>, void>({
+      query: () => "auth/candidate/cv/",
+      providesTags: ["CandidateCv"],
+    }),
+
+    // POST /auth/candidate/cv/  (multipart/form-data)
+    uploadCandidateCv: builder.mutation<ApiResponse<CandidateCvData>, FormData>({
+      query: (formData) => ({
+        url: "auth/candidate/cv/",
+        method: "POST",
+        body: formData,
+        formData: true,
+      }),
+      invalidatesTags: ["CandidateCv"],
+    }),
+
+    // GET /auth/candidate/cv/download/ → returns binary blob
+    downloadCandidateCv: builder.mutation<Blob, void>({
+      queryFn: async (_arg: void, queryApi: any) => {
+        const token = (queryApi.getState() as RootState).auth.accessToken;
+        const response: Response = await fetch(`${BASE_URL}/auth/candidate/cv/download/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) {
+          return { error: { status: response.status, data: response.statusText } };
+        }
+        const blob: Blob = await response.blob();
+        return { data: blob };
+      },
+      invalidatesTags: ["CandidateCv"],
+    }),
+
+    // POST /auth/candidate/cv/auto-suggest/
+    autoSuggestCandidateCv: builder.mutation<ApiResponse<{ suggestions: string[] }>, void>({
+      query: () => ({
+        url: "auth/candidate/cv/auto-suggest/",
+        method: "POST",
+      }),
+      invalidatesTags: ["CandidateCv"],
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1423,6 +1476,11 @@ export const {
   useApplyToJobMutation,
   useTailorCandidateCvMutation,
   useGetTailoredCvQuery,
+  // Candidate CV
+  useGetCandidateCvQuery,
+  useUploadCandidateCvMutation,
+  useDownloadCandidateCvMutation,
+  useAutoSuggestCandidateCvMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates

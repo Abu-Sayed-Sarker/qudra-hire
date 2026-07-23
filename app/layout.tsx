@@ -5,6 +5,7 @@ import "./globals.css";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import StoreProvider from "@/components/layout/StoreProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
 
@@ -52,6 +53,7 @@ export default function RootLayout({
         <StoreProvider>
           <ThemeProvider defaultTheme="system" enableSystem storageKey="careersprint-theme">
             {children}
+            <Toaster />
             {/* <MobileBottomNav /> */}
           </ThemeProvider>
         </StoreProvider>
