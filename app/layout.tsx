@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import GoogleTranslate from "@/components/shared/GoogleTranslate";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import StoreProvider from "@/components/layout/StoreProvider";
 import { Toaster } from "@/components/ui/sonner";
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground pb-16 md:pb-0">
         <StoreProvider>
           <ThemeProvider defaultTheme="system" enableSystem storageKey="careersprint-theme">
+            <GoogleTranslate />
             {children}
             <Toaster />
             {/* <MobileBottomNav /> */}

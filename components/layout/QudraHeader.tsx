@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Globe, LayoutDashboard, LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
+import GoogleTranslate from "@/components/shared/GoogleTranslate";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -86,10 +87,7 @@ export default function QudraHeader() {
         {/* Right actions */}
         <div className="flex items-center gap-3">
           {/* Language button */}
-          <button className="hidden md:flex items-center gap-1.5 text-sm text-on-surface-muted border border-surface px-3 py-1.5 rounded-lg hover:border-inner transition-colors">
-            <Globe className="h-3.5 w-3.5" />
-            English
-          </button>
+          <GoogleTranslate />
 
           {isLoggedIn ? (
             <>
