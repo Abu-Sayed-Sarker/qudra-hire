@@ -264,7 +264,7 @@ function PlanModal({
             disabled={isLoading || success}
             className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors"
           >
-            {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
             {isLoading ? "Saving…" : "Save"}
           </button>
         </div>
@@ -346,8 +346,8 @@ export default function SubscriptionsPage() {
         <button
           onClick={() => setBilling("monthly")}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${billing === "monthly"
-              ? "bg-[#21c55e] text-[#0f172a]"
-              : "bg-muted text-muted-foreground hover:text-foreground"
+            ? "bg-[#21c55e] text-[#0f172a]"
+            : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
         >
           Monthly
@@ -355,12 +355,12 @@ export default function SubscriptionsPage() {
         <button
           onClick={() => setBilling("yearly")}
           className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${billing === "yearly"
-              ? "bg-[#21c55e] text-[#0f172a]"
-              : "bg-muted text-muted-foreground hover:text-foreground"
+            ? "bg-[#21c55e] text-[#0f172a]"
+            : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
         >
           Yearly
-        
+
         </button>
       </div>
 
@@ -498,8 +498,8 @@ export default function SubscriptionsPage() {
                       </td>
                       <td className="px-5 py-3.5">
                         <span className={`px-2.5 py-0.5 rounded text-[10px] font-semibold border ${row.billing === "Month"
-                            ? "bg-muted border-border text-foreground"
-                            : "bg-[#6366f1]/10 border-[#6366f1]/20 text-[#6366f1]"
+                          ? "bg-muted border-border text-foreground"
+                          : "bg-[#6366f1]/10 border-[#6366f1]/20 text-[#6366f1]"
                           }`}>
                           {row.billing}
                         </span>

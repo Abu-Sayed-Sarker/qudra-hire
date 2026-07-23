@@ -376,7 +376,7 @@ export default function CandidateDetailPage({
                     disabled={isResetting}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors"
                   >
-                    {isResetting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  
                     {isResetting ? "Resetting…" : "Reset Password"}
                   </button>
                 </div>

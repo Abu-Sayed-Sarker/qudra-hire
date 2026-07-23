@@ -281,7 +281,7 @@ export default function CandidateCVPage() {
               disabled={!hasCv || isAnalyzing || isPolling}
               className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-md shadow-green-500/10 dark:shadow-[#4BC957]/10 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {(isSuggesting || isAnalyzing) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+             
               Auto suggest
             </button>
             <button
@@ -289,7 +289,7 @@ export default function CandidateCVPage() {
               disabled={!hasCv || isDownloading}
               className="flex items-center gap-1.5 border border-slate-300 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isDownloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              
               Download
             </button>
           </div>

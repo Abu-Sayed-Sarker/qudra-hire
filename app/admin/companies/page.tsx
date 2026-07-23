@@ -184,11 +184,10 @@ function DetailPanel({
           <Key className="w-3.5 h-3.5" /> Reset Password
         </button>
         <button onClick={onSuspend}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
-            c.is_suspended
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${c.is_suspended
               ? "border-amber-500/20 hover:bg-amber-500/10 text-amber-500"
               : "border-orange-500/20 hover:bg-orange-500/10 text-orange-500"
-          }`}>
+            }`}>
           <Ban className="w-3.5 h-3.5" /> {c.is_suspended ? "Unsuspend" : "Suspend"}
         </button>
         <button onClick={onDelete}
@@ -281,7 +280,7 @@ function EditForm({ company, onClose }: { company: AdminCompanyListItem; onClose
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleSave} disabled={isLoading || success}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-          {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
           {isLoading ? "Saving…" : "Save Changes"}
         </button>
       </div>
@@ -327,7 +326,7 @@ function RejectForm({ company, onClose }: { company: AdminCompanyListItem; onClo
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleReject} disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-          {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
           {isLoading ? "Rejecting…" : "Reject Company"}
         </button>
       </div>
@@ -367,7 +366,7 @@ function DeleteConfirm({ company, onClose }: { company: AdminCompanyListItem; on
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleDelete} disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-          {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
           {isLoading ? "Deleting…" : "Yes, Delete"}
         </button>
       </div>
@@ -401,7 +400,7 @@ function ApproveConfirm({ company, onClose }: { company: AdminCompanyListItem; o
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleApprove} disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#21c55e] hover:bg-[#00c98e] disabled:opacity-60 text-white text-sm font-semibold transition-colors">
-          {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
           {isLoading ? "Approving…" : "Approve"}
         </button>
       </div>
@@ -453,7 +452,7 @@ function SuspendConfirm({ company, onClose }: { company: AdminCompanyListItem; o
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleToggle} disabled={isLoading}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-          {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
           {isLoading ? "Processing…" : isSuspended ? "Unsuspend" : "Suspend"}
         </button>
       </div>
@@ -511,7 +510,7 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
             <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
             <button onClick={handleReset} disabled={isLoading}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-              {isLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+
               {isLoading ? "Resetting…" : "Reset Password"}
             </button>
           </div>
