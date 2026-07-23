@@ -2,23 +2,40 @@
 
 import React, { useState } from "react";
 import { Check, Zap, Star, ShieldCheck, Lock, Loader2 } from "lucide-react";
-import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
+import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useSwitchCandidateProfileMutation } from "@/store/authApi";
+import { toast } from "sonner";
 
 export default function CandidateSubscriptionPage() {
   const { data: historyData, isLoading: historyLoading } = useGetSubscriptionHistoryQuery();
   const { data: plansData, isLoading: plansLoading } = useGetSubscriptionPlansQuery();
+  const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
+  const [switchProfile, { isLoading: isSwitching }] = useSwitchCandidateProfileMutation();
 
   const [yearly, setYearly] = useState(false);
+  const [switchingId, setSwitchingId] = useState<number | null>(null);
 
   const history = historyData?.data ?? [];
   const allPlans = plansData?.data ?? [];
   const plans = allPlans.filter((p) => p.category === "CANDIDATE");
+  const profiles = profilesData?.data ?? [];
 
   const activeSub = history.find((h) => h.sub_status === "ACTIVE");
   const freePlan = plans.find((p) => p.plan_type === "Free");
   const premiumPlan = plans.find((p) => p.plan_type === "Premium");
 
-  const isLoading = historyLoading || plansLoading;
+  const isLoading = historyLoading || plansLoading || profilesLoading;
+
+  const handleSwitchProfile = async (profileId: number) => {
+    setSwitchingId(profileId);
+    try {
+      const result = await switchProfile(profileId).unwrap();
+      toast.success(result.details || "Profile switched successfully");
+    } catch {
+      toast.error("Failed to switch profile");
+    } finally {
+      setSwitchingId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -70,58 +87,46 @@ export default function CandidateSubscriptionPage() {
         <div>
           <h2 className="text-lg font-bold text-foreground mb-3">Your career profiles</h2>
           <div className="space-y-3">
-            {activeSub ? (
-              <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-[#4BC957]/15">
-                      <Check className="w-4 h-4 text-[#4BC957]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground text-sm leading-tight">{activeSub.plan_name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{activeSub.currency} {activeSub.price} / plan</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[11px] font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 rounded px-2 py-0.5">
-                      ✓ {activeSub.plan_name} &bull; {activeSub.currency} {activeSub.price}
-                    </span>
-                    <button className="text-xs font-bold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-4 py-1.5 rounded-lg transition-colors">
-                      Selected
-                    </button>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-[12px] text-muted-foreground">
-                  <span>Started {new Date(activeSub.started_at).toLocaleDateString()}</span>
-                  <span>Renews {new Date(activeSub.expires_at).toLocaleDateString()}</span>
-                  <span className="font-semibold">Auto Apply &bull; On</span>
-                </div>
+            {profiles.length === 0 ? (
+              <div className="bg-card border border-border rounded-xl px-5 py-8 shadow-sm text-center">
+                <p className="text-sm text-muted-foreground">No profiles yet. Create one from the CV page.</p>
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-muted">
-                      <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground text-sm leading-tight">Default profile</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">No active subscription</p>
+              profiles.map((profile) => {
+                const isActive = profile.ai_status === "ACTIVE" || profile.id === profiles[0]?.id;
+                const isSwitching = switchingId === profile.id;
+                return (
+                  <div key={profile.id} className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-[#4BC957]/15">
+                          <Check className="w-4 h-4 text-[#4BC957]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground text-sm leading-tight">{profile.role_title || `Profile ${profile.id}`}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{profile.industry || "No industry"} &bull; {profile.location || "No location"}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 truncate">{profile.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {isActive ? (
+                          <span className="text-[11px] font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 rounded px-2 py-0.5">
+                            Active
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleSwitchProfile(profile.id)}
+                            disabled={isSwitching}
+                            className="text-xs font-bold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-4 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isSwitching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Select"}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[11px] text-muted-foreground border border-border rounded px-2 py-0.5 flex items-center gap-1">
-                      <Lock className="w-3 h-3" /> Inactive
-                    </span>
-                    <button className="text-xs font-bold border border-border text-foreground hover:bg-muted px-4 py-1.5 rounded-lg transition-colors">
-                      Manage
-                    </button>
-                  </div>
-                </div>
-                <p className="mt-2 text-[12px] text-muted-foreground leading-relaxed">
-                  Activate Premium to unlock auto-apply, AI resume tailoring and priority matching for every role.
-                </p>
-              </div>
+                );
+              })
             )}
           </div>
         </div>
@@ -206,7 +211,7 @@ export default function CandidateSubscriptionPage() {
               )}
 
               {/* Premium card */}
-              <div className="relative bg-green-50 dark:bg-[#0f1f14]  border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
+              <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                   <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
                 </div>

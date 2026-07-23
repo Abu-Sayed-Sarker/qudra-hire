@@ -169,7 +169,7 @@ export default function CandidateSidebar() {
                     onClick={() => router.push(`/candidate/profile/${profile.id}`)}
                     className="flex items-center justify-between text-foreground hover:bg-muted hover:text-foreground cursor-pointer focus:bg-muted focus:text-foreground rounded-md px-3 py-2.5"
                   >
-                    <span className="font-semibold text-sm truncate max-w-[140px]">{profile.role_title || `Profile ${profile.id}`}</span>
+                    <span className="font-semibold text-sm truncate max-w-[140px]">{profile.role_title || ""}</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </DropdownMenuItem>
                 ))

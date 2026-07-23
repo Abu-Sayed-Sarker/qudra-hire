@@ -1425,6 +1425,15 @@ export const authApi = createApi({
       invalidatesTags: ["CandidateProfiles"],
     }),
 
+    // POST /auth/candidate/profiles/{id}/switch/
+    switchCandidateProfile: builder.mutation<ApiResponse<CandidateProfile>, number>({
+      query: (id) => ({
+        url: `auth/candidate/profiles/${id}/switch/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["CandidateProfiles", "CandidateDashboard", "CandidateApplications", "CandidateCv"],
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1559,6 +1568,7 @@ export const {
   // Candidate Profiles
   useGetCandidateProfilesQuery,
   useCreateCandidateProfileMutation,
+  useSwitchCandidateProfileMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates

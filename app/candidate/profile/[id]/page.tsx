@@ -58,7 +58,7 @@ export default function CandidateProfilePage() {
         {/* Basic Info */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
           <div className="flex gap-8">
-            <div className="relative shrink-0">
+            <div className="relative! shrink-0 ">
               <div className="w-20 h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground">
                 LA
               </div>
