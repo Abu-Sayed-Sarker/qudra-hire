@@ -106,12 +106,12 @@ export default function ResetPasswordPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-           <div className="hidden dark:block">
-                         <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                       </div>
-                       <div className="block dark:hidden">
-                         <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                       </div>
+            <div className="hidden dark:block">
+              <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
+            <div className="block dark:hidden">
+              <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
           </Link>
         </div>
 
@@ -164,21 +164,20 @@ export default function ResetPasswordPage() {
                 <div className="space-y-1.5">
                   <div className="h-1.5 w-full bg-surface-deep rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        newPassword.length < 6
-                          ? "w-1/4 bg-red-500"
-                          : newPassword.length < 10
+                      className={`h-full rounded-full transition-all duration-300 ${newPassword.length < 6
+                        ? "w-1/4 bg-red-500"
+                        : newPassword.length < 10
                           ? "w-2/4 bg-yellow-500"
                           : "w-full bg-[#4BC957]"
-                      }`}
+                        }`}
                     />
                   </div>
                   <p className="text-xs text-on-surface-muted">
                     {newPassword.length < 6
                       ? "Too short"
                       : newPassword.length < 10
-                      ? "Fair strength"
-                      : "Strong password"}
+                        ? "Fair strength"
+                        : "Strong password"}
                   </p>
                 </div>
               )}
@@ -188,7 +187,7 @@ export default function ResetPasswordPage() {
                 disabled={isLoading}
                 className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
                 {isLoading ? "Resetting…" : "Reset password"}
               </button>
             </form>

@@ -112,12 +112,12 @@ export default function VerifyOtpPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-          <div className="hidden dark:block">
-                        <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                      </div>
-                      <div className="block dark:hidden">
-                        <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                      </div></Link>
+            <div className="hidden dark:block">
+              <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
+            <div className="block dark:hidden">
+              <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div></Link>
         </div>
 
         {/* Icon */}
@@ -161,8 +161,8 @@ export default function VerifyOtpPage() {
                 onChange={(e) => handleDigit(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 className={`w-11 h-13 text-center text-lg font-bold bg-surface-deep border rounded-xl text-on-surface focus:outline-none transition-colors ${d
-                    ? "border-[#4BC957]/60 bg-[#4BC957]/5"
-                    : "border-surface focus:border-[#4BC957]/50"
+                  ? "border-[#4BC957]/60 bg-[#4BC957]/5"
+                  : "border-surface focus:border-[#4BC957]/50"
                   }`}
                 aria-label={`Digit ${i + 1}`}
               />
@@ -174,7 +174,7 @@ export default function VerifyOtpPage() {
             disabled={isLoading || otp.length < OTP_LENGTH}
             className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all"
           >
-            {isLoading && <Loader2 size={16} className="animate-spin" />}
+            {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
             {isLoading ? "Verifying…" : "Verify code"}
           </button>
         </form>

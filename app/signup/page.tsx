@@ -232,12 +232,12 @@ export default function SignupPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight">
-             <div className="hidden dark:block">
-                           <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                         </div>
-                         <div className="block dark:hidden">
-                           <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                         </div>
+            <div className="hidden dark:block">
+              <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
+            <div className="block dark:hidden">
+              <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
           </Link>
         </div>
 
@@ -251,11 +251,10 @@ export default function SignupPage() {
               key={type}
               type="button"
               onClick={() => { setAccountType(type); setErrorMsg(""); }}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all capitalize ${
-                accountType === type
-                  ? "bg-[#4BC957] text-white"
-                  : "text-on-surface-muted hover:text-on-surface"
-              }`}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all capitalize ${accountType === type
+                ? "bg-[#4BC957] text-white"
+                : "text-on-surface-muted hover:text-on-surface"
+                }`}
             >
               {type}
             </button>
@@ -354,7 +353,7 @@ export default function SignupPage() {
                 disabled={isLoading}
                 className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
                 {isLoading ? "Creating account…" : "Create account & start matching"}
               </button>
             </form>
@@ -418,7 +417,7 @@ export default function SignupPage() {
                 disabled={isLoading}
                 className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
                 {isLoading ? "Creating account…" : "Create account"}
               </button>
             </form>

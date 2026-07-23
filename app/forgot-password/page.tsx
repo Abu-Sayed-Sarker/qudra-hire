@@ -47,11 +47,11 @@ export default function ForgotPasswordPage() {
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight">
             <div className="hidden dark:block">
-                          <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                        </div>
-                        <div className="block dark:hidden">
-                          <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
-                        </div>
+              <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
+            <div className="block dark:hidden">
+              <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+            </div>
           </Link>
         </div>
 
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
                 disabled={isLoading}
                 className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
                 {isLoading ? "Sending…" : "Send reset code"}
               </button>
             </form>

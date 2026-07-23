@@ -194,10 +194,10 @@ export default function ChangePasswordPage() {
                   <div className="h-1.5 w-full bg-surface-deep rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${newPassword.length < 6
-                          ? "w-1/4 bg-red-500"
-                          : newPassword.length < 10
-                            ? "w-2/4 bg-yellow-500"
-                            : "w-full bg-[#4BC957]"
+                        ? "w-1/4 bg-red-500"
+                        : newPassword.length < 10
+                          ? "w-2/4 bg-yellow-500"
+                          : "w-full bg-[#4BC957]"
                         }`}
                     />
                   </div>
@@ -230,7 +230,7 @@ export default function ChangePasswordPage() {
                 disabled={isLoading}
                 className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                 {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
                 {isLoading ? "Updating…" : "Update password"}
               </button>
             </form>
