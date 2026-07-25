@@ -1510,6 +1510,15 @@ export const authApi = createApi({
       invalidatesTags: ["CandidateProfiles"],
     }),
 
+    // POST /auth/candidate/profiles/{id}/set-default/
+    setDefaultCandidateProfile: builder.mutation<ApiResponse<CandidateProfile>, number>({
+      query: (id) => ({
+        url: `auth/candidate/profiles/${id}/set-default/`,
+        method: "POST",
+      }),
+      invalidatesTags: ["CandidateProfiles"],
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1660,6 +1669,7 @@ export const {
   useGetCandidateProfileByIdQuery,
   usePatchCandidateProfileMutation,
   useDeleteCandidateProfileMutation,
+  useSetDefaultCandidateProfileMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates

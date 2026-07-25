@@ -26,6 +26,7 @@ import {
   useGetCandidateProfileByIdQuery,
   usePatchCandidateProfileMutation,
   useDeleteCandidateProfileMutation,
+  useSetDefaultCandidateProfileMutation,
 } from "@/store/authApi";
 import type {
   CandidateProfile,
@@ -44,6 +45,7 @@ export default function CandidateProfilePage() {
   const { data: profileRes, isLoading, error } = useGetCandidateProfileByIdQuery(id, { skip: !id });
   const [patchProfile, { isLoading: isSaving }] = usePatchCandidateProfileMutation();
   const [deleteProfile, { isLoading: isDeleting }] = useDeleteCandidateProfileMutation();
+  const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
 
   const profile = profileRes?.data;
 
@@ -252,7 +254,7 @@ export default function CandidateProfilePage() {
   // ── Set as default ──
   async function handleSetDefault() {
     try {
-      await patchProfile({ id, body: { is_default: true } as any }).unwrap();
+      await setDefaultProfile(id).unwrap();
       setIsDefault(true);
       toast.success("Profile set as default");
     } catch (err: any) {
