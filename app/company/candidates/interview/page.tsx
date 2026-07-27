@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2, Plus, Trash2, Clock } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -61,6 +70,8 @@ function SetAIInterviewInner() {
   const [questionError, setQuestionError] = useState<string | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
+  const [deadlineAt, setDeadlineAt] = useState("");
 
   const isJobLocked = !!jobIdFromUrl;
 
@@ -92,7 +103,17 @@ function SetAIInterviewInner() {
       window.location.href = `/company/candidates/interview?id=${candidateId}&interview_id=${result.data.id}`;
     } catch (err: any) {
       const apiError = err?.data || err;
-      setError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to create interview. Please try again.");
+      if (typeof apiError === "string") {
+        setError(apiError);
+      } else if (apiError?.details) {
+        setError(apiError.details);
+      } else if (apiError) {
+        const firstField = Object.values(apiError)[0];
+        const firstMessage = Array.isArray(firstField) ? firstField[0] : String(firstField);
+        setError(firstMessage || "Failed to create interview. Please try again.");
+      } else {
+        setError("Failed to create interview. Please try again.");
+      }
       setIsSubmitting(false);
     }
   };
@@ -184,13 +205,20 @@ function SetAIInterviewInner() {
     }
   };
 
-  const handleSendInterview = async () => {
+  const handleSendInterview = () => {
+    if (!interviewId) return;
+    setSendDialogOpen(true);
+  };
+
+  const handleConfirmSend = async () => {
     if (!interviewId) return;
     setIsSendingInterview(true);
     setSendError(null);
 
     try {
-      await sendInterview({ interview_id: interviewId }).unwrap();
+      await sendInterview({ interview_id: interviewId, deadline_at: deadlineAt }).unwrap();
+      setSendDialogOpen(false);
+      setDeadlineAt("");
       window.location.href = "/company/candidates/interview/sent";
     } catch (err: any) {
       const apiError = err?.data || err;
@@ -489,29 +517,72 @@ function SetAIInterviewInner() {
          
              </div>
 
-             {sendError && (
-               <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                 <p className="text-xs text-red-500 font-medium">{sendError}</p>
-               </div>
-             )}
+{sendError && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                  <p className="text-xs text-red-500 font-medium">{sendError}</p>
+                </div>
+              )}
 
-             <button
-               onClick={handleSendInterview}
-               disabled={isSendingInterview || !interviewId}
-               className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-             >
-               {isSendingInterview ? (
-                 <>
-                   <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                   Sending...
-                 </>
-               ) : (
-                 <>
-                   <Send className="h-4 w-4" />
-                   Send interview
-                 </>
-               )}
-             </button>
+              <Dialog open={sendDialogOpen} onOpenChange={setSendDialogOpen}>
+                <DialogTrigger>
+                  <button
+                    type="button"
+                    disabled={!interviewId}
+                    className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold py-3 px-5 rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send className="h-4 w-4" />
+                    Send interview
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Send interview</DialogTitle>
+                    <DialogDescription>
+                      Set the deadline and validity period for this interview.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    <div className="space-y-2">
+                      <label htmlFor="deadline-at" className="text-sm font-medium text-muted-foreground">Deadline</label>
+                      <input
+                        id="deadline-at"
+                        type="datetime-local"
+                        value={deadlineAt}
+                        onChange={(e) => setDeadlineAt(e.target.value)}
+                        className="w-full bg-background border border-input text-foreground rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#4BC957] focus:ring-1 focus:ring-[#4BC957]/30 transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <button
+                      type="button"
+                      onClick={() => { setSendDialogOpen(false); setSendError(null); }}
+                      className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConfirmSend}
+                      disabled={isSendingInterview || !deadlineAt}
+                      className="flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-all active:scale-[0.98]"
+                    >
+                      {isSendingInterview ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4" />
+                          Confirm send
+                        </>
+                      )}
+                    </button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
            </div>
 
           {/* Under-sidebar info box */}

@@ -1190,11 +1190,11 @@ export const authApi = createApi({
     }),
 
     // POST /company/interviews/{id}/send/
-    sendCompanyInterview: builder.mutation<ApiResponse<CompanyInterview>, { interview_id: string }>({
-      query: ({ interview_id }) => ({
+    sendCompanyInterview: builder.mutation<ApiResponse<CompanyInterview>, { interview_id: string; deadline_at: string; valid_for_hours: number }>({
+      query: ({ interview_id, deadline_at, valid_for_hours }) => ({
         url: `company/interviews/${interview_id}/send/`,
         method: "POST",
-        body: { interview_id },
+        body: { deadline_at },
       }),
       invalidatesTags: (_r, _e, { interview_id }) => [{ type: "CompanyInterviews", id: interview_id }],
     }),
