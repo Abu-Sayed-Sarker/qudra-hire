@@ -60,8 +60,13 @@ export default function PostJobPage() {
         open_to_remote: remote,
       }).unwrap();
       router.push("/company/jobs");
-    } catch (err) {
-      setError("Failed to create job. Please try again.");
+    } catch (err: unknown) {
+      const apiError = err as { data?: { code?: string; details?: string } };
+      if (apiError.data?.code === "JOB_QUOTA_EXCEEDED") {
+        setError(apiError.data.details ?? "Failed to create job. Please try again.");
+      } else {
+        setError("Failed to create job. Please try again.");
+      }
     }
   };
 

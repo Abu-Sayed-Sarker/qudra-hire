@@ -6,13 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import Select from "react-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useGetCompanyJobsQuery,
@@ -241,19 +235,17 @@ function SetAIInterviewInner() {
             {/* Job Selection */}
             <div className="space-y-2">
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Select Job</label>
-               <Select value={selectedJob?.id} onValueChange={(val) => setSelectedJob(jobs.find((j) => j.id.toString() === val) || null)} disabled={isJobLocked}>
-                 <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
-                   <SelectValue render={(item: any) => <span>{jobs.find((j) => j.id.toString() === item)?.title}</span>} placeholder="Select a job" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   {jobs.map((job) => (
-                     <SelectItem key={job.id} value={job.id.toString()}>
-                       {job.title} — {job.location}
-                     </SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
-            
+              <Select
+                classNamePrefix="react-select"
+                className="react-select-container"
+                options={jobs.map((job) => ({ value: job.id.toString(), label: `${job.title} — ${job.location}` }))}
+                value={selectedJob ? { value: selectedJob.id.toString(), label: `${selectedJob.title} — ${selectedJob.location}` } : null}
+                onChange={(option) => setSelectedJob(jobs.find((j) => j.id.toString() === option?.value) || null)}
+                isDisabled={isJobLocked}
+                placeholder="Select a job"
+                isSearchable
+                noOptionsMessage={() => "No jobs found"}
+              />
             </div>
 
              {/* Number of Questions */}
