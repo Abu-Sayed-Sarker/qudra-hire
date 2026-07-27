@@ -1,14 +1,66 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Star, Zap, ShieldCheck, Building2, Loader2 } from "lucide-react";
-import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
+import { Check, Star, Zap, ShieldCheck, Building2, Loader2, CreditCard } from "lucide-react";
+import { useCreateStripeCheckoutSessionMutation, useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
+import { useAppSelector } from "@/store/hooks";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function CompanySubscriptionPage() {
   const { data: historyData, isLoading: historyLoading } = useGetSubscriptionHistoryQuery();
   const { data: plansData, isLoading: plansLoading } = useGetSubscriptionPlansQuery();
+  const [createCheckoutSession, { isLoading: isCheckingOut }] = useCreateStripeCheckoutSessionMutation();
+  const user = useAppSelector((s) => s.auth.user);
 
   const [yearly, setYearly] = useState(true);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{ id: string; name: string; price: string } | null>(null);
+
+  const resolveCompanyProfileId = () => {
+    if (!user) return null;
+
+
+
+    const firstProfileId = user?.company_profile?.id;
+
+
+    return firstProfileId;
+  };
+
+  const companyProfileId = resolveCompanyProfileId();
+
+  const openCheckout = (plan: { id: string; name: string; price: string }) => {
+    if (!companyProfileId) {
+      toast.error("Company profile not found in session. Please log in again.");
+      return;
+    }
+    setSelectedPlan(plan);
+    setCheckoutOpen(true);
+  };
+
+  const handleCheckout = async () => {
+    if (!selectedPlan || !companyProfileId) return;
+
+    try {
+      const result = await createCheckoutSession({
+        plan_id: selectedPlan.id,
+        profile_id: companyProfileId,
+      }).unwrap();
+
+      setCheckoutOpen(false);
+      window.location.href = result.data.checkout_url;
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to create checkout session");
+    }
+  };
 
   const history = historyData?.data ?? [];
   const allPlans = plansData?.data ?? [];
@@ -23,7 +75,7 @@ export default function CompanySubscriptionPage() {
   if (isLoading) {
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-2 sm:mx-auto px-6 py-8 flex items-center justify-center py-20">
+        <div className="max-w-full mx-2 sm:mx-auto px-6 flex items-center justify-center py-20">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </div>
@@ -67,17 +119,15 @@ export default function CompanySubscriptionPage() {
               <div className="flex items-center gap-1 bg-muted border border-border rounded-full p-1">
                 <button
                   onClick={() => setYearly(false)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                    !yearly ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-                  }`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${!yearly ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                    }`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setYearly(true)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                    yearly ? "bg-[#4BC957] text-white shadow-sm" : "text-muted-foreground"
-                  }`}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${yearly ? "bg-[#4BC957] text-white shadow-sm" : "text-muted-foreground"
+                    }`}
                 >
                   Yearly, Save 16%
                 </button>
@@ -98,7 +148,11 @@ export default function CompanySubscriptionPage() {
                     <span className="text-4xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
                     <span className="text-sm text-muted-foreground ml-1">{freePlan.renewal}</span>
                   </div>
-                  <button className="w-full py-2.5 rounded-xl border border-border bg-background hover:bg-muted text-foreground text-sm font-bold transition-all mb-6">
+                  <button
+                    onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
+                    disabled={activeSub?.plan_name === freePlan.name}
+                    className="w-full py-2.5 rounded-xl border border-border bg-background hover:bg-muted text-foreground text-sm font-bold transition-all mb-6 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
                   </button>
                   <div className="border-t border-border pt-5 space-y-3 flex-1">
@@ -130,7 +184,11 @@ export default function CompanySubscriptionPage() {
                     <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{premiumPlan.discount}</span>
                   )}
                 </div>
-                <button className="w-full py-2.5 rounded-xl bg-[#4BC957] hover:bg-[#3DAF49] text-white text-sm font-bold transition-all mb-6 shadow-md shadow-[#4BC957]/30">
+                <button
+                  onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
+                  disabled={activeSub?.plan_name === premiumPlan.name}
+                  className="w-full py-2.5 rounded-xl bg-[#4BC957] hover:bg-[#3DAF49] text-white text-sm font-bold transition-all mb-6 shadow-md shadow-[#4BC957]/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
                   {activeSub?.plan_name === premiumPlan.name ? "Active" : "Upgrade to Premium"}
                 </button>
                 <div className="border-t border-green-200 dark:border-white/10 pt-5 space-y-3 flex-1">
@@ -170,11 +228,10 @@ export default function CompanySubscriptionPage() {
                       <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
                       <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${
-                          row.sub_status === "ACTIVE"
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${row.sub_status === "ACTIVE"
                             ? "bg-[#4BC957]/10 text-[#4BC957]"
                             : "bg-muted text-muted-foreground"
-                        }`}>
+                          }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${row.sub_status === "ACTIVE" ? "bg-[#4BC957]" : "bg-muted-foreground"}`} />
                           {row.sub_status}
                         </span>
@@ -194,6 +251,56 @@ export default function CompanySubscriptionPage() {
           <span>Payments are secured by Stripe. Your billing details are never stored on our servers.</span>
         </div>
       </div>
+
+      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-[#4BC957]" />
+              Confirm Purchase
+            </DialogTitle>
+            <DialogDescription>
+              Confirm this company subscription and continue to Stripe checkout.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {selectedPlan && (
+              <div className="bg-muted/50 border border-border rounded-xl px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-foreground">{selectedPlan.name}</p>
+                  <p className="text-xs text-muted-foreground">Company subscription plan</p>
+                </div>
+                <p className="text-lg font-extrabold text-foreground">AED {Number(selectedPlan.price)}</p>
+              </div>
+            )}
+
+            {/* <div className="bg-card border border-border rounded-xl px-4 py-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Profile ID</p>
+              <p className="text-sm font-bold text-foreground mt-1">{companyProfileId ?? "Not available"}</p>
+            </div> */}
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={() => setCheckoutOpen(false)}
+              disabled={isCheckingOut}
+              className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCheckout}
+              disabled={!companyProfileId || isCheckingOut}
+              className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {isCheckingOut && <Loader2 className="h-4 w-4 animate-spin" />}
+              <CreditCard className="h-4 w-4" />
+              Confirm & Pay
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

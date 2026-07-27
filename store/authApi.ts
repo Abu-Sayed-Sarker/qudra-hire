@@ -15,6 +15,10 @@ export interface AuthUser {
   image: string | null;
   address1: string | null;
   phone1: string | null;
+  candidate_profile?: number | { id?: number } | null;
+  candidate_profiles?: Array<{ id?: number }>;
+  company_profile?: number | { id?: number } | null;
+  company_profiles?: Array<{ id?: number }>;
 }
 
 export interface LoginData {
