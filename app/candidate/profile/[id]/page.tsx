@@ -19,14 +19,24 @@ import {
   AlertCircle,
   Pencil,
   Star,
+  Lock,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   useGetCandidateProfileByIdQuery,
   usePatchCandidateProfileMutation,
   useDeleteCandidateProfileMutation,
   useSetDefaultCandidateProfileMutation,
+  useChangePasswordMutation,
 } from "@/store/authApi";
 import type {
   CandidateProfile,
@@ -46,6 +56,34 @@ export default function CandidateProfilePage() {
   const [patchProfile, { isLoading: isSaving }] = usePatchCandidateProfileMutation();
   const [deleteProfile, { isLoading: isDeleting }] = useDeleteCandidateProfileMutation();
   const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
+  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!passwordForm.password || !passwordForm.new_password || !passwordForm.confirm_password) {
+      toast.error("All fields are required");
+      return;
+    }
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      toast.error("New passwords do not match");
+      return;
+    }
+    try {
+      await changePassword(passwordForm).unwrap();
+      toast.success("Password changed successfully");
+      setIsChangePasswordOpen(false);
+      setPasswordForm({ password: "", new_password: "", confirm_password: "" });
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to change password");
+    }
+  }
 
   const profile = profileRes?.data;
 
@@ -319,6 +357,9 @@ export default function CandidateProfilePage() {
                     <Star className="h-3.5 w-3.5" /> Set as default
                   </button>
                 )}
+                <button onClick={() => setIsChangePasswordOpen(true)} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5" /> Change Password
+                </button>
                 <button onClick={handleDelete} disabled={isDeleting} className="text-sm font-semibold border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
                   {isDeleting ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : <Trash2 className="h-4 w-4 inline mr-1" />}
                   Delete
@@ -734,6 +775,70 @@ export default function CandidateProfilePage() {
             </button>
           </div>
         )}
+
+        <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Update your account password using your current password and a new confirmation pair.
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Current password</label>
+                <input
+                  type="password"
+                  value={passwordForm.password}
+                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, password: e.target.value }))}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring bg-background"
+                  placeholder="Enter current password"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">New password</label>
+                <input
+                  type="password"
+                  value={passwordForm.new_password}
+                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, new_password: e.target.value }))}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring bg-background"
+                  placeholder="Enter new password"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Confirm new password</label>
+                <input
+                  type="password"
+                  value={passwordForm.confirm_password}
+                  onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm_password: e.target.value }))}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring bg-background"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              <DialogFooter>
+                <button
+                  type="button"
+                  onClick={() => setIsChangePasswordOpen(false)}
+                  className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {isChangingPassword && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />}
+                  Update password
+                </button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
       </div>
     </div>

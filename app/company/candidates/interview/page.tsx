@@ -241,23 +241,19 @@ function SetAIInterviewInner() {
             {/* Job Selection */}
             <div className="space-y-2">
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Select Job</label>
-               <Select value={selectedJob} onValueChange={(val) => setSelectedJob(val)} disabled={isJobLocked}>
-                <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
-                  <SelectValue render={(item: any) => <span>{item?.title}</span>} placeholder="Select a job" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jobs.map((job) => (
-                    <SelectItem key={job.id} value={job}>
-                      {job.title} — {job.location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedJob && (
-                <p className="text-sm text-muted-foreground font-medium pt-1">
-                  Selected: <span className="text-foreground font-semibold">{selectedJob.title}</span>
-                </p>
-              )}
+               <Select value={selectedJob?.id} onValueChange={(val) => setSelectedJob(jobs.find((j) => j.id.toString() === val) || null)} disabled={isJobLocked}>
+                 <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
+                   <SelectValue render={(item: any) => <span>{jobs.find((j) => j.id.toString() === item)?.title}</span>} placeholder="Select a job" />
+                 </SelectTrigger>
+                 <SelectContent>
+                   {jobs.map((job) => (
+                     <SelectItem key={job.id} value={job.id.toString()}>
+                       {job.title} — {job.location}
+                     </SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+            
             </div>
 
              {/* Number of Questions */}

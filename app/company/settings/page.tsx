@@ -12,6 +12,8 @@ import {
   FileText,
   Check,
 } from "lucide-react";
+import { toast } from "sonner";
+import { useChangePasswordMutation } from "@/store/authApi";
 
 export default function CompanySettingsPage() {
   const [about, setAbout] = useState(
@@ -22,6 +24,42 @@ export default function CompanySettingsPage() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("All password fields are required");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
+    try {
+      await changePassword({
+        password: currentPassword,
+        new_password: newPassword,
+        confirm_password: confirmPassword,
+      }).unwrap();
+
+      toast.success("Password updated successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowCurrent(false);
+      setShowNew(false);
+      setShowConfirm(false);
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to update password");
+    }
+  };
 
   return (
     <div className="min-h-full bg-background text-foreground">
@@ -157,7 +195,7 @@ export default function CompanySettingsPage() {
         </div>
 
         {/* Password */}
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+        <form className="bg-card border border-border rounded-2xl p-6 shadow-sm" onSubmit={handleChangePassword}>
           <div className="flex items-center gap-2 mb-6">
             <Lock className="w-5 h-5 text-[#4BC957]" />
             <h2 className="text-base font-bold text-foreground">Password</h2>
@@ -170,6 +208,8 @@ export default function CompanySettingsPage() {
                 <input
                   type={showCurrent ? "text" : "password"}
                   placeholder="••••••••"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10 transition"
                 />
                 <button
@@ -187,6 +227,8 @@ export default function CompanySettingsPage() {
                 <input
                   type={showNew ? "text" : "password"}
                   placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10 transition"
                 />
                 <button
@@ -204,6 +246,8 @@ export default function CompanySettingsPage() {
                 <input
                   type={showConfirm ? "text" : "password"}
                   placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring pr-10 transition"
                 />
                 <button
@@ -218,11 +262,15 @@ export default function CompanySettingsPage() {
           </div>
 
           <div className="flex justify-end mt-5">
-            <button className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-lg transition-colors">
-              Update password
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {isChangingPassword ? "Updating..." : "Update password"}
             </button>
           </div>
-        </div>
+        </form>
 
       </div>
     </div>
