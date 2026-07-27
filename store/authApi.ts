@@ -934,7 +934,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations", "Contacts"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1607,6 +1607,16 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["ChatConversations"],
     }),
+
+    // POST /contacts/form/
+    submitContactForm: builder.mutation<ApiResponse<null>, { full_name: string; email: string; phone_number: string; message: string }>({
+      query: (body) => ({
+        url: "contacts/form/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Contacts"],
+    }),
   }),
 });
 
@@ -1706,4 +1716,6 @@ export const {
   useGetConversationMessagesQuery,
   useSendMessageMutation,
   useMarkConversationReadMutation,
+  // Contacts
+  useSubmitContactFormMutation,
 } = authApi;

@@ -2,13 +2,17 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Mail, Phone, Clock, MessageSquare, Send, CheckCircle2, ChevronRight, Headphones } from "lucide-react";
+import { Mail, Phone, Clock, MessageSquare, Send, CheckCircle2, ChevronRight, Headphones, AlertTriangle } from "lucide-react";
 import { Animate } from "@/components/ui/animate";
+import { useSubmitContactFormMutation } from "@/store/authApi";
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({ firstName: "", lastName: "", email: "", topic: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [submitContactForm] = useSubmitContactFormMutation();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setFormState(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,9 +21,21 @@ export default function ContactPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
+    setError(null);
+
+    try {
+      await submitContactForm({
+        full_name: `${formState.firstName} ${formState.lastName}`.trim(),
+        email: formState.email,
+        phone_number: "",
+        message: formState.message,
+      }).unwrap();
+      setSubmitted(true);
+    } catch {
+      setError("Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -78,13 +94,19 @@ export default function ContactPage() {
                           className="w-full h-11 bg-surface-deep border border-surface text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 text-sm focus:outline-none focus:border-[#4BC957]/50 focus:ring-1 focus:ring-[#4BC957]/30 transition-all" />
                       </div>
                     ))}
-                    <div className="space-y-1.5">
-                      <label htmlFor="message" className="text-sm font-medium text-on-surface-muted">Message</label>
-                      <textarea id="message" name="message" required rows={5} placeholder="How can we help you?"
-                        value={formState.message} onChange={handleChange}
-                        className="w-full bg-surface-deep border border-surface text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#4BC957]/50 focus:ring-1 focus:ring-[#4BC957]/30 transition-all resize-none" />
-                    </div>
-                    <button type="submit" disabled={loading}
+                     <div className="space-y-1.5">
+                       <label htmlFor="message" className="text-sm font-medium text-on-surface-muted">Message</label>
+                       <textarea id="message" name="message" required rows={5} placeholder="How can we help you?"
+                         value={formState.message} onChange={handleChange}
+                         className="w-full bg-surface-deep border border-surface text-on-surface placeholder:text-on-surface-subtle rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#4BC957]/50 focus:ring-1 focus:ring-[#4BC957]/30 transition-all resize-none" />
+                     </div>
+                     {error && (
+                       <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
+                         <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+                         <p className="text-sm text-red-500 font-medium">{error}</p>
+                       </div>
+                     )}
+                     <button type="submit" disabled={loading}
                       className="w-full h-12 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-[#4BC957]/10">
                       {loading ? <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : <Send className="h-4 w-4" />}
                       {loading ? "Sending…" : "Send message"}
