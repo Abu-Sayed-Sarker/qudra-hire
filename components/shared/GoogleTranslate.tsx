@@ -35,5 +35,5 @@ export default function GoogleTranslate() {
     };
   }, []);
 
-  return <div id="google_translate_element"></div>;
+  return <></>
 }

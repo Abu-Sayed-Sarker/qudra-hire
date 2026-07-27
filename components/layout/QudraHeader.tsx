@@ -87,7 +87,7 @@ export default function QudraHeader() {
         {/* Right actions */}
         <div className="flex items-center gap-3">
           {/* Language button */}
-          <GoogleTranslate />
+          <div id="google_translate_element"></div>
 
           {isLoggedIn ? (
             <>

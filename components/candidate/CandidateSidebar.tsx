@@ -39,6 +39,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
 import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
+import { useAppSelector } from "@/store/hooks";
 
 const navItems = [
   { label: "Browse jobs", href: "/candidate", icon: Briefcase },
@@ -51,6 +52,7 @@ const navItems = [
 export default function CandidateSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const user = useAppSelector((s) => s.auth.user);
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
 
@@ -59,6 +61,9 @@ export default function CandidateSidebar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const profiles = profilesData?.data ?? [];
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "Candidate";
+  const email = user?.email || "";
+  const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
 
   const handleCreateProfile = async () => {
     if (!selectedFile) {
@@ -194,11 +199,11 @@ export default function CandidateSidebar() {
         <div className="border-t border-border p-4">
           <div className="flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer">
             <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
-              LM
+              {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground truncate">Majid Al-Mansoori</p>
-              <p className="text-[13px] text-muted-foreground truncate">Majid@example.com</p>
+              <p className="font-semibold text-foreground truncate">{fullName}</p>
+              <p className="text-[13px] text-muted-foreground truncate">{email}</p>
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </div>
