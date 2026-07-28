@@ -216,7 +216,7 @@ function SetAIInterviewInner() {
     setSendError(null);
 
     try {
-      await sendInterview({ interview_id: interviewId, deadline_at: deadlineAt }).unwrap();
+      await sendInterview({ interview_id: interviewId, deadline_at: deadlineAt, valid_for_hours: 720 }).unwrap();
       setSendDialogOpen(false);
       setDeadlineAt("");
       window.location.href = `/company/candidates/interview/sent?interview_id=${interviewId}`;
