@@ -18,10 +18,12 @@ import {
   Shield,
 } from "lucide-react";
 import Link from "next/link";
-import { useGetCandidateDashboardQuery } from "@/store/authApi";
+import { useGetCandidateDashboardQuery, useGetCandidateProfilesQuery } from "@/store/authApi";
 
 export default function CandidateDashboard() {
   const { data, isLoading, isError } = useGetCandidateDashboardQuery();
+  const { data: profilesData } = useGetCandidateProfilesQuery();
+  const profileId = profilesData?.data?.[0]?.id;
   const d = data?.data;
 
   if (isLoading) {
@@ -139,7 +141,7 @@ export default function CandidateDashboard() {
           <div className="bg-surface-card border border-surface rounded-2xl p-6 space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-base font-bold text-on-surface">Daily AI recommendations</h2>
-              <button className="text-[#23C65F] font-semibold hover:underline text-sm">View all</button>
+              <Link href="/candidate/applications" className="text-[#23C65F] font-semibold hover:underline text-sm">View all</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {d.recommendations.map((job) => (
@@ -257,7 +259,7 @@ export default function CandidateDashboard() {
           <div className="bg-surface-card border border-surface rounded-2xl p-5 space-y-3">
             <div className="flex justify-between items-center">
               <h3 className="text-sm font-bold text-on-surface">Preferences</h3>
-           
+              <Link href={profileId ? `/candidate/profile/${profileId}` : "/candidate/profile"} className="text-xs text-[#23C65F] hover:underline font-semibold">Edit</Link>
             </div>
             <div className="space-y-2 text-on-surface-muted text-sm font-medium">
               <p>Role. <span className="text-on-surface font-semibold">{pref.role}</span></p>

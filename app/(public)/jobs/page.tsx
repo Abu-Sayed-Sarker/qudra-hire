@@ -84,7 +84,7 @@ export default function JobsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {jobs.map((job, idx) => (
               <Animate key={idx} className="animate-on-scroll" delay={delays[idx % 6]}>
-                <div onClick={()=>router.push("/candidate/jobs/detail")} className="bg-white dark:bg-[#0A0F1D] border border-slate-200 dark:border-white/5 rounded-2xl p-6 hover:border-slate-300 dark:hover:border-white/10 shadow-sm dark:shadow-none transition-colors cursor-pointer group h-full">
+                <div onClick={()=>router.push("/login")} className="bg-white dark:bg-[#0A0F1D] border border-slate-200 dark:border-white/5 rounded-2xl p-6 hover:border-slate-300 dark:hover:border-white/10 shadow-sm dark:shadow-none transition-colors cursor-pointer group h-full">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-[#162032] border border-slate-200 dark:border-white/5 flex items-center justify-center text-sm font-bold text-slate-700 dark:text-white shrink-0">

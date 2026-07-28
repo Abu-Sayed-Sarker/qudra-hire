@@ -39,7 +39,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
 import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/authSlice";
 
 const navItems = [
   { label: "Browse jobs", href: "/candidate", icon: Briefcase },
@@ -52,6 +53,7 @@ const navItems = [
 export default function CandidateSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
@@ -188,7 +190,10 @@ export default function CandidateSidebar() {
                 <Plus className="h-4 w-4 text-muted-foreground" />
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border my-1" />
-              <DropdownMenuItem className="text-red-600 hover:bg-red-500/10 hover:text-red-500 cursor-pointer focus:bg-red-500/10 focus:text-red-500 rounded-md px-3 py-2.5">
+              <DropdownMenuItem
+                onClick={() => { dispatch(logout()); router.push("/"); }}
+                className="text-red-600 hover:bg-red-500/10 hover:text-red-500 cursor-pointer focus:bg-red-500/10 focus:text-red-500 rounded-md px-3 py-2.5"
+              >
                 <span className="text-sm">Log Out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
