@@ -249,7 +249,7 @@ function CandidateProfileInner() {
             <p className="text-sm text-muted-foreground leading-relaxed font-medium">
               View the candidate's AI interview performance and rubric breakdown.
             </p>
-            <Link href={`/company/candidates/interview/report?id=${candidate?.id}`} className="w-full text-sm flex justify-center border border-border hover:bg-muted text-foreground font-bold py-2.5 rounded-xl transition-colors">
+            <Link href={`/company/interviews?candidate_id=${candidate?.id}`} className="w-full text-sm flex justify-center border border-border hover:bg-muted text-foreground font-bold py-2.5 rounded-xl transition-colors">
               View report
             </Link>
           </div>

@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/authSlice";
 
 const navItems = [
   {
@@ -58,6 +59,8 @@ const navItems = [
 
 export default function CompanySidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "Company User";
   const email = user?.email || "";
@@ -111,8 +114,8 @@ export default function CompanySidebar() {
       </nav>
 
       {/* Bottom Profile / Settings */}
-      <div className="border-t border-border p-4 bg-muted/30">
-        <div className="flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer">
+      <div className="border-t border-border p-4 bg-muted/30 space-y-2">
+        <Link href="/company/settings" className="flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer">
           <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-emerald-500 flex items-center justify-center font-bold text-primary-foreground text-sm shadow-md">
             {initials}
           </div>
@@ -121,7 +124,14 @@ export default function CompanySidebar() {
             <p className="text-[13px] text-muted-foreground truncate">{email}</p>
           </div>
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </div>
+        </Link>
+        <button
+          onClick={() => { dispatch(logout()); router.push("/"); }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          Log Out
+        </button>
       </div>
     </aside>
   );

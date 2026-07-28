@@ -169,7 +169,7 @@ export default function CandidatesPage() {
           {appliedFilters.role?.trim() && (
             <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               Role: {appliedFilters.role}
-              <button onClick={() => setFilters((f) => ({ ...f, role: undefined }))} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setAppliedFilters((f) => ({ ...f, role: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -177,7 +177,7 @@ export default function CandidatesPage() {
           {appliedFilters.skills?.trim() && (
             <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               Skills: {appliedFilters.skills}
-              <button onClick={() => setFilters((f) => ({ ...f, skills: undefined }))} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setAppliedFilters((f) => ({ ...f, skills: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -185,7 +185,7 @@ export default function CandidatesPage() {
           {appliedFilters.experience_level && appliedFilters.experience_level !== "ALL" && (
             <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               {appliedFilters.experience_level}
-              <button onClick={() => setFilters((f) => ({ ...f, experience_level: undefined }))} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setAppliedFilters((f) => ({ ...f, experience_level: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -193,7 +193,7 @@ export default function CandidatesPage() {
           {appliedFilters.gender && appliedFilters.gender !== "ALL" && (
             <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               {appliedFilters.gender}
-              <button onClick={() => setFilters((f) => ({ ...f, gender: undefined }))} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setAppliedFilters((f) => ({ ...f, gender: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -201,7 +201,7 @@ export default function CandidatesPage() {
           {(appliedFilters.min_age !== undefined || appliedFilters.max_age !== undefined) && (
             <Badge variant="outline" className="bg-muted text-foreground border-border rounded-lg px-2.5 py-1 flex items-center gap-1.5 text-xs font-medium">
               Age: {appliedFilters.min_age ?? 0}–{appliedFilters.max_age ?? "∞"}
-              <button onClick={() => setFilters((f) => ({ ...f, min_age: undefined, max_age: undefined }))} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => setAppliedFilters((f) => ({ ...f, min_age: undefined, max_age: undefined }))} className="text-muted-foreground hover:text-foreground">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -326,9 +326,9 @@ export default function CandidatesPage() {
                       <a href={`/company/candidates/interview?id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
                         <Bot className="h-4 w-4" />
                       </a>
-                      <button className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
+                      <a href={`/company/candidates/profile?id=${candidate.id}`} className="p-2.5 bg-muted border border-border text-muted-foreground hover:text-foreground rounded-xl hover:border-[#4BC957]/40 transition-colors">
                         <FileText className="h-4 w-4" />
-                      </button>
+                      </a>
                     </div>
                   </div>
                 );

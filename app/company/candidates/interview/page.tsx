@@ -219,7 +219,7 @@ function SetAIInterviewInner() {
       await sendInterview({ interview_id: interviewId, deadline_at: deadlineAt }).unwrap();
       setSendDialogOpen(false);
       setDeadlineAt("");
-      window.location.href = "/company/candidates/interview/sent";
+      window.location.href = `/company/candidates/interview/sent?interview_id=${interviewId}`;
     } catch (err: any) {
       const apiError = err?.data || err;
       setSendError(typeof apiError === "string" ? apiError : apiError?.details || "Failed to send interview. Please try again.");

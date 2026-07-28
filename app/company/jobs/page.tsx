@@ -133,7 +133,7 @@ export default function JobsPage() {
                           <DropdownMenuItem onClick={() => router.push(`/company/jobs/edit?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
                             <Pencil className="h-4 w-4" /> Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants`)} className="cursor-pointer gap-2 px-2.5 py-2">
+                          <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
                             <Users className="h-3.5 w-3.5 text-muted-foreground" /> Applicants
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDelete(job.id, job.title)} className="cursor-pointer gap-2 px-2.5 py-2 text-red-500 focus:text-red-500">

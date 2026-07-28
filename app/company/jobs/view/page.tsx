@@ -127,7 +127,7 @@ function JobViewContent() {
             Edit job
           </Link>
           <Link
-            href="/company/jobs/applicants"
+            href={`/company/jobs/applicants?id=${job?.id}`}
             className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98] inline-flex items-center gap-1.5"
           >
             <Users className="h-4 w-4" />
