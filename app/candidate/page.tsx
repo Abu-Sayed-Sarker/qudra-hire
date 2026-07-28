@@ -106,7 +106,7 @@ export default function CandidateDashboard() {
               <p className="text-on-surface-muted mt-0.5 text-sm">You have pending interview invites. Complete to boost your shortlist odds.</p>
             </div>
           </div>
-          <Link href="/candidate/interview" className="flex items-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98] text-sm flex-shrink-0">
+          <Link href={`/candidate/interview`} className="flex items-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98] text-sm flex-shrink-0">
             <Play className="h-3.5 w-3.5" />
             Start
           </Link>
