@@ -1,42 +1,59 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { 
-  ArrowLeft, 
-  Bot, 
-  Send, 
-  Mic, 
-  Star, 
-  CheckCircle2, 
-  Loader2 
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  ArrowLeft,
+  Bot,
+  Send,
+  Mic,
+  Star,
+  CheckCircle2,
+  Loader2,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useStartInterviewAttemptMutation } from "@/store/authApi";
+import type { InterviewAttempt, InterviewAttemptQuestion } from "@/store/authApi";
 
 export default function CandidateInterviewPage() {
-  const [mode, setMode] = useState<"text" | "voice">("text");
-  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "transcribing">("idle");
+  const searchParams = useSearchParams();
+  const inviteId = searchParams.get("invite");
+
+  const [startAttempt, { isLoading: isStarting, error: startError }] =
+    useStartInterviewAttemptMutation();
+
+  const [attempt, setAttempt] = useState<InterviewAttempt | null>(null);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [response, setResponse] = useState("");
   const [isFinished, setIsFinished] = useState(false);
+
+  // Voice states
+  const [mode, setMode] = useState<"text" | "voice">("text");
+  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "transcribing">("idle");
   const [transcribingLoader, setTranscribingLoader] = useState(false);
 
-  const questions = [
-    "Welcome! To start, please walk me through your design process for a fintech product.",
-    "How do you balance user needs with tight business requirements when product priorities clash?",
-    "Describe a complex product flow you optimized. What metrics did you use to define success?",
-    "Tell me about a time you designed a design system from scratch. What challenges did you face?",
-    "Why are you interested in joining Emirates NBD as a Senior Product Designer?"
-  ];
+  // Start the attempt on mount
+  useEffect(() => {
+    if (!inviteId) return;
+    startAttempt(inviteId)
+      .unwrap()
+      .then((res) => setAttempt(res.data))
+      .catch(() => {});
+  }, [inviteId, startAttempt]);
 
-  const handleNextQuestion = () => {
+  const questions: InterviewAttemptQuestion[] = attempt?.questions ?? [];
+  const currentQuestion = questions[currentQuestionIdx];
+
+  const handleNextQuestion = useCallback(() => {
     if (currentQuestionIdx < questions.length - 1) {
-      setCurrentQuestionIdx(currentQuestionIdx + 1);
+      setCurrentQuestionIdx((i) => i + 1);
       setResponse("");
       setVoiceState("idle");
     } else {
       setIsFinished(true);
     }
-  };
+  }, [currentQuestionIdx, questions.length]);
 
   const handleTextSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,11 +65,10 @@ export default function CandidateInterviewPage() {
     if (voiceState === "idle") {
       setVoiceState("recording");
     } else if (voiceState === "recording") {
-      // Simulate transcribing
       setVoiceState("transcribing");
       setTranscribingLoader(true);
       setTimeout(() => {
-        setResponse("This is a simulated AI voice transcription of your design process answer detailing system design and user metrics.");
+        setResponse("This is a simulated AI voice transcription of your answer.");
         setTranscribingLoader(false);
       }, 2000);
     }
@@ -62,6 +78,44 @@ export default function CandidateInterviewPage() {
     handleNextQuestion();
   };
 
+  // Loading state
+  if (isStarting) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-[#4BC957] mx-auto" />
+          <p className="text-sm text-muted-foreground font-semibold">Starting your interview...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (startError || !attempt) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-sm">
+          <div className="h-14 w-14 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto">
+            <span className="text-red-500 text-xl font-bold">!</span>
+          </div>
+          <h2 className="text-lg font-bold text-foreground">Could not start interview</h2>
+          <p className="text-sm text-muted-foreground">
+            {!inviteId
+              ? "No interview invite found. Please go back to the dashboard and try again."
+              : "Something went wrong. Please try again or contact support."}
+          </p>
+          <Link
+            href="/candidate"
+            className="inline-block bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98] text-sm"
+          >
+            Back to dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Completed state
   if (isFinished) {
     return (
       <div className="p-8 max-w-full mx-auto min-h-[calc(100vh-4rem)] flex flex-col justify-center text-foreground">
@@ -72,15 +126,15 @@ export default function CandidateInterviewPage() {
           <div className="space-y-2">
             <h2 className="text-2xl font-extrabold text-foreground tracking-tight">Interview Completed!</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Well done, Majid! Your responses have been submitted successfully to Emirates NBD.
+              Well done! Your responses have been submitted successfully to {attempt.company_name}.
             </p>
           </div>
           <div className="bg-muted border border-border rounded-2xl p-4 text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
             The hiring team will review the AI transcript and feedback report. You will be notified in your Inbox regarding subsequent rounds.
           </div>
           <div className="pt-4">
-            <Link 
-              href="/candidate" 
+            <Link
+              href="/candidate"
               className="inline-block bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-2xl transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
             >
               Return to dashboard
@@ -95,8 +149,8 @@ export default function CandidateInterviewPage() {
     <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto text-foreground flex flex-col min-h-[calc(100vh-4rem)]">
       {/* Back button */}
       <div>
-        <Link 
-          href="/candidate" 
+        <Link
+          href="/candidate"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-semibold transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -104,18 +158,30 @@ export default function CandidateInterviewPage() {
         </Link>
       </div>
 
-      {/* Path Meta & Role */}
-      <div>
-        <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">AI interview • Emirates NBD</p>
-        <h1 className="text-2xl font-extrabold text-foreground mt-1 tracking-tight">Senior Product Designer</h1>
+      {/* Interview Meta */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+            AI interview &bull; {attempt.company_name}
+          </p>
+          <h1 className="text-2xl font-extrabold text-foreground mt-1 tracking-tight">
+            {attempt.job_title}
+          </h1>
+        </div>
+        {attempt.hours_remaining > 0 && (
+          <div className="flex items-center gap-1.5 bg-muted border border-border rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+            <Clock className="h-3.5 w-3.5" />
+            {Math.floor(attempt.hours_remaining)}h remaining
+          </div>
+        )}
       </div>
 
       {/* Main Container Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start flex-1 min-h-0">
-        
+
         {/* Left Column: Mode Toggle + Chat Area */}
         <div className="lg:col-span-2 flex flex-col space-y-4 h-full">
-          
+
           {/* Mode toggle row */}
           <div className="bg-muted border border-border p-1.5 rounded-2xl flex w-full">
             <button
@@ -148,7 +214,7 @@ export default function CandidateInterviewPage() {
 
           {/* Active Chat panel */}
           <div className="bg-card border border-border rounded-2xl p-6 flex flex-col justify-between min-h-[440px] flex-1 shadow-sm">
-            
+
             {/* Chat Messages */}
             <div className="space-y-4">
               <div className="flex gap-3 items-start">
@@ -156,7 +222,7 @@ export default function CandidateInterviewPage() {
                   <Bot className="h-4.5 w-4.5" />
                 </div>
                 <div className="bg-muted text-foreground px-4 py-3 rounded-2xl rounded-tl-none text-xs font-semibold leading-relaxed max-w-[80%] border border-border/50">
-                  {questions[currentQuestionIdx]}
+                  {currentQuestion?.question_text}
                 </div>
               </div>
 
@@ -172,7 +238,7 @@ export default function CandidateInterviewPage() {
 
             {/* Answer Control Area */}
             <div className="pt-6 border-t border-border mt-6">
-              
+
               {/* TEXT MODE INPUT */}
               {mode === "text" && (
                 <form onSubmit={handleTextSubmit} className="flex gap-2">
@@ -196,7 +262,6 @@ export default function CandidateInterviewPage() {
               {/* VOICE MODE CONTROLS */}
               {mode === "voice" && (
                 <div className="flex items-center justify-between">
-                  {/* LEFT: Microphones controllers */}
                   <div className="flex items-center gap-3">
                     {voiceState === "idle" && (
                       <>
@@ -223,7 +288,7 @@ export default function CandidateInterviewPage() {
                         </button>
                         <div className="text-left">
                           <p className="text-xs font-bold text-foreground">Recording...</p>
-                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">Tap again to stop & transcribe</p>
+                          <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">Tap again to stop &amp; transcribe</p>
                         </div>
                       </>
                     )}
@@ -240,7 +305,6 @@ export default function CandidateInterviewPage() {
                     )}
                   </div>
 
-                  {/* RIGHT: Submit Actions */}
                   {mode === "voice" && response && !transcribingLoader && (
                     <button
                       onClick={handleVoiceSubmit}
@@ -258,7 +322,7 @@ export default function CandidateInterviewPage() {
 
         {/* Right Column: AI Interviewer Note & Progress list */}
         <div className="space-y-6">
-          
+
           {/* Interviewer intro card */}
           <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-sm">
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#4BC957]">
@@ -266,35 +330,35 @@ export default function CandidateInterviewPage() {
               AI interviewer
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed font-semibold">
-              Hi, I'm CareerSprint — your AI interviewer trained on Emirates NBD's rubric. Answer naturally; I'll score for clarity, depth, and relevance.
+              Hi, I'm CareerSprint — your AI interviewer trained on {attempt.company_name}'s rubric. Answer naturally; I'll score for clarity, depth, and relevance.
             </p>
           </div>
 
           {/* Progress list card */}
           <div className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-sm">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Progress</h3>
-            
+
             <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-              <div 
-                className="bg-[#4BC957] h-full transition-all duration-300" 
-                style={{ width: `${((currentQuestionIdx) / questions.length) * 100}%` }} 
+              <div
+                className="bg-[#4BC957] h-full transition-all duration-300"
+                style={{ width: `${(currentQuestionIdx / questions.length) * 100}%` }}
               />
             </div>
 
             <div className="space-y-3.5 pt-2">
-              {questions.map((_, idx) => {
+              {questions.map((q, idx) => {
                 const isActive = currentQuestionIdx === idx;
                 const isPassed = currentQuestionIdx > idx;
                 return (
-                  <div key={idx} className="flex items-center gap-3 text-xs font-semibold">
+                  <div key={q.id} className="flex items-center gap-3 text-xs font-semibold">
                     <span className={`h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] ${
-                      isPassed 
-                        ? "bg-[#4BC957]/10 border border-[#4BC957]/20 text-[#4BC957]" 
-                        : isActive 
-                        ? "bg-foreground text-background" 
+                      isPassed
+                        ? "bg-[#4BC957]/10 border border-[#4BC957]/20 text-[#4BC957]"
+                        : isActive
+                        ? "bg-foreground text-background"
                         : "border border-border text-muted-foreground"
                     }`}>
-                      {idx + 1}
+                      {isPassed ? <CheckCircle2 className="h-3 w-3" /> : idx + 1}
                     </span>
                     <span className={isActive ? "text-foreground" : isPassed ? "text-muted-foreground" : "text-muted-foreground/60"}>
                       Question {idx + 1}
@@ -311,4 +375,3 @@ export default function CandidateInterviewPage() {
     </div>
   );
 }
-

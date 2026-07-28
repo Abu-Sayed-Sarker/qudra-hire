@@ -94,22 +94,40 @@ export default function CandidateDashboard() {
         ))}
       </div>
 
-      {/* AI Interview Invite Banner */}
+      {/* AI Interview Invites */}
       {d.interview_invites.length > 0 && (
-        <div className="bg-surface-card border border-surface rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-[#23C65F]/10 border border-[#23C65F]/20 rounded-xl text-[#23C65F]">
-              <Bot className="h-5 w-5" />
+        <div className="space-y-3">
+          <h2 className="text-base font-bold text-on-surface flex items-center gap-2">
+            <Bot className="h-4 w-4 text-[#23C65F]" />
+            AI Interview Invites
+          </h2>
+          {d.interview_invites.map((invite: any) => (
+            <div key={invite.id} className="bg-surface-card border border-surface rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-[#23C65F]/30 transition-all duration-300">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="p-3 bg-[#23C65F]/10 border border-[#23C65F]/20 rounded-xl text-[#23C65F] flex-shrink-0">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-on-surface">{invite.company_name}</p>
+                  <p className="text-on-surface-muted mt-0.5 text-sm">{invite.role_context}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="flex items-center gap-1 text-xs text-on-surface-subtle">
+                      <Clock className="h-3 w-3" />
+                      {invite.duration_minutes} min
+                    </span>
+                    <span className="text-xs text-on-surface-subtle truncate">{invite.message}</span>
+                  </div>
+                </div>
+              </div>
+              <Link
+                href={`/candidate/interview?invite=${invite.id}`}
+                className="flex items-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98] text-sm flex-shrink-0"
+              >
+                <Play className="h-3.5 w-3.5" />
+                Start
+              </Link>
             </div>
-            <div>
-              <p className="text-sm font-bold text-on-surface">AI interview invites</p>
-              <p className="text-on-surface-muted mt-0.5 text-sm">You have pending interview invites. Complete to boost your shortlist odds.</p>
-            </div>
-          </div>
-          <Link href={`/candidate/interview`} className="flex items-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98] text-sm flex-shrink-0">
-            <Play className="h-3.5 w-3.5" />
-            Start
-          </Link>
+          ))}
         </div>
       )}
 

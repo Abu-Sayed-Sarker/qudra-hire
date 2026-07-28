@@ -481,8 +481,46 @@ export interface CandidatePreferences {
 export interface CandidateInterviewInvite {
   id: string;
   company_name: string;
+  role_context: string;
+  duration_minutes: number;
+  message: string;
+  job_title?: string;
+  status?: string;
+}
+
+export interface InterviewAttemptQuestion {
+  id: string;
+  order: number;
+  question_text: string;
+  is_answered: boolean;
+}
+
+export interface InterviewAttemptAnswer {
+  id: string;
+  question: string;
+  answer_text: string;
+}
+
+export interface InterviewAttempt {
+  id: string;
+  interview: string;
   job_title: string;
-  status: string;
+  company_name: string;
+  duration_minutes: number;
+  allow_voice_answers: boolean;
+  deadline_at: string;
+  hours_remaining: number;
+  is_expired: boolean;
+  attempt_status: string;
+  started_at: string;
+  submitted_at: string | null;
+  evaluated_at: string | null;
+  avg_score: number | null;
+  total_questions: number;
+  answered_count: number;
+  questions: InterviewAttemptQuestion[];
+  answers: InterviewAttemptAnswer[];
+  created_at: string;
 }
 
 export interface CandidateRecommendation {
@@ -1617,6 +1655,14 @@ export const authApi = createApi({
       }),
       invalidatesTags: ["Contacts"],
     }),
+
+    // POST /candidate/interviews/{id}/attempt/
+    startInterviewAttempt: builder.mutation<ApiResponse<InterviewAttempt>, string>({
+      query: (interviewId) => ({
+        url: `candidate/interviews/${interviewId}/attempt/`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -1718,4 +1764,6 @@ export const {
   useMarkConversationReadMutation,
   // Contacts
   useSubmitContactFormMutation,
+  // Candidate Interview Attempt
+  useStartInterviewAttemptMutation,
 } = authApi;
