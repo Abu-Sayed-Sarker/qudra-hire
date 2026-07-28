@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
+  Pencil,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,6 +22,7 @@ const navItems = [
   { label: "Candidates", href: "/admin/candidates", icon: UserCheck },
   { label: "Companies", href: "/admin/companies", icon: Building2 },
   { label: "Jobs", href: "/admin/jobs", icon: Briefcase },
+  { label: "Edit Requests", href: "/admin/job-edit-requests", icon: Pencil },
   { label: "Applications", href: "/admin/applications", icon: FileText },
   { label: "Subscriptions", href: "/admin/subscriptions", icon: Star },
   { label: "Settings", href: "/admin/settings", icon: Settings },

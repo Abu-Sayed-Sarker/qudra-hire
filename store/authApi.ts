@@ -442,6 +442,30 @@ export interface AdminJobListItem {
   job_status: string;
 }
 
+export interface AdminJobEditRequest {
+  id: string;
+  job: string;
+  job_title: string;
+  company: string;
+  request_status: string;
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+export interface AdminJobEditRequestDetail {
+  id: string;
+  job: string;
+  job_title: string;
+  company: string;
+  request_status: string;
+  proposed_changes: Record<string, any>;
+  current_values: Record<string, any>;
+  changes: Record<string, { from: any; to: any }>;
+  review_reason: string;
+  reviewed_at: string | null;
+  created_at: string;
+}
+
 // ─── Candidate Job Detail types ──────────────────────────────────────────────
 
 export interface CandidateJobDetail {
@@ -1043,7 +1067,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations", "Contacts"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations", "Contacts"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1365,6 +1389,32 @@ export const authApi = createApi({
     deleteAdminJob: builder.mutation<ApiResponse<null>, string>({
       query: (id) => ({ url: `admin/jobs/${id}/`, method: "DELETE" }),
       invalidatesTags: ["AdminJobs"],
+    }),
+
+    // ── Admin Job Edit Requests endpoints ─────────────────────────────────────
+
+    // GET /admin/job-edit-requests/
+    getAdminJobEditRequests: builder.query<ApiResponse<AdminJobEditRequest[]>, void>({
+      query: () => "admin/job-edit-requests/",
+      providesTags: ["AdminJobEditRequests"],
+    }),
+
+    // GET /admin/job-edit-requests/{id}/
+    getAdminJobEditRequestDetail: builder.query<ApiResponse<AdminJobEditRequestDetail>, string>({
+      query: (id) => `admin/job-edit-requests/${id}/`,
+      providesTags: (_r, _e, id) => [{ type: "AdminJobEditRequests", id }],
+    }),
+
+    // POST /admin/job-edit-requests/{id}/approve/
+    approveAdminJobEditRequest: builder.mutation<ApiResponse<any>, string>({
+      query: (id) => ({ url: `admin/job-edit-requests/${id}/approve/`, method: "POST" }),
+      invalidatesTags: ["AdminJobEditRequests"],
+    }),
+
+    // POST /admin/job-edit-requests/{id}/reject/
+    rejectAdminJobEditRequest: builder.mutation<ApiResponse<any>, string>({
+      query: (id) => ({ url: `admin/job-edit-requests/${id}/reject/`, method: "POST" }),
+      invalidatesTags: ["AdminJobEditRequests"],
     }),
 
     // ── Admin Settings endpoints ──────────────────────────────────────────────
@@ -1823,6 +1873,11 @@ export const {
   // Admin Jobs
   useGetAdminJobsQuery,
   useDeleteAdminJobMutation,
+  // Admin Job Edit Requests
+  useGetAdminJobEditRequestsQuery,
+  useGetAdminJobEditRequestDetailQuery,
+  useApproveAdminJobEditRequestMutation,
+  useRejectAdminJobEditRequestMutation,
   // Admin Settings
   useGetAdminSettingsQuery,
   usePatchAdminSettingsMutation,
