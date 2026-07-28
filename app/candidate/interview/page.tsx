@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useStartInterviewAttemptMutation, useSubmitInterviewAnswerMutation } from "@/store/authApi";
+import { useStartInterviewAttemptMutation, useSubmitInterviewAnswerMutation, useSubmitInterviewAttemptMutation } from "@/store/authApi";
 import type { InterviewAttempt, InterviewAttemptQuestion } from "@/store/authApi";
 import { toast } from "sonner";
 
@@ -25,12 +25,16 @@ export default function CandidateInterviewPage() {
     useStartInterviewAttemptMutation();
   const [submitAnswer, { isLoading: isSubmitting }] =
     useSubmitInterviewAnswerMutation();
+  const [submitAttempt, { isLoading: isSubmittingAttempt }] =
+    useSubmitInterviewAttemptMutation();
 
   const [attempt, setAttempt] = useState<InterviewAttempt | null>(null);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [response, setResponse] = useState("");
   const [isFinished, setIsFinished] = useState(false);
+  const [allAnswered, setAllAnswered] = useState(false);
   const [answeredIds, setAnsweredIds] = useState<Set<string>>(new Set());
+  const [startErrorMsg, setStartErrorMsg] = useState<string | null>(null);
 
   // Voice states
   const [mode, setMode] = useState<"text" | "voice">("text");
@@ -53,10 +57,13 @@ export default function CandidateInterviewPage() {
         if (firstUnanswered >= 0) {
           setCurrentQuestionIdx(firstUnanswered);
         } else {
-          setIsFinished(true);
+          setAllAnswered(true);
         }
       })
-      .catch(() => { });
+      .catch((err) => {
+        const msg = err?.data?.details || err?.data?.message || "Something went wrong. Please try again.";
+        setStartErrorMsg(msg);
+      });
   }, [inviteId, startAttempt]);
 
   const questions: InterviewAttemptQuestion[] = attempt?.questions ?? [];
@@ -73,8 +80,8 @@ export default function CandidateInterviewPage() {
         return;
       }
     }
-    // No more unanswered questions
-    setIsFinished(true);
+    // No more unanswered questions — show submit screen
+    setAllAnswered(true);
   }, [currentQuestionIdx, questions, answeredIds]);
 
   const handleTextSubmit = async (e: React.FormEvent) => {
@@ -148,6 +155,16 @@ export default function CandidateInterviewPage() {
     }
   };
 
+  const handleSubmitInterview = async () => {
+    if (!attempt) return;
+    try {
+      await submitAttempt(attempt.interview).unwrap();
+      setIsFinished(true);
+    } catch {
+      toast.error("Failed to submit interview. Please try again.");
+    }
+  };
+
   // Loading state
   if (isStarting) {
     return (
@@ -161,7 +178,7 @@ export default function CandidateInterviewPage() {
   }
 
   // Error state
-  if (startError || !attempt) {
+  if (startError || startErrorMsg || (!attempt && !isStarting)) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center space-y-4 max-w-sm">
@@ -169,10 +186,10 @@ export default function CandidateInterviewPage() {
             <span className="text-red-500 text-xl font-bold">!</span>
           </div>
           <h2 className="text-lg font-bold text-foreground">Could not start interview</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {!inviteId
               ? "No interview invite found. Please go back to the dashboard and try again."
-              : "Something went wrong. Please try again or contact support."}
+              : startErrorMsg || "Something went wrong. Please try again or contact support."}
           </p>
           <Link
             href="/candidate"
@@ -180,6 +197,41 @@ export default function CandidateInterviewPage() {
           >
             Back to dashboard
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // All answered — ready to submit
+  if (allAnswered && !isFinished) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="bg-card border border-border rounded-3xl p-8 md:p-10 text-center space-y-6 shadow-sm max-w-md w-full">
+          <div className="h-16 w-16 bg-[#4BC957]/10 border border-[#4BC957]/20 rounded-full flex items-center justify-center mx-auto text-[#4BC957] shadow-lg shadow-[#4BC957]/10">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-extrabold text-foreground tracking-tight">All questions answered!</h2>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+              You&apos;ve answered all {questions.length} questions. Review your answers or submit your interview to {attempt?.company_name}.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/candidate"
+              className="inline-block bg-muted hover:bg-muted/80 text-foreground font-bold px-6 py-3 rounded-2xl transition-all text-sm border border-border"
+            >
+              Back to dashboard
+            </Link>
+            <button
+              onClick={handleSubmitInterview}
+              disabled={isSubmittingAttempt}
+              className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-2xl transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98] text-sm"
+            >
+              {/* {isSubmittingAttempt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} */}
+              {isSubmittingAttempt ? "Submitting..." : "Submit interview"}
+            </button>
+          </div>
         </div>
       </div>
     );

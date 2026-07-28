@@ -10,7 +10,8 @@ import {
   Settings,
   LogOut,
   Star,
-  ChevronRight
+  ChevronRight,
+  Bot,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,6 +33,11 @@ const navItems = [
     label: "Manage Jobs",
     href: "/company/jobs",
     icon: Calendar,
+  },
+  {
+    label: "Interviews",
+    href: "/company/interviews",
+    icon: Bot,
   },
   {
     label: "Inbox",

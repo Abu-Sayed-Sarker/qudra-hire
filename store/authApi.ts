@@ -354,6 +354,67 @@ export interface CompanyInterview {
   job_title: string;
   created_at: string;
   updated_at: string;
+  hours_remaining: number | null;
+  is_expired: boolean;
+}
+
+export interface InterviewReportQuestion {
+  id: string;
+  order: number;
+  question_text: string;
+  expected_answer: string;
+  input_type: string;
+  response: string;
+  excerpt: string;
+  audio_url: string | null;
+  duration_seconds: number | null;
+  score: number;
+  score_100: number;
+  feedback: string;
+}
+
+export interface InterviewReport {
+  attempt_id: string;
+  interview_id: string;
+  candidate: {
+    profile_id: number;
+    name: string;
+    email: string;
+    role_title: string;
+    headline: string;
+  };
+  job: {
+    id: string;
+    title: string;
+    location: string;
+  };
+  overall: {
+    score: number;
+    score_out_of: number;
+    raw_score: number;
+    band: string;
+    tone: string;
+    headline: string;
+    summary: string;
+    top_percent: number | null;
+    recommendation: string;
+    recommendation_label: string;
+  };
+  progress: {
+    total_questions: number;
+    answered_count: number;
+    scored_count: number;
+    voice_answers: number;
+    total_speaking_seconds: number;
+  };
+  timeline: {
+    started_at: string;
+    submitted_at: string;
+    evaluated_at: string;
+  };
+  strengths: Array<{ question: string; score_100: number; feedback: string }>;
+  concerns: Array<{ question: string; score_100: number; feedback: string }>;
+  questions: InterviewReportQuestion[];
 }
 
 export interface CompanyInterviewPayload {
@@ -1202,6 +1263,12 @@ export const authApi = createApi({
 
     // ── Company Interview endpoints ─────────────────────────────────────────────
 
+    // GET /company/interviews/
+    getCompanyInterviews: builder.query<ApiResponse<CompanyInterview[]>, void>({
+      query: () => "company/interviews/",
+      providesTags: ["CompanyInterviews"],
+    }),
+
     // POST /company/interviews/
     createCompanyInterview: builder.mutation<ApiResponse<CompanyInterview>, CompanyInterviewPayload>({
       query: (body) => ({
@@ -1216,6 +1283,20 @@ export const authApi = createApi({
     getCompanyInterviewDetail: builder.query<ApiResponse<CompanyInterview>, string>({
       query: (id) => `company/interviews/${id}/`,
       providesTags: (_r, _e, id) => [{ type: "CompanyInterviews", id }],
+    }),
+
+    // GET /company/interviews/{id}/report/
+    getCompanyInterviewReport: builder.query<ApiResponse<InterviewReport>, string>({
+      query: (id) => `company/interviews/${id}/report/`,
+      providesTags: (_r, _e, id) => [{ type: "CompanyInterviews", id }],
+    }),
+
+    // GET /company/interviews/{id}/report/pdf/
+    downloadCompanyInterviewReportPdf: builder.query<Blob, string>({
+      query: (id) => ({
+        url: `company/interviews/${id}/report/pdf/`,
+        responseHandler: (response) => response.blob(),
+      }),
     }),
 
     // POST /company/interviews/{id}/questions/
@@ -1700,6 +1781,15 @@ export const authApi = createApi({
         };
       },
     }),
+
+    // POST /candidate/interviews/{id}/attempt/submit/
+    submitInterviewAttempt: builder.mutation<ApiResponse<InterviewAttempt>, string>({
+      query: (attemptId) => ({
+        url: `candidate/interviews/${attemptId}/attempt/submit/`,
+        method: "POST",
+        body: { run_async: true },
+      }),
+    }),
   }),
 });
 
@@ -1779,8 +1869,11 @@ export const {
   useUpdateCompanyJobMutation,
   useDeleteCompanyJobMutation,
   // Company Interviews
+  useGetCompanyInterviewsQuery,
   useCreateCompanyInterviewMutation,
   useGetCompanyInterviewDetailQuery,
+  useGetCompanyInterviewReportQuery,
+  useLazyDownloadCompanyInterviewReportPdfQuery,
   useCreateCompanyInterviewQuestionMutation,
   useDeleteCompanyInterviewQuestionMutation,
   useGenerateCompanyInterviewQuestionsMutation,
@@ -1804,4 +1897,5 @@ export const {
   // Candidate Interview Attempt
   useStartInterviewAttemptMutation,
   useSubmitInterviewAnswerMutation,
+  useSubmitInterviewAttemptMutation,
 } = authApi;
