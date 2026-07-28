@@ -523,6 +523,16 @@ export interface InterviewAttempt {
   created_at: string;
 }
 
+export interface InterviewAnswerResponse {
+  id: string;
+  question: string;
+  input_type: string;
+  response_text: string;
+  audio_file?: string;
+  duration_seconds?: number;
+  created_at: string;
+}
+
 export interface CandidateRecommendation {
   id: string;
   company_name: string;
@@ -1663,6 +1673,33 @@ export const authApi = createApi({
         method: "POST",
       }),
     }),
+
+    // POST /candidate/interviews/{id}/attempt/answers/
+    submitInterviewAnswer: builder.mutation<
+      ApiResponse<InterviewAnswerResponse>,
+      { attemptId: string; questionId: string; inputType: "TEXT" | "VOICE"; responseText?: string; audioFile?: File; durationSeconds?: number }
+    >({
+      query: ({ attemptId, questionId, inputType, responseText, audioFile, durationSeconds }) => {
+        if (inputType === "VOICE" && audioFile) {
+          const formData = new FormData();
+          formData.append("question_id", questionId);
+          formData.append("input_type", "VOICE");
+          formData.append("audio_file", audioFile);
+          if (durationSeconds !== undefined) formData.append("duration_seconds", String(durationSeconds));
+          return { url: `candidate/interviews/${attemptId}/attempt/answers/`, method: "POST", body: formData };
+        }
+        return {
+          url: `candidate/interviews/${attemptId}/attempt/answers/`,
+          method: "POST",
+          body: {
+            question_id: questionId,
+            input_type: inputType,
+            response_text: responseText ?? "",
+            ...(durationSeconds !== undefined && { duration_seconds: durationSeconds }),
+          },
+        };
+      },
+    }),
   }),
 });
 
@@ -1766,4 +1803,5 @@ export const {
   useSubmitContactFormMutation,
   // Candidate Interview Attempt
   useStartInterviewAttemptMutation,
+  useSubmitInterviewAnswerMutation,
 } = authApi;

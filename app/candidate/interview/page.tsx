@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   ArrowLeft,
   Bot,
@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useStartInterviewAttemptMutation } from "@/store/authApi";
+import { useStartInterviewAttemptMutation, useSubmitInterviewAnswerMutation } from "@/store/authApi";
 import type { InterviewAttempt, InterviewAttemptQuestion } from "@/store/authApi";
+import { toast } from "sonner";
 
 export default function CandidateInterviewPage() {
   const searchParams = useSearchParams();
@@ -22,60 +23,129 @@ export default function CandidateInterviewPage() {
 
   const [startAttempt, { isLoading: isStarting, error: startError }] =
     useStartInterviewAttemptMutation();
+  const [submitAnswer, { isLoading: isSubmitting }] =
+    useSubmitInterviewAnswerMutation();
 
   const [attempt, setAttempt] = useState<InterviewAttempt | null>(null);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [response, setResponse] = useState("");
   const [isFinished, setIsFinished] = useState(false);
+  const [answeredIds, setAnsweredIds] = useState<Set<string>>(new Set());
 
   // Voice states
   const [mode, setMode] = useState<"text" | "voice">("text");
   const [voiceState, setVoiceState] = useState<"idle" | "recording" | "transcribing">("idle");
   const [transcribingLoader, setTranscribingLoader] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const recordingStartRef = useRef<number>(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // Start the attempt on mount
   useEffect(() => {
     if (!inviteId) return;
     startAttempt(inviteId)
       .unwrap()
-      .then((res) => setAttempt(res.data))
-      .catch(() => {});
+      .then((res) => {
+        const data = res.data;
+        setAttempt(data);
+        // Resume from first unanswered question
+        const firstUnanswered = data.questions.findIndex((q) => !q.is_answered);
+        if (firstUnanswered >= 0) {
+          setCurrentQuestionIdx(firstUnanswered);
+        } else {
+          setIsFinished(true);
+        }
+      })
+      .catch(() => { });
   }, [inviteId, startAttempt]);
 
   const questions: InterviewAttemptQuestion[] = attempt?.questions ?? [];
   const currentQuestion = questions[currentQuestionIdx];
 
-  const handleNextQuestion = useCallback(() => {
-    if (currentQuestionIdx < questions.length - 1) {
-      setCurrentQuestionIdx((i) => i + 1);
-      setResponse("");
-      setVoiceState("idle");
-    } else {
-      setIsFinished(true);
+  const goToNext = useCallback(() => {
+    // Find next unanswered question after current
+    for (let i = currentQuestionIdx + 1; i < questions.length; i++) {
+      if (!questions[i].is_answered && !answeredIds.has(questions[i].id)) {
+        setCurrentQuestionIdx(i);
+        setResponse("");
+        setVoiceState("idle");
+        setAudioBlob(null);
+        return;
+      }
     }
-  }, [currentQuestionIdx, questions.length]);
+    // No more unanswered questions
+    setIsFinished(true);
+  }, [currentQuestionIdx, questions, answeredIds]);
 
-  const handleTextSubmit = (e: React.FormEvent) => {
+  const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!response.trim()) return;
-    handleNextQuestion();
+    if (!response.trim() || !attempt || !currentQuestion) return;
+    try {
+      await submitAnswer({
+        attemptId: attempt.interview,
+        questionId: currentQuestion.id,
+        inputType: "TEXT",
+        responseText: response,
+      }).unwrap();
+      setAnsweredIds((prev) => new Set(prev).add(currentQuestion.id));
+      goToNext();
+    } catch {
+      toast.error("Failed to submit answer. Please try again.");
+    }
   };
 
-  const handleVoiceToggle = () => {
+  const handleVoiceToggle = async () => {
     if (voiceState === "idle") {
-      setVoiceState("recording");
-    } else if (voiceState === "recording") {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks: BlobPart[] = [];
+        mediaRecorderRef.current = mediaRecorder;
+        recordingStartRef.current = Date.now();
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "audio/webm" });
+          setAudioBlob(blob);
+          stream.getTracks().forEach((t) => t.stop());
+        };
+
+        mediaRecorder.start();
+        setVoiceState("recording");
+      } catch {
+        toast.error("Microphone access denied. Please allow microphone access.");
+      }
+    } else if (voiceState === "recording" && mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
       setVoiceState("transcribing");
       setTranscribingLoader(true);
       setTimeout(() => {
-        setResponse("This is a simulated AI voice transcription of your answer.");
+        setResponse("Voice recorded — review your answer above, then submit.");
         setTranscribingLoader(false);
-      }, 2000);
+      }, 1500);
     }
   };
 
-  const handleVoiceSubmit = () => {
-    handleNextQuestion();
+  const handleVoiceSubmit = async () => {
+    if (!attempt || !currentQuestion) return;
+    const durationSeconds = Math.round((Date.now() - recordingStartRef.current) / 1000);
+    try {
+      await submitAnswer({
+        attemptId: attempt.interview,
+        questionId: currentQuestion.id,
+        inputType: "VOICE",
+        responseText: response || undefined,
+        audioFile: audioBlob ? new File([audioBlob], "answer.webm", { type: "audio/webm" }) : undefined,
+        durationSeconds,
+      }).unwrap();
+      setAnsweredIds((prev) => new Set(prev).add(currentQuestion.id));
+      goToNext();
+    } catch {
+      toast.error("Failed to submit voice answer. Please try again.");
+    }
   };
 
   // Loading state
@@ -189,11 +259,10 @@ export default function CandidateInterviewPage() {
                 setMode("text");
                 setVoiceState("idle");
               }}
-              className={`flex-1 text-center py-2.5 rounded-xl text-xs font-bold transition-all ${
-                mode === "text"
+              className={`flex-1 text-center py-2.5 rounded-xl text-xs font-bold transition-all ${mode === "text"
                   ? "bg-[#4BC957] text-white shadow"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               Text mode
             </button>
@@ -202,11 +271,10 @@ export default function CandidateInterviewPage() {
                 setMode("voice");
                 setResponse("");
               }}
-              className={`flex-1 text-center py-2.5 rounded-xl text-xs font-bold transition-all ${
-                mode === "voice"
+              className={`flex-1 text-center py-2.5 rounded-xl text-xs font-bold transition-all ${mode === "voice"
                   ? "bg-[#4BC957] text-white shadow"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               Voice mode
             </button>
@@ -247,14 +315,15 @@ export default function CandidateInterviewPage() {
                     value={response}
                     onChange={(e) => setResponse(e.target.value)}
                     placeholder="Type your answer..."
+                    disabled={isSubmitting}
                     className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-xs text-foreground placeholder-muted-foreground focus:outline-none focus:border-[#4BC957]"
                   />
                   <button
                     type="submit"
-                    disabled={!response.trim()}
+                    disabled={!response.trim() || isSubmitting}
                     className="bg-[#4BC957] hover:bg-[#00B96E] disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-white p-3 rounded-xl transition-all shadow-md shadow-[#4BC957]/10 flex-shrink-0"
                   >
-                    <Send className="h-4 w-4" />
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   </button>
                 </form>
               )}
@@ -308,9 +377,11 @@ export default function CandidateInterviewPage() {
                   {mode === "voice" && response && !transcribingLoader && (
                     <button
                       onClick={handleVoiceSubmit}
-                      className="bg-[#4BC957] hover:bg-[#00B96E] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
+                      disabled={isSubmitting}
+                      className="bg-[#4BC957] hover:bg-[#00B96E] disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
                     >
-                      Submit answer
+                      {/* {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin inline mr-1" /> : null} */}
+                      {isSubmitting ? "Submitting..." : "Submit answer"}
                     </button>
                   )}
                 </div>
@@ -341,26 +412,25 @@ export default function CandidateInterviewPage() {
             <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
               <div
                 className="bg-[#4BC957] h-full transition-all duration-300"
-                style={{ width: `${(currentQuestionIdx / questions.length) * 100}%` }}
+                style={{ width: `${((questions.filter((q) => q.is_answered || answeredIds.has(q.id)).length) / questions.length) * 100}%` }}
               />
             </div>
 
             <div className="space-y-3.5 pt-2">
               {questions.map((q, idx) => {
                 const isActive = currentQuestionIdx === idx;
-                const isPassed = currentQuestionIdx > idx;
+                const isAnswered = q.is_answered || answeredIds.has(q.id);
                 return (
                   <div key={q.id} className="flex items-center gap-3 text-xs font-semibold">
-                    <span className={`h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] ${
-                      isPassed
+                    <span className={`h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] ${isAnswered
                         ? "bg-[#4BC957]/10 border border-[#4BC957]/20 text-[#4BC957]"
                         : isActive
-                        ? "bg-foreground text-background"
-                        : "border border-border text-muted-foreground"
-                    }`}>
-                      {isPassed ? <CheckCircle2 className="h-3 w-3" /> : idx + 1}
+                          ? "bg-foreground text-background"
+                          : "border border-border text-muted-foreground"
+                      }`}>
+                      {isAnswered ? <CheckCircle2 className="h-3 w-3" /> : idx + 1}
                     </span>
-                    <span className={isActive ? "text-foreground" : isPassed ? "text-muted-foreground" : "text-muted-foreground/60"}>
+                    <span className={isActive ? "text-foreground" : isAnswered ? "text-muted-foreground" : "text-muted-foreground/60"}>
                       Question {idx + 1}
                     </span>
                   </div>
