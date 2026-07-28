@@ -255,7 +255,7 @@ export default function PricingPage() {
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              Yearly. Save 16%
+              Yearly.
             </button>
           </div>
         </div>

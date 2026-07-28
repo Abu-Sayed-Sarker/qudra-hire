@@ -152,7 +152,7 @@ export default function CandidateSubscriptionPage() {
                   onClick={() => setYearly(true)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${yearly ? "bg-[#4BC957] text-white shadow" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  Yearly, Save 16%
+                  Yearly
                 </button>
               </div>
             </div>

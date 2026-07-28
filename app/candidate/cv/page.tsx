@@ -270,7 +270,7 @@ export default function CandidateCVPage() {
               {isUploading ? (
                 <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Uploading...</span>
               ) : (
-                <span className="flex items-center justify-center gap-2"><Upload className="h-4 w-4" /> Upload CV</span>
+                <span className="flex items-center justify-center gap-2"><Upload className="h-4 w-4" /> Review My CV</span>
               )}
             </button>
           </div>

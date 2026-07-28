@@ -129,7 +129,7 @@ export default function CompanySubscriptionPage() {
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${yearly ? "bg-[#4BC957] text-white shadow-sm" : "text-muted-foreground"
                     }`}
                 >
-                  Yearly, Save 16%
+                  Yearly
                 </button>
               </div>
             </div>
