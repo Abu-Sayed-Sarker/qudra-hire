@@ -3,36 +3,15 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { ArrowLeft, ShieldCheck, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   useGetCompanyJobDetailQuery,
-  useUpdateCompanyJobMutation,
+  useRequestCompanyJobEditMutation,
 } from "@/store/authApi";
 import type { CompanyJob, CompanyJobPayload } from "@/store/authApi";
-
-const EMPTY_PAYLOAD: CompanyJobPayload = {
-  title: "",
-  description: "",
-  requirements: "",
-  skills: [],
-  preferred_skills: [],
-  benefits: [],
-  location: "",
-  employment_type: "FULL_TIME",
-  currency: "",
-  salary_min: 0,
-  salary_max: 0,
-  salary_period: "MONTH",
-  visa_sponsorship: false,
-  emiratization: false,
-  saudization: false,
-  open_to_remote: false,
-  additional_questions: [],
-};
 
 function EditJobInner() {
   const searchParams = useSearchParams();
@@ -43,8 +22,28 @@ function EditJobInner() {
   const [emiratization, setEmiratization] = useState(false);
   const [saudization, setSaudization] = useState(false);
   const [remote, setRemote] = useState(false);
-  const [form, setForm] = useState<CompanyJobPayload>(EMPTY_PAYLOAD);
+  const [form, setForm] = useState<CompanyJobPayload>({
+    title: "",
+    description: "",
+    requirements: "",
+    skills: [],
+    preferred_skills: [],
+    benefits: [],
+    location: "",
+    employment_type: "FULL_TIME",
+    currency: "",
+    salary_min: 0,
+    salary_max: 0,
+    salary_period: "MONTH",
+    visa_sponsorship: false,
+    emiratization: false,
+    saudization: false,
+    open_to_remote: false,
+    additional_questions: [],
+  });
+  const [original, setOriginal] = useState<CompanyJobPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [requestSent, setRequestSent] = useState(false);
 
   const {
     data,
@@ -54,13 +53,13 @@ function EditJobInner() {
     skip: !id,
   });
 
-  const [updateJob, { isLoading: isUpdating }] = useUpdateCompanyJobMutation();
+  const [requestEdit, { isLoading: isRequesting }] = useRequestCompanyJobEditMutation();
 
   const job: CompanyJob | undefined = data?.data;
 
   useEffect(() => {
     if (job) {
-      setForm({
+      const payload: CompanyJobPayload = {
         title: job.title,
         description: job.description,
         requirements: job.requirements,
@@ -78,7 +77,9 @@ function EditJobInner() {
         saudization: job.saudization,
         open_to_remote: job.open_to_remote,
         additional_questions: job.additional_questions,
-      });
+      };
+      setForm(payload);
+      setOriginal(payload);
       setVisaSp(job.visa_sponsorship);
       setEmiratization(job.emiratization);
       setSaudization(job.saudization);
@@ -90,23 +91,38 @@ function EditJobInner() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  const getDiff = (): Partial<CompanyJobPayload> => {
+    if (!original) return {};
+    const current = { ...form, visa_sponsorship: visaSp, emiratization, saudization, open_to_remote: remote };
+    const diff: Partial<CompanyJobPayload> = {};
+    const fields: (keyof CompanyJobPayload)[] = [
+      "title", "description", "requirements", "skills", "preferred_skills",
+      "benefits", "location", "employment_type", "currency", "salary_min",
+      "salary_max", "salary_period", "visa_sponsorship", "emiratization",
+      "saudization", "open_to_remote",
+    ];
+    for (const key of fields) {
+      if (JSON.stringify(current[key]) !== JSON.stringify(original[key])) {
+        (diff as any)[key] = current[key];
+      }
+    }
+    return diff;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
+    const diff = getDiff();
+    if (Object.keys(diff).length === 0) {
+      setError("No changes detected. Please modify at least one field.");
+      return;
+    }
     setError(null);
-
     try {
-      await updateJob({
-        id,
-        ...form,
-        visa_sponsorship: visaSp,
-        emiratization,
-        saudization,
-        open_to_remote: remote,
-      }).unwrap();
-      router.push("/company/jobs");
-    } catch (err) {
-      setError("Failed to update job. Please try again.");
+      await requestEdit({ id, proposed_changes: diff }).unwrap();
+      setRequestSent(true);
+    } catch (err: any) {
+      setError(err?.data?.details || "Failed to send edit request. Please try again.");
     }
   };
 
@@ -144,6 +160,30 @@ function EditJobInner() {
     );
   }
 
+  if (requestSent) {
+    return (
+      <div className="p-4 md:p-8 max-w-full mx-auto">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+          <div className="h-20 w-20 rounded-full bg-[#4BC957]/15 border border-[#4BC957]/30 flex items-center justify-center shadow-[0_0_40px_-8px_rgba(0,208,124,0.4)]">
+            <ShieldCheck className="h-9 w-9 text-[#4BC957]" />
+          </div>
+          <div className="space-y-3 max-w-md">
+            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Edit request sent</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              Your proposed changes have been submitted for review. You&apos;ll be notified once the request is processed.
+            </p>
+          </div>
+          <Link
+            href="/company/jobs"
+            className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
+          >
+            Back to jobs
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
       {/* Top Navigation Back / Title */}
@@ -158,8 +198,8 @@ function EditJobInner() {
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Edit job listing</h1>
-            <p className="text-sm text-muted-foreground mt-1">Update your requirements and refresh candidates matches.</p>
+            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Request job edit</h1>
+            <p className="text-sm text-muted-foreground mt-1">Modify the fields you want to change. Only changed fields will be sent.</p>
           </div>
           <span className="bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4" />
@@ -189,11 +229,10 @@ function EditJobInner() {
                 onChange={(e) => updateField("title", e.target.value)}
                 placeholder="e.g. Lead Developer"
                 className="bg-background border-border focus:border-[#4BC957]"
-                required
               />
             </div>
 
-            {/* Skills Tag input */}
+            {/* Skills */}
             <div className="space-y-2">
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
               <Input
@@ -205,7 +244,7 @@ function EditJobInner() {
               />
             </div>
 
-            {/* Location & Employment Type (2 Columns) */}
+            {/* Location & Employment Type */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Location</label>
@@ -215,7 +254,6 @@ function EditJobInner() {
                   onChange={(e) => updateField("location", e.target.value)}
                   placeholder="e.g. Riyadh, KSA"
                   className="bg-background border-border focus:border-[#4BC957]"
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -226,12 +264,11 @@ function EditJobInner() {
                   onChange={(e) => updateField("employment_type", e.target.value.toUpperCase())}
                   placeholder="e.g. FULL_TIME"
                   className="bg-background border-border focus:border-[#4BC957]"
-                  required
                 />
               </div>
             </div>
 
-            {/* Currency & Salary Range (2 Columns) */}
+            {/* Currency & Salary Range */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Currency</label>
@@ -241,7 +278,6 @@ function EditJobInner() {
                   onChange={(e) => updateField("currency", e.target.value)}
                   placeholder="e.g. SAR, USD"
                   className="bg-background border-border focus:border-[#4BC957]"
-                  required
                 />
               </div>
               <div className="space-y-2">
@@ -253,7 +289,6 @@ function EditJobInner() {
                     onChange={(e) => updateField("salary_min", Number(e.target.value))}
                     placeholder="Min"
                     className="bg-background border-border focus:border-[#4BC957]"
-                    required
                   />
                   <span className="text-muted-foreground">—</span>
                   <Input
@@ -262,7 +297,6 @@ function EditJobInner() {
                     onChange={(e) => updateField("salary_max", Number(e.target.value))}
                     placeholder="Max"
                     className="bg-background border-border focus:border-[#4BC957]"
-                    required
                   />
                 </div>
               </div>
@@ -277,7 +311,6 @@ function EditJobInner() {
                 onChange={(e) => updateField("description", e.target.value)}
                 placeholder="Describe the role..."
                 className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
-                required
               />
             </div>
 
@@ -290,7 +323,6 @@ function EditJobInner() {
                 onChange={(e) => updateField("requirements", e.target.value)}
                 placeholder={"Requirement 1\nRequirement 2\nRequirement 3"}
                 className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
-                required
               />
             </div>
 
@@ -298,44 +330,24 @@ function EditJobInner() {
             <div className="border border-border rounded-xl p-5 space-y-4">
               <h3 className="font-bold text-muted-foreground uppercase tracking-wider mb-2">GCC flags</h3>
 
-              {/* Visa */}
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-foreground">Visa sponsorship offered</span>
-                <Switch
-                  checked={visaSp}
-                  onCheckedChange={setVisaSp}
-                  className="data-checked:bg-[#4BC957]!"
-                />
+                <Switch checked={visaSp} onCheckedChange={setVisaSp} className="data-checked:bg-[#4BC957]!" />
               </div>
 
-              {/* Emiratization */}
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-foreground">Emiratization (UAE national priority)</span>
-                <Switch
-                  checked={emiratization}
-                  onCheckedChange={setEmiratization}
-                  className="data-checked:bg-[#4BC957]!"
-                />
+                <Switch checked={emiratization} onCheckedChange={setEmiratization} className="data-checked:bg-[#4BC957]!" />
               </div>
 
-              {/* Saudization */}
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-foreground">Saudization (Nitaqat-aligned)</span>
-                <Switch
-                  checked={saudization}
-                  onCheckedChange={setSaudization}
-                  className="data-checked:bg-[#4BC957]!"
-                />
+                <Switch checked={saudization} onCheckedChange={setSaudization} className="data-checked:bg-[#4BC957]!" />
               </div>
 
-              {/* Remote */}
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-foreground">Open to remote</span>
-                <Switch
-                  checked={remote}
-                  onCheckedChange={setRemote}
-                  className="data-checked:bg-[#4BC957]!"
-                />
+                <Switch checked={remote} onCheckedChange={setRemote} className="data-checked:bg-[#4BC957]!" />
               </div>
             </div>
 
@@ -349,16 +361,16 @@ function EditJobInner() {
               </Link>
               <Button
                 type="submit"
-                disabled={isLoadingDetail || isUpdating}
+                disabled={isLoadingDetail || isRequesting}
                 className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-5 flex justify-center items-center rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
               >
-                {(isLoadingDetail || isUpdating) ? (
+                {(isLoadingDetail || isRequesting) ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
+                    Sending...
                   </>
                 ) : (
-                  "Save Changes"
+                  "Send edit request"
                 )}
               </Button>
             </div>
@@ -367,41 +379,27 @@ function EditJobInner() {
 
           {/* Sidebar Info Columns (1/3 width) */}
           <div className="space-y-6">
-
-            {/* What happens next */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
                 <Sparkles className="h-4.5 w-4.5 text-[#4BC957]" />
                 What happens next
               </h3>
               <ol className="space-y-3.5 text-muted-foreground list-decimal pl-4 leading-relaxed font-medium">
-                <li>AI scans 50,000+ candidate profiles</li>
-                <li>Top 10 ranked shortlist within minutes</li>
-                <li>Candidates appear anonymised — unlock with credits</li>
-                <li>Message directly inside the platform</li>
+                <li>Your edit request is submitted for review</li>
+                <li>Only changed fields will be updated</li>
+                <li>You&apos;ll be notified once the request is processed</li>
               </ol>
             </div>
 
-            {/* Cost breakdown */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
               <h3 className="text-sm font-bold text-foreground">Cost</h3>
-
               <div className="space-y-3.5 font-semibold">
                 <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Update listing</span>
+                  <span>Request edit</span>
                   <span className="text-foreground">Free</span>
                 </div>
-                <div className="flex justify-between items-center text-[#4BC957]">
-                  <span>Top 10 shortlist</span>
-                  <span>Updated Free</span>
-                </div>
-              </div>
-
-              <div className="border-t border-border pt-4 font-bold text-[#4BC957]">
-                Balance: 1,240 credits
               </div>
             </div>
-
           </div>
         </div>
       </form>

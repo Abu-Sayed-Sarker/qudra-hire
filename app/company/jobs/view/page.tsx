@@ -124,7 +124,7 @@ function JobViewContent() {
             href={`/company/jobs/edit?id=${job?.id}`}
             className="border border-border hover:bg-muted text-foreground font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
           >
-            Edit job
+            Request edit
           </Link>
           <Link
             href={`/company/jobs/applicants?id=${job?.id}`}
@@ -168,11 +168,6 @@ function JobViewContent() {
               <Skeleton className="h-4 w-full rounded" />
               <Skeleton className="h-4 w-3/4 rounded" />
             </div>
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-              <Skeleton className="h-5 w-32 rounded" />
-              <Skeleton className="h-4 w-full rounded" />
-              <Skeleton className="h-4 w-2/3 rounded" />
-            </div>
           </div>
           <div className="space-y-6">
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
@@ -180,7 +175,6 @@ function JobViewContent() {
               <div className="flex flex-wrap gap-2">
                 <Skeleton className="h-6 w-16 rounded-lg" />
                 <Skeleton className="h-6 w-20 rounded-lg" />
-                <Skeleton className="h-6 w-14 rounded-lg" />
               </div>
             </div>
           </div>
@@ -189,15 +183,11 @@ function JobViewContent() {
 
       {!isLoading && job && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
               <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Job Description</h2>
               <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">{job.description}</p>
             </div>
-
-            {/* Requirements */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
               <h2 className="text-sm font-bold text-foreground uppercase tracking-wider">Requirements</h2>
               <ul className="space-y-2">
@@ -210,10 +200,7 @@ function JobViewContent() {
               </ul>
             </div>
           </div>
-
-          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Skills */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-3 shadow-sm">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
                 <Sparkles className="h-4 w-4 text-[#4BC957]" />
@@ -227,8 +214,6 @@ function JobViewContent() {
                 ))}
               </div>
             </div>
-
-            {/* Verification */}
             <div className="bg-card border border-border rounded-2xl p-6 space-y-3 shadow-sm">
               <h3 className="text-sm font-bold text-foreground">Verification</h3>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -236,26 +221,11 @@ function JobViewContent() {
                 Trade-licence verified
               </div>
             </div>
-
-            {/* Cost */}
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
-              <h3 className="text-sm font-bold text-foreground">Cost</h3>
-              <div className="space-y-2 text-sm font-semibold">
-                
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Top 10 shortlist</span>
-                  <span className="text-foreground">Free</span>
-                </div>
-              </div>
-              <div className="border-t border-border pt-4 text-sm font-bold text-[#4BC957]">
-                Balance: 1,240 credits
-              </div>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Loading overlay for initial load */}
+      {/* Loading overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-background/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="flex items-center gap-3 bg-card border border-border rounded-2xl px-6 py-4 shadow-xl">

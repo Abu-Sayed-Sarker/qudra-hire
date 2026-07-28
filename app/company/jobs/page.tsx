@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Plus, MoreVertical, Eye, Pencil, Trash2, Users } from "lucide-react";
+import { Plus, MoreVertical, Eye, Pencil, Trash2, Users, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -131,7 +131,7 @@ export default function JobsPage() {
                             <Eye className="h-4 w-4" /> View
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => router.push(`/company/jobs/edit?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
-                            <Pencil className="h-4 w-4" /> Edit
+                            <Pencil className="h-4 w-4" /> Request edit
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
                             <Users className="h-3.5 w-3.5 text-muted-foreground" /> Applicants
@@ -162,21 +162,15 @@ export default function JobsPage() {
                   ? Array.from({ length: 4 }).map((_, i) => renderSkeletonRow())
                   : jobs.map((job) => (
                       <tr key={job.id} className="hover:bg-muted/50 transition-colors group">
-                        {/* Role name */}
                         <td className="py-5 px-6 font-bold text-foreground tracking-tight">{job.title}</td>
-                        {/* Location */}
                         <td className="py-5 px-6 text-muted-foreground font-medium">{job.location}</td>
-                        {/* Applicants Count */}
                         <td className="py-5 px-6 font-extrabold text-foreground">{job.applications_count}</td>
-                        {/* AI Matches Score in Qudra Green */}
                         <td className="py-5 px-6 font-bold text-[#4BC957]">{job.ai_matches_count}</td>
-                        {/* Status Badge */}
                         <td className="py-5 px-6">
                           <span className="inline-flex items-center bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-2.5 py-0.5 rounded-full font-semibold">
                             {job.job_status}
                           </span>
                         </td>
-                        {/* Kebab Menu */}
                         <td className="py-5 px-6 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger className="inline-flex items-center justify-center border border-border bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground w-9 h-9 rounded-xl transition-all active:scale-[0.98]">
@@ -189,12 +183,12 @@ export default function JobsPage() {
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => router.push(`/company/jobs/edit?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
                                 <Pencil className="h-4 w-4" />
-                                Edit
+                                Request edit
                               </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
-                            <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                            Applicants
-                          </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants?id=${job.id}`)} className="cursor-pointer gap-2 px-2.5 py-2">
+                                <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                                Applicants
+                              </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleDelete(job.id, job.title)} className="cursor-pointer gap-2 px-2.5 py-2 text-red-500 focus:text-red-500">
                                 <Trash2 className="h-4 w-4" />
                                 Delete

@@ -1261,6 +1261,15 @@ export const authApi = createApi({
       invalidatesTags: ["CompanyJobs"],
     }),
 
+    // POST /jobs/{id}/edit-requests/
+    requestCompanyJobEdit: builder.mutation<ApiResponse<any>, { id: string; proposed_changes: Partial<CompanyJobPayload> }>({
+      query: ({ id, ...body }) => ({
+        url: `jobs/${id}/edit-requests/`,
+        method: "POST",
+        body,
+      }),
+    }),
+
     // ── Company Interview endpoints ─────────────────────────────────────────────
 
     // GET /company/interviews/
@@ -1868,6 +1877,7 @@ export const {
   useCreateCompanyJobMutation,
   useUpdateCompanyJobMutation,
   useDeleteCompanyJobMutation,
+  useRequestCompanyJobEditMutation,
   // Company Interviews
   useGetCompanyInterviewsQuery,
   useCreateCompanyInterviewMutation,
