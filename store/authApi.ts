@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "./index";
 
 export const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://10.10.29.169:8020/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "https://api.career-sprint.com/api/v1";
 
 // ─── Response shape ───────────────────────────────────────────────────────────
 

@@ -1,0 +1,21 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.career-sprint.com/api/v1
+    container_name: career_sprint_frontend
+    restart: unless-stopped
+    ports:
+      - "3036:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=https://api.career-sprint.com/api/v1
+    networks:
+      - career_sprint_default
+
+networks:
+  career_sprint_default:
+    external: true
