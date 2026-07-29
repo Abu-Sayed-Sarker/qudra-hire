@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, ShieldCheck, Sparkles, Loader2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Sparkles, Loader2, AlertTriangle, CreditCard, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   useCreateCompanyJobMutation,
+  useGetJobQuotaQuery,
+  usePurchaseJobSlotsMutation,
 } from "@/store/authApi";
-import type { CompanyJobPayload } from "@/store/authApi";
+import type { CompanyJobPayload, JobQuota } from "@/store/authApi";
 
 const EMPTY_PAYLOAD: CompanyJobPayload = {
   title: "",
@@ -40,8 +42,13 @@ export default function PostJobPage() {
   const [remote, setRemote] = useState(false);
   const [form, setForm] = useState<CompanyJobPayload>(EMPTY_PAYLOAD);
   const [error, setError] = useState<string | null>(null);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [quotaData, setQuotaData] = useState<JobQuota | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   const [createJob, { isLoading }] = useCreateCompanyJobMutation();
+  const { data: quotaRes } = useGetJobQuotaQuery();
+  const [purchaseSlots] = usePurchaseJobSlotsMutation();
 
   const updateField = <K extends keyof CompanyJobPayload>(key: K, value: CompanyJobPayload[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -63,10 +70,26 @@ export default function PostJobPage() {
     } catch (err: unknown) {
       const apiError = err as { data?: { code?: string; details?: string } };
       if (apiError.data?.code === "JOB_QUOTA_EXCEEDED") {
-        setError(apiError.data.details ?? "Failed to create job. Please try again.");
+        setQuotaExceeded(true);
+        setQuotaData(quotaRes?.data ?? null);
+        setError(null);
       } else {
         setError("Failed to create job. Please try again.");
       }
+    }
+  };
+
+  const handlePurchaseSlots = async (quantity: number) => {
+    setIsPurchasing(true);
+    try {
+      const result = await purchaseSlots({ quantity }).unwrap();
+      if (result.data?.checkout_url) {
+        window.location.href = result.data.checkout_url;
+      }
+    } catch {
+      setError("Failed to purchase slots. Please try again.");
+    } finally {
+      setIsPurchasing(false);
     }
   };
 
@@ -94,14 +117,68 @@ export default function PostJobPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
-          <p className="text-sm text-red-500 font-medium">{error}</p>
-        </div>
-      )}
+{error && (
+         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
+           <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+           <p className="text-sm text-red-500 font-medium">{error}</p>
+         </div>
+       )}
 
-      <form onSubmit={handleSubmit}>
+       {quotaExceeded && (
+         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 space-y-4">
+           <div className="flex items-center gap-3">
+             <CreditCard className="h-5 w-5 text-amber-500 shrink-0" />
+             <div>
+               <h3 className="text-sm font-bold text-foreground">Job posting limit reached</h3>
+               <p className="text-xs text-muted-foreground mt-0.5">
+                 You have used all available slots on your {quotaData?.plan ?? "Pro"} plan.
+                 Purchase additional slots to post more jobs.
+               </p>
+             </div>
+           </div>
+           {quotaData && (
+             <div className="grid grid-cols-3 gap-3 text-center">
+               <div className="bg-background rounded-lg p-3">
+                 <p className="text-lg font-bold text-foreground">{quotaData.total_allowed}</p>
+                 <p className="text-[11px] text-muted-foreground">Total slots</p>
+               </div>
+               <div className="bg-background rounded-lg p-3">
+                 <p className="text-lg font-bold text-foreground">{quotaData.used}</p>
+                 <p className="text-[11px] text-muted-foreground">Used</p>
+               </div>
+               <div className="bg-background rounded-lg p-3">
+                 <p className="text-lg font-bold text-red-500">{quotaData.remaining}</p>
+                 <p className="text-[11px] text-muted-foreground">Remaining</p>
+               </div>
+             </div>
+           )}
+           <div className="flex gap-3">
+             <Button
+               type="button"
+               onClick={() => handlePurchaseSlots(1)}
+               disabled={isPurchasing}
+               className="flex items-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-[0.98]"
+             >
+               {isPurchasing ? (
+                 <Loader2 className="h-4 w-4 animate-spin" />
+               ) : (
+                 <CreditCard className="h-4 w-4" />
+               )}
+               Purchase 1 slot
+             </Button>
+             <Button
+               type="button"
+               variant="outline"
+               onClick={() => { setQuotaExceeded(false); setQuotaData(null); }}
+               className="text-sm font-medium"
+             >
+               Dismiss
+             </Button>
+           </div>
+         </div>
+       )}
+
+       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           {/* Main Form (2/3 width) */}
           <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">

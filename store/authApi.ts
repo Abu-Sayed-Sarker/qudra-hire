@@ -547,6 +547,16 @@ export interface CandidateAutoApply {
   daily_cap: number;
 }
 
+export interface JobQuota {
+  plan: string;
+  base_limit: number;
+  extra_slots: number;
+  total_allowed: number;
+  used: number;
+  remaining: number;
+  can_post: boolean;
+}
+
 export interface CandidateCvChecklist {
   text: string;
   completed: boolean;
@@ -743,6 +753,7 @@ export interface CandidateProfile {
   gender: string | null;
   ai_status: string;
   is_default: boolean;
+  auto_apply: CandidateAutoApply;
   educations: ProfileEducation[];
   experiences: ProfileExperience[];
   skills: ProfileSkill[];
@@ -1294,6 +1305,20 @@ export const authApi = createApi({
       }),
     }),
 
+    // GET /jobs/quota/
+    getJobQuota: builder.query<ApiResponse<JobQuota>, void>({
+      query: () => "jobs/quota/",
+    }),
+
+    // POST /jobs/slots/purchase/
+    purchaseJobSlots: builder.mutation<ApiResponse<{ checkout_url: string; session_id: string }>, { quantity: number }>({
+      query: (body) => ({
+        url: "jobs/slots/purchase/",
+        method: "POST",
+        body,
+      }),
+    }),
+
     // ── Company Interview endpoints ─────────────────────────────────────────────
 
     // GET /company/interviews/
@@ -1711,6 +1736,15 @@ export const authApi = createApi({
       invalidatesTags: ["CandidateProfiles"],
     }),
 
+    // POST /candidate/auto-apply/toggle/
+    toggleCandidateAutoApply: builder.mutation<ApiResponse<null>, { is_enabled: boolean }>({
+      query: (body) => ({
+        url: "candidate/auto-apply/toggle/",
+        method: "POST",
+        body,
+      }),
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1921,6 +1955,7 @@ export const {
   usePatchCandidateProfileMutation,
   useDeleteCandidateProfileMutation,
   useSetDefaultCandidateProfileMutation,
+  useToggleCandidateAutoApplyMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates
@@ -1933,6 +1968,8 @@ export const {
   useUpdateCompanyJobMutation,
   useDeleteCompanyJobMutation,
   useRequestCompanyJobEditMutation,
+  useGetJobQuotaQuery,
+  usePurchaseJobSlotsMutation,
   // Company Interviews
   useGetCompanyInterviewsQuery,
   useCreateCompanyInterviewMutation,
