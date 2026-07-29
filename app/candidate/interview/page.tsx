@@ -248,7 +248,7 @@ export default function CandidateInterviewPage() {
           <div className="space-y-2">
             <h2 className="text-2xl font-extrabold text-foreground tracking-tight">Interview Completed!</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Well done! Your responses have been submitted successfully to {attempt.company_name}.
+              Well done! Your responses have been submitted successfully to {attempt?.company_name}.
             </p>
           </div>
           <div className="bg-muted border border-border rounded-2xl p-4 text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
@@ -284,16 +284,16 @@ export default function CandidateInterviewPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
-            AI interview &bull; {attempt.company_name}
+            AI interview &bull; {attempt?.company_name}
           </p>
           <h1 className="text-2xl font-extrabold text-foreground mt-1 tracking-tight">
-            {attempt.job_title}
+            {attempt?.job_title}
           </h1>
         </div>
-        {attempt.hours_remaining > 0 && (
+        {(attempt?.hours_remaining ?? 0) > 0 && (
           <div className="flex items-center gap-1.5 bg-muted border border-border rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground">
             <Clock className="h-3.5 w-3.5" />
-            {Math.floor(attempt.hours_remaining)}h remaining
+            {Math.floor(attempt?.hours_remaining ?? 0)}h remaining
           </div>
         )}
       </div>
@@ -453,7 +453,7 @@ export default function CandidateInterviewPage() {
               AI interviewer
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed font-semibold">
-              Hi, I'm CareerSprint — your AI interviewer trained on {attempt.company_name}'s rubric. Answer naturally; I'll score for clarity, depth, and relevance.
+              Hi, I'm CareerSprint — your AI interviewer trained on {attempt?.company_name}'s rubric. Answer naturally; I'll score for clarity, depth, and relevance.
             </p>
           </div>
 
