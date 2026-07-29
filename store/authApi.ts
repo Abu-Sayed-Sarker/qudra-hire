@@ -71,6 +71,10 @@ export interface ChangePasswordPayload {
   confirm_password: string;
 }
 
+export interface AutoApplyTogglePayload {
+  is_enabled: boolean;
+}
+
 // ─── Admin Candidate types ────────────────────────────────────────────────────
 
 export interface AdminCandidateListItem {
@@ -1144,6 +1148,20 @@ export const authApi = createApi({
         method: "POST",
         body,
       }),
+    }),
+
+    // POST /candidate/auto-apply/toggle/  (requires auth)
+    toggleAutoApply: builder.mutation<ApiResponse<null>, AutoApplyTogglePayload>({
+      query: (body) => ({
+        url: "candidate/auto-apply/toggle/",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    // GET /candidate/auto-apply/  (requires auth)
+    getAutoApplyStatus: builder.query<ApiResponse<{ is_enabled: boolean }>, void>({
+      query: () => "candidate/auto-apply/",
     }),
 
     // ── Admin Dashboard ─────────────────────────────────────────────────────

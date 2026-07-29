@@ -20,6 +20,7 @@ import {
   Pencil,
   Star,
   Lock,
+  Sparkles,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -37,7 +38,9 @@ import {
   useDeleteCandidateProfileMutation,
   useSetDefaultCandidateProfileMutation,
   useChangePasswordMutation,
+  useToggleCandidateAutoApplyMutation,
 } from "@/store/authApi";
+import { Switch } from "@/components/ui/switch";
 import type {
   CandidateProfile,
   ProfileEducation,
@@ -57,6 +60,7 @@ export default function CandidateProfilePage() {
   const [deleteProfile, { isLoading: isDeleting }] = useDeleteCandidateProfileMutation();
   const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+  const [toggleAutoApply, { isLoading: isTogglingAutoApply }] = useToggleCandidateAutoApplyMutation();
 
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
@@ -88,6 +92,7 @@ export default function CandidateProfilePage() {
   const profile = profileRes?.data;
 
   const [isDefault, setIsDefault] = useState(false);
+  const [autoApplyEnabled, setAutoApplyEnabled] = useState(false);
 
   // ── Form state ──
   const [form, setForm] = useState({
@@ -144,6 +149,7 @@ export default function CandidateProfilePage() {
     setProjects(profile.projects ?? []);
     setCertifications(profile.certifications ?? []);
     setIsDefault(profile.is_default ?? false);
+    setAutoApplyEnabled(profile.auto_apply?.enabled ?? false);
   }, [profile]);
 
   // ── Generic field updater ──
@@ -297,6 +303,18 @@ export default function CandidateProfilePage() {
       toast.success("Profile set as default");
     } catch (err: any) {
       toast.error(err?.data?.details ?? "Failed to set default profile");
+    }
+  }
+
+  // ── Auto-apply toggle ──
+  async function handleToggleAutoApply(enabled: boolean) {
+    const prev = autoApplyEnabled;
+    setAutoApplyEnabled(enabled);
+    try {
+      await toggleAutoApply({ is_enabled: enabled }).unwrap();
+    } catch (err: any) {
+      setAutoApplyEnabled(prev);
+      toast.error(err?.data?.details ?? "Failed to toggle auto-apply");
     }
   }
 
@@ -501,6 +519,36 @@ export default function CandidateProfilePage() {
             </div>
           </div>
         )}
+
+        {/* Auto-apply Mode */}
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#4BC957]" />
+              <h2 className="text-base font-bold text-foreground">Auto-apply mode</h2>
+            </div>
+            <Switch
+              checked={autoApplyEnabled}
+              onCheckedChange={handleToggleAutoApply}
+              disabled={isTogglingAutoApply}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">CareerSprint AI submits tailored applications to your top matches every day.</p>
+          {profile.auto_apply && (
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between items-center font-semibold">
+                <span className="text-muted-foreground">Today</span>
+                <span className={autoApplyEnabled ? "text-[#4BC957]" : "text-muted-foreground"}>
+                  {autoApplyEnabled ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+              <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                <div className="bg-[#4BC957] h-full rounded-full transition-all duration-500" style={{ width: `${profile.auto_apply.daily_cap > 0 ? (profile.auto_apply.sent_today / profile.auto_apply.daily_cap) * 100 : 0}%` }} />
+              </div>
+              <p className="text-[13px] text-muted-foreground text-right">{profile.auto_apply.sent_today}/{profile.auto_apply.daily_cap} sent</p>
+            </div>
+          )}
+        </div>
 
         {/* Education */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
