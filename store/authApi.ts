@@ -765,6 +765,7 @@ export interface CandidateProfile {
   linkedin: string | null;
   website_portfolio: string | null;
   cv: string;
+  image: string | null;
   age: number | null;
   gender: string | null;
   ai_status: string;
@@ -1775,6 +1776,24 @@ export const authApi = createApi({
       }),
     }),
 
+    // POST /auth/candidate/profiles/{id}/upload-image/ (multipart/form-data)
+    uploadProfileImage: builder.mutation<ApiResponse<{ image: string }>, { id: number; file: File }>({
+      query: ({ id, file }) => {
+        const formData = new FormData();
+        formData.append("image", file);
+        return {
+          url: `auth/candidate/profiles/${id}/upload-image/`,
+          method: "POST",
+          body: formData,
+          formData: true,
+        };
+      },
+      invalidatesTags: (_r, _e, { id }) => [
+        "CandidateProfiles",
+        { type: "CandidateProfiles", id },
+      ],
+    }),
+
     // ── Subscription endpoints ──────────────────────────────────────────────
 
     // GET /subscriptions/history/
@@ -1986,6 +2005,7 @@ export const {
   useDeleteCandidateProfileMutation,
   useSetDefaultCandidateProfileMutation,
   useToggleCandidateAutoApplyMutation,
+  useUploadProfileImageMutation,
   // Company Dashboard
   useGetCompanyDashboardQuery,
   // Company Candidates

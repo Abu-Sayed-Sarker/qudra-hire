@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Camera,
   Trash2,
@@ -39,6 +39,7 @@ import {
   useSetDefaultCandidateProfileMutation,
   useChangePasswordMutation,
   useToggleCandidateAutoApplyMutation,
+  useUploadProfileImageMutation,
 } from "@/store/authApi";
 import { Switch } from "@/components/ui/switch";
 import type {
@@ -61,6 +62,7 @@ export default function CandidateProfilePage() {
   const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [toggleAutoApply, { isLoading: isTogglingAutoApply }] = useToggleCandidateAutoApplyMutation();
+  const [uploadProfileImage, { isLoading: isUploadingImage }] = useUploadProfileImageMutation();
 
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
@@ -116,6 +118,9 @@ export default function CandidateProfilePage() {
   const [certifications, setCertifications] = useState<ProfileCertification[]>([]);
   const [skillInput, setSkillInput] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Snapshot to revert on cancel
   const snapshotRef = React.useRef<{
@@ -125,6 +130,8 @@ export default function CandidateProfilePage() {
     skills: ProfileSkill[];
     projects: ProfileProject[];
     certifications: ProfileCertification[];
+    imagePreview: string | null;
+    imageFile: File | null;
   } | null>(null);
 
   // ── Hydrate form from API data ──
@@ -150,6 +157,8 @@ export default function CandidateProfilePage() {
     setCertifications(profile.certifications ?? []);
     setIsDefault(profile.is_default ?? false);
     setAutoApplyEnabled(profile.auto_apply?.enabled ?? false);
+    setImagePreview(profile.image ?? null);
+    setImageFile(null);
   }, [profile]);
 
   // ── Generic field updater ──
@@ -231,6 +240,13 @@ export default function CandidateProfilePage() {
   // ── Save (PATCH) ──
   async function handleSave() {
     try {
+      let imageUrl = profile?.image ?? null;
+
+      if (imageFile) {
+        const imgRes = await uploadProfileImage({ id, file: imageFile }).unwrap();
+        imageUrl = imgRes.data?.image ?? imageUrl;
+      }
+
       const body: Record<string, any> = {
         first_name: form.first_name,
         last_name: form.last_name,
@@ -243,6 +259,7 @@ export default function CandidateProfilePage() {
         website_portfolio: form.website_portfolio || null,
         age: form.age ? Number(form.age) : null,
         gender: form.gender || null,
+        image: imageUrl,
         educations: educations.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
         experiences: experiences.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
         skills: skills.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
@@ -252,6 +269,7 @@ export default function CandidateProfilePage() {
       await patchProfile({ id, body }).unwrap();
       toast.success("Profile updated successfully");
       setIsEditing(false);
+      setImageFile(null);
     } catch (err: any) {
       toast.error(err?.data?.details ?? "Failed to update profile");
     }
@@ -266,6 +284,8 @@ export default function CandidateProfilePage() {
       skills: skills.map((s) => ({ ...s })),
       projects: projects.map((p) => ({ ...p })),
       certifications: certifications.map((c) => ({ ...c })),
+      imagePreview,
+      imageFile,
     };
     setIsEditing(true);
   }
@@ -278,6 +298,8 @@ export default function CandidateProfilePage() {
       setSkills(snapshotRef.current.skills);
       setProjects(snapshotRef.current.projects);
       setCertifications(snapshotRef.current.certifications);
+      setImagePreview(snapshotRef.current.imagePreview);
+      setImageFile(snapshotRef.current.imageFile);
       snapshotRef.current = null;
     }
     setIsEditing(false);
@@ -422,14 +444,50 @@ export default function CandidateProfilePage() {
         {/* Basic Info */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
           <div className="flex gap-8">
-            <div className="relative! shrink-0 ">
-              <div className="w-20 h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground">
-                {initials || "?"}
-              </div>
-              {isEditing && (
-                <button className="absolute bottom-0 right-0 bg-[#4BC957] text-white p-1.5 rounded-full shadow-sm hover:bg-[#3DAF49]">
+            <div className="relative shrink-0">
+              <div className="w-20  relative! h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground ">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 bg-[#4BC957] text-white p-1.5 rounded-full shadow-sm hover:bg-[#3DAF49] transition-colors"
+                >
                   <Camera className="w-3.5 h-3.5" />
                 </button>
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Profile" className="w-full h-full rounded-full  object-cover" />
+                ) : (
+                  initials || "?"
+                )}
+              </div>
+              {isEditing && (
+                <>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 2 * 1024 * 1024) {
+                        toast.error("Image must be under 2MB");
+                        return;
+                      }
+                      setImageFile(file);
+                      const reader = new FileReader();
+                      reader.onload = () => setImagePreview(reader.result as string);
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  {imageFile && (
+                    <button
+                      onClick={() => { setImageFile(null); setImagePreview(profile?.image ?? null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                      className="absolute -top-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-sm hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
