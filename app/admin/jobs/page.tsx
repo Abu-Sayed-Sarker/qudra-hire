@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   Search,
   Filter,
@@ -59,7 +59,7 @@ function StatusBadge({ status }: { status: string }) {
 
 const PAGE_SIZE = 10;
 
-const rowVariants = {
+const rowVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
   visible: (i: number) => ({
     opacity: 1,

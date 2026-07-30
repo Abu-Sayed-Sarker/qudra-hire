@@ -27,9 +27,9 @@ import {
   Skeleton,
 } from "@/components/ui/skeleton-cards";
 import { ErrorState } from "@/components/ui/error-state";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
-const fadeIn = {
+const fadeIn: Variants = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({
     opacity: 1,

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, type Variants } from "framer-motion";
 import {
   Search, Eye, Pencil, Trash2, Globe,
   ChevronLeft, ChevronRight, Loader2,
@@ -524,7 +524,7 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
 const PAGE_SIZE = 10;
 type ModalMode = "view" | "edit" | "delete" | "approve" | "reject" | "reset-pwd" | "suspend" | null;
 
-const rowVariants = {
+const rowVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
   visible: (i: number) => ({
     opacity: 1,

@@ -32,8 +32,32 @@ export default function CandidateSubscriptionPage() {
   const profiles = profilesData?.data ?? [];
 
   const activeSub = history.find((h) => h.sub_status === "ACTIVE");
-  const freePlan = plans.find((p) => p.plan_type === "Free");
-  const premiumPlan = plans.find((p) => p.plan_type === "Premium");
+  const freePlan = plans.find(
+    (p) => p.plan_type === "Free" || p.name?.toLowerCase() === "free" || Number(p.price) === 0
+  );
+  const premiumPlan = plans.find(
+    (p) =>
+      p.plan_type === "Premium" ||
+      p.plan_type === "Pro" ||
+      p.name?.toLowerCase() === "pro" ||
+      p.name?.toLowerCase() === "premium" ||
+      Number(p.price) > 0
+  );
+
+  const freeFeatures =
+    freePlan?.features && freePlan.features.length > 0
+      ? freePlan.features
+      : ["Basic job browsing & applications", "Candidate profile creation", "Standard AI recommendations"];
+
+  const premiumFeatures =
+    premiumPlan?.features && premiumPlan.features.length > 0
+      ? premiumPlan.features
+      : [
+          "Unlimited AI job matching",
+          "Priority candidate placement",
+          "Advanced resume parsing & AI recruiter",
+          "24/7 Priority support",
+        ];
 
   const isLoading = historyLoading || plansLoading || profilesLoading;
 
@@ -137,7 +161,7 @@ export default function CandidateSubscriptionPage() {
         )}
 
         {/* Choose your plan */}
-        {premiumPlan && (
+        {(freePlan || premiumPlan) && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-foreground">Choose your plan</h2>
@@ -179,7 +203,7 @@ export default function CandidateSubscriptionPage() {
                   </button>
                   <div className="border-t border-border mb-4" />
                   <ul className="space-y-2.5 flex-1">
-                    {freePlan.features.map((f) => (
+                    {freeFeatures.map((f) => (
                       <li key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
                         <span className="h-4 w-4 rounded-full bg-muted flex items-center justify-center shrink-0">
                           <Check className="h-2.5 w-2.5 text-muted-foreground" />
@@ -192,38 +216,40 @@ export default function CandidateSubscriptionPage() {
               )}
 
               {/* Premium card */}
-              <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
+              {premiumPlan && (
+                <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Star className="w-4 h-4 text-[#4BC957]" />
+                    <span className="text-[10px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{premiumPlan.name}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
+                  <div className="flex items-baseline gap-1 mb-5">
+                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400">/ month</span>
+                  </div>
+                  <button
+                    onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
+                    className="w-full h-11 rounded-xl font-bold text-sm bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/20 transition-all mb-5"
+                  >
+                    Upgrade to {premiumPlan.name}
+                  </button>
+                  <div className="border-t border-green-200 dark:border-white/10 mb-4" />
+                  <ul className="space-y-2.5 flex-1">
+                    {premiumFeatures.map((f) => (
+                      <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+                        <span className="h-4 w-4 rounded-full bg-[#4BC957]/15 flex items-center justify-center shrink-0">
+                          <Check className="h-2.5 w-2.5 text-[#4BC957]" />
+                        </span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Star className="w-4 h-4 text-[#4BC957]" />
-                  <span className="text-[10px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
-                </div>
-                <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{premiumPlan.name}</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
-                <div className="flex items-baseline gap-1 mb-5">
-                  <span className="text-3xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">/ month</span>
-                </div>
-                <button
-                  onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
-                  className="w-full h-11 rounded-xl font-bold text-sm bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/20 transition-all mb-5"
-                >
-                  Upgrade to Premium
-                </button>
-                <div className="border-t border-green-200 dark:border-white/10 mb-4" />
-                <ul className="space-y-2.5 flex-1">
-                  {premiumPlan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-300">
-                      <span className="h-4 w-4 rounded-full bg-[#4BC957]/15 flex items-center justify-center shrink-0">
-                        <Check className="h-2.5 w-2.5 text-[#4BC957]" />
-                      </span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              )}
             </div>
           </div>
         )}

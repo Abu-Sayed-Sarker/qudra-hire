@@ -64,8 +64,32 @@ export default function CompanySubscriptionPage() {
   const plans = allPlans.filter((p) => p.category === "COMPANY");
 
   const activeSub = history.find((h) => h.sub_status === "ACTIVE");
-  const freePlan = plans.find((p) => p.plan_type === "Free");
-  const premiumPlan = plans.find((p) => p.plan_type === "Premium");
+  const freePlan = plans.find(
+    (p) => p.plan_type === "Free" || p.name?.toLowerCase() === "free" || Number(p.price) === 0
+  );
+  const premiumPlan = plans.find(
+    (p) =>
+      p.plan_type === "Premium" ||
+      p.plan_type === "Pro" ||
+      p.name?.toLowerCase() === "pro" ||
+      p.name?.toLowerCase() === "premium" ||
+      Number(p.price) > 0
+  );
+
+  const freeFeatures =
+    freePlan?.features && freePlan.features.length > 0
+      ? freePlan.features
+      : ["Post active job vacancies", "Basic candidate matching", "Standard analytics dashboard"];
+
+  const premiumFeatures =
+    premiumPlan?.features && premiumPlan.features.length > 0
+      ? premiumPlan.features
+      : [
+          "Unlimited active job postings",
+          "Advanced AI recruiter & automated screening",
+          "Priority candidate matching & outreach",
+          "Dedicated account manager & 24/7 support",
+        ];
 
   const isLoading = historyLoading || plansLoading;
 
@@ -98,22 +122,25 @@ export default function CompanySubscriptionPage() {
                 <Building2 className="h-6 w-6 text-[#4BC957]" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Current Plan</p>
-                <h2 className="text-2xl font-extrabold text-foreground mt-0.5">{activeSub.plan_name}</h2>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Renews {new Date(activeSub.expires_at).toLocaleDateString()} &bull; {activeSub.currency} {activeSub.price}
+                <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase">ACTIVE SUBSCRIPTION</span>
+                <h2 className="text-xl font-bold text-foreground mt-0.5">{activeSub.plan_name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {activeSub.currency} {activeSub.price} &bull; Renews on {new Date(activeSub.expires_at).toLocaleDateString()}
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Plan Toggle + Cards */}
-        {premiumPlan && (
+        {/* Plans Grid */}
+        {(freePlan || premiumPlan) && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-extrabold text-foreground">Choose your plan</h2>
-              <div className="flex items-center gap-1 bg-muted border border-border rounded-full p-1">
+              <div>
+                <h2 className="text-xl font-bold text-foreground tracking-tight">Available Plans</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">Select a plan that fits your hiring needs</p>
+              </div>
+              <div className="bg-muted p-1 rounded-full flex items-center border border-border">
                 <button
                   onClick={() => setYearly(false)}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${!yearly ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
@@ -153,7 +180,7 @@ export default function CompanySubscriptionPage() {
                     {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
                   </button>
                   <div className="border-t border-border pt-5 space-y-3 flex-1">
-                    {freePlan.features.map((f) => (
+                    {freeFeatures.map((f) => (
                       <div key={f} className="flex items-start gap-2.5">
                         <Check className="w-4 h-4 text-[#4BC957] shrink-0 mt-0.5" />
                         <span className="text-sm text-foreground">{f}</span>
@@ -164,39 +191,41 @@ export default function CompanySubscriptionPage() {
               )}
 
               {/* Premium Card */}
-              <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
+              {premiumPlan && (
+                <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Star className="w-4 h-4 text-[#4BC957]" />
+                    <span className="text-[10px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
+                  </div>
+                  <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{premiumPlan.name}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
+                  <div className="flex items-baseline gap-1 mb-5">
+                    <span className="text-4xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400 ml-1">/ month</span>
+                    {yearly && premiumPlan.discount && (
+                      <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{premiumPlan.discount}</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
+                    disabled={activeSub?.plan_name === premiumPlan.name}
+                    className="w-full py-2.5 rounded-xl bg-[#4BC957] hover:bg-[#3DAF49] text-white text-sm font-bold transition-all mb-6 shadow-md shadow-[#4BC957]/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {activeSub?.plan_name === premiumPlan.name ? "Active" : `Upgrade to ${premiumPlan.name}`}
+                  </button>
+                  <div className="border-t border-green-200 dark:border-white/10 pt-5 space-y-3 flex-1">
+                    {premiumFeatures.map((f) => (
+                      <div key={f} className="flex items-start gap-2.5">
+                        <Check className="w-4 h-4 text-[#4BC957] shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{f}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Star className="w-4 h-4 text-[#4BC957]" />
-                  <span className="text-[10px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
-                </div>
-                <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{premiumPlan.name}</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
-                <div className="flex items-baseline gap-1 mb-5">
-                  <span className="text-4xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
-                  <span className="text-sm text-slate-600 dark:text-slate-400 ml-1">/ month</span>
-                  {yearly && (
-                    <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{premiumPlan.discount}</span>
-                  )}
-                </div>
-                <button
-                  onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
-                  disabled={activeSub?.plan_name === premiumPlan.name}
-                  className="w-full py-2.5 rounded-xl bg-[#4BC957] hover:bg-[#3DAF49] text-white text-sm font-bold transition-all mb-6 shadow-md shadow-[#4BC957]/30 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {activeSub?.plan_name === premiumPlan.name ? "Active" : "Upgrade to Premium"}
-                </button>
-                <div className="border-t border-green-200 dark:border-white/10 pt-5 space-y-3 flex-1">
-                  {premiumPlan.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5">
-                      <Check className="w-4 h-4 text-[#4BC957] shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-700 dark:text-slate-300">{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
