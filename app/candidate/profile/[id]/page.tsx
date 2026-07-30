@@ -156,9 +156,10 @@ export default function CandidateProfilePage() {
     setProjects(profile.projects ?? []);
     setCertifications(profile.certifications ?? []);
     setIsDefault(profile.is_default ?? false);
-    setAutoApplyEnabled(profile.auto_apply?.enabled ?? false);
+    setAutoApplyEnabled(profile.is_ai_auto_apply ?? false);
     setImagePreview(profile.image ?? null);
     setImageFile(null);
+    
   }, [profile]);
 
   // ── Generic field updater ──

@@ -787,6 +787,7 @@ export interface ProfileCertification {
 }
 
 export interface CandidateProfile {
+  is_ai_auto_apply: boolean;
   id: number;
   email: string;
   first_name: string;
@@ -1129,7 +1130,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-   tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "CompanyProfile", "Notifications", "ChatConversations", "Contacts"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "CompanyProfile", "Notifications", "ChatConversations", "Contacts"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1932,6 +1933,16 @@ export const authApi = createApi({
       invalidatesTags: ["ChatConversations"],
     }),
 
+    // POST /chat/conversations/
+    createConversation: builder.mutation<ApiResponse<ChatConversation>, { candidate_profile_id: string }>({
+      query: (body) => ({
+        url: "chat/conversations/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["ChatConversations"],
+    }),
+
     // POST /contacts/form/
     submitContactForm: builder.mutation<ApiResponse<null>, { full_name: string; email: string; phone_number: string; message: string }>({
       query: (body) => ({
@@ -2100,6 +2111,7 @@ export const {
   useGetConversationMessagesQuery,
   useSendMessageMutation,
   useMarkConversationReadMutation,
+  useCreateConversationMutation,
   // Contacts
   useSubmitContactFormMutation,
   // Candidate Interview Attempt
