@@ -13,7 +13,7 @@ import {
 } from "@/store/authApi";
 
 const WS_BASE_URL =
-  (process.env.NEXT_PUBLIC_API_URL ?? "http://10.10.29.169:8020/api/v1")
+  (process.env.NEXT_PUBLIC_API_URL ?? "https://api.career-sprint.com/api/v1")
     .replace(/^http/, "ws")
     .replace(/\/api\/v1$/, "");
 
