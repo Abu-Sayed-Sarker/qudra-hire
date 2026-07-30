@@ -29,7 +29,7 @@ const statusLabel = (s: string) => {
 
 export default function CandidateApplicationsPage() {
   const { data, isLoading, isError } = useGetCandidateApplicationsQuery();
-  const applications = data?.data ?? [];
+  const applications = data?.data?.applications ?? [];
 
   // Compute counts from applications
   const counts = applications.reduce(

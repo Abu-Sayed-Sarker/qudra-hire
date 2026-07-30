@@ -536,6 +536,18 @@ export interface CandidateApplicationItem {
   created_at: string;
 }
 
+export interface CandidateApplicationsData {
+  counts: {
+    applied: number;
+    shortlisted: number;
+    interview: number;
+    offer: number;
+    rejected: number;
+    all: number;
+  };
+  applications: CandidateApplicationItem[];
+}
+
 // ─── Candidate Dashboard types ───────────────────────────────────────────────
 
 export interface CandidateDashboardMetrics {
@@ -1596,7 +1608,7 @@ export const authApi = createApi({
     }),
 
     // GET /candidate/applications/
-    getCandidateApplications: builder.query<ApiResponse<CandidateApplicationItem[]>, void>({
+    getCandidateApplications: builder.query<ApiResponse<CandidateApplicationsData>, void>({
       query: () => "candidate/applications/",
       providesTags: ["CandidateApplications"],
     }),

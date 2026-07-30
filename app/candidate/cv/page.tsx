@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   Check,
 } from "lucide-react";
+import { AnalysisPopup } from "@/components/cv/analysis-popup";
 import { toast } from "sonner";
 import {
   useGetCandidateCvQuery,
@@ -40,6 +41,7 @@ export default function CandidateCVPage() {
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<{
     ats_score: number;
@@ -240,46 +242,46 @@ export default function CandidateCVPage() {
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957]">
-                <Upload className="h-6 w-6" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Drop your CV here</h3>
-                <p className="text-slate-600 dark:text-slate-400">PDF or DOCX, max 10MB. We will parse skills, projects and experience.</p>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/pdf,.doc,.docx"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              {selectedFile && (
+
+              {selectedFile ? (
                 <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-xs">
                   Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                 </p>
+              ) : (
+                <>   <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957]">
+                  <Upload className="h-6 w-6" />
+                </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Drop your CV here</h3>
+                    <p className="text-slate-600 dark:text-slate-400">PDF or DOCX, max 10MB. We will parse skills, projects and experience.</p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/pdf,.doc,.docx"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </>
+
               )}
             </div>
 
-            {/* Upload Button (outside dropzone) */}
+            {/* Upload Button (outside dropzone) — now opens analysis popup */}
             <button
-              onClick={handleUpload}
-              disabled={!selectedFile || isUploading}
+              onClick={() => setShowAnalysis(true)}
+              disabled={!selectedFile}
               className="w-full bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white font-bold px-5 py-3 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {/* {isUploading ? (
-                <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Uploading...</span>
-              ) : ( */}
-                <span className="flex items-center justify-center gap-2"><Upload className="h-4 w-4" /> Review My CV</span>
-              {/* )} */}
+              <span className="flex items-center justify-center gap-2"><Upload className="h-4 w-4" /> Review My CV</span>
             </button>
           </div>
 
           {/* Action buttons */}
           <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-[#1E293B]/40">
             <button
-              onClick={triggerAutoSuggest}
-              disabled={!hasCv || isAnalyzing || isPolling}
+              onClick={() => setShowAnalysis(true)}
+              disabled={!hasCv}
               className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-md shadow-green-500/10 dark:shadow-[#4BC957]/10 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {suggestIcon}
@@ -344,6 +346,8 @@ export default function CandidateCVPage() {
           )}
         </div>
       </div>
+
+      <AnalysisPopup open={showAnalysis} onOpenChange={setShowAnalysis} />
     </div>
   );
 }

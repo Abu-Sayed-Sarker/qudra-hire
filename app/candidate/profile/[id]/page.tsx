@@ -389,6 +389,35 @@ export default function CandidateProfilePage() {
             )}
           </div>
         </div>
+        {/* Auto-apply Mode */}
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#4BC957]" />
+              <h2 className="text-base font-bold text-foreground">Auto-apply mode</h2>
+            </div>
+            <Switch
+              checked={autoApplyEnabled}
+              onCheckedChange={handleToggleAutoApply}
+              disabled={isTogglingAutoApply}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">CareerSprint AI submits tailored applications to your top matches every day.</p>
+          {profile.auto_apply && (
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between items-center font-semibold">
+                <span className="text-muted-foreground">Today</span>
+                <span className={autoApplyEnabled ? "text-[#4BC957]" : "text-muted-foreground"}>
+                  {autoApplyEnabled ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+              <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                <div className="bg-[#4BC957] h-full rounded-full transition-all duration-500" style={{ width: `${profile.auto_apply.daily_cap > 0 ? (profile.auto_apply.sent_today / profile.auto_apply.daily_cap) * 100 : 0}%` }} />
+              </div>
+              <p className="text-[13px] text-muted-foreground text-right">{profile.auto_apply.sent_today}/{profile.auto_apply.daily_cap} sent</p>
+            </div>
+          )}
+        </div>
 
         {/* Basic Info */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
@@ -462,23 +491,23 @@ export default function CandidateProfilePage() {
           <h2 className="text-base font-bold text-foreground mb-4">Contact info</h2>
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#4BC957]"/> Email</label>
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#4BC957]" /> Email</label>
               <input type="email" value={profile.email} disabled className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground cursor-not-allowed" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#4BC957]"/> Phone (WhatsApp)</label>
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#4BC957]" /> Phone (WhatsApp)</label>
               <input type="text" value={form.phone_whatsapp} onChange={(e) => setField("phone_whatsapp", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3 text-[#4BC957]"/> Location</label>
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3 text-[#4BC957]" /> Location</label>
               <input type="text" value={form.location} onChange={(e) => setField("location", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]"/> LinkedIn</label>
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]" /> LinkedIn</label>
               <input type="text" value={form.linkedin} onChange={(e) => setField("linkedin", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]"/> Website / Portfolio</label>
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]" /> Website / Portfolio</label>
               <input type="text" value={form.website_portfolio} onChange={(e) => setField("website_portfolio", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
             </div>
           </div>
@@ -520,35 +549,7 @@ export default function CandidateProfilePage() {
           </div>
         )}
 
-        {/* Auto-apply Mode */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#4BC957]" />
-              <h2 className="text-base font-bold text-foreground">Auto-apply mode</h2>
-            </div>
-            <Switch
-              checked={autoApplyEnabled}
-              onCheckedChange={handleToggleAutoApply}
-              disabled={isTogglingAutoApply}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">CareerSprint AI submits tailored applications to your top matches every day.</p>
-          {profile.auto_apply && (
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between items-center font-semibold">
-                <span className="text-muted-foreground">Today</span>
-                <span className={autoApplyEnabled ? "text-[#4BC957]" : "text-muted-foreground"}>
-                  {autoApplyEnabled ? "Enabled" : "Disabled"}
-                </span>
-              </div>
-              <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                <div className="bg-[#4BC957] h-full rounded-full transition-all duration-500" style={{ width: `${profile.auto_apply.daily_cap > 0 ? (profile.auto_apply.sent_today / profile.auto_apply.daily_cap) * 100 : 0}%` }} />
-              </div>
-              <p className="text-[13px] text-muted-foreground text-right">{profile.auto_apply.sent_today}/{profile.auto_apply.daily_cap} sent</p>
-            </div>
-          )}
-        </div>
+
 
         {/* Education */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
