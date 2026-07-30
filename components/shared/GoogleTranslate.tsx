@@ -15,7 +15,7 @@ export default function GoogleTranslate() {
       new window.google.translate.TranslateElement(
         {
           pageLanguage: "en", // আপনার সাইটের মূল ভাষা
-          includedLanguages: "en,bn,ar,fr,de,hi",
+          includedLanguages: "en,ar",
           layout:
             window.google.translate.TranslateElement.InlineLayout.SIMPLE,
         },

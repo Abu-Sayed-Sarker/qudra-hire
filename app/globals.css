@@ -697,3 +697,27 @@ span.indicator {
 iframe#\:2\.container {
   display: none;
 }
+
+/* .goog-te-gadget,
+.goog-te-gadget-icon,
+.goog-te-banner-frame,
+.goog-te-balloon-frame,
+.goog-te-menu-frame,
+.skiptranslate {
+    display: none !important;
+}
+
+body {
+    top: 0 !important;
+} */
+
+/* div[style*="position: fixed"] {
+    display: none !important;
+} */
+/* .goog-te-gadget-icon {
+    display: none !important;
+} */
+/* 
+.goog-te-gadget {
+    font-size: 0 !important;
+} */
