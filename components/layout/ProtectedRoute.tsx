@@ -1,9 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
+
+const ROLE_SEGMENT_MAP: Record<string, string> = {
+  candidate: "candidate",
+  admin: "admin",
+  company: "company",
+};
 
 export default function ProtectedRoute({
   children,
@@ -11,8 +17,10 @@ export default function ProtectedRoute({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const accessToken = useAppSelector((s) => s.auth.accessToken);
-  
+  const user = useAppSelector((s) => s.auth.user);
+
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,10 +28,20 @@ export default function ProtectedRoute({
   }, []);
 
   useEffect(() => {
-    if (mounted && !accessToken) {
+    if (!mounted) return;
+
+    if (!accessToken) {
+      router.replace("/login");
+      return;
+    }
+
+    const segment = pathname?.split("/")[1]?.toLowerCase();
+    const role = user?.role?.toLowerCase();
+
+    if (segment && ROLE_SEGMENT_MAP[role ?? ""] && segment !== role) {
       router.replace("/login");
     }
-  }, [mounted, accessToken, router]);
+  }, [mounted, accessToken, user, pathname, router]);
 
   if (!mounted || !accessToken) {
     return (

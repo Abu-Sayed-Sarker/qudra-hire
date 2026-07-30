@@ -401,9 +401,7 @@ export default function PostJobPage() {
                 </div>
               </div>
 
-              <div className="border-t border-border pt-4 font-bold text-[#4BC957]">
-                Balance: 1,240 credits
-              </div>
+              
             </div>
 
           </div>

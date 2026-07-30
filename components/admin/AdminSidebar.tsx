@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/authSlice";
 
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -30,6 +32,8 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   return (
     <aside className="flex h-screen w-[260px] shrink-0 flex-col bg-card border-r border-border">
@@ -83,13 +87,13 @@ export default function AdminSidebar() {
 
       {/* Logout */}
       <div className="border-t border-border p-3">
-        <Link
-          href="/admin/logout"
-          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-muted-foreground transition-all duration-200 hover:bg-destructive/10 hover:text-destructive"
+        <button
+          onClick={() => { dispatch(logout()); router.push("/"); }}
+          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-muted-foreground transition-all duration-200 hover:bg-destructive/10 hover:text-destructive w-full"
         >
           <LogOut className="h-[18px] w-[18px] flex-shrink-0" />
           <span>Log Out</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );

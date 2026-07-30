@@ -143,7 +143,7 @@ export default function CompanyDashboard() {
               { label: "Active jobs", value: stats?.active_jobs ?? 0, icon: Briefcase, color: "text-[#4BC957]", bg: "bg-[#4BC957]/10", href: "/company/jobs" },
               { label: "Shortlisted", value: stats?.shortlisted ?? 0, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10", href: "/company/candidates" },
               { label: "Messaged", value: stats?.messaged ?? 0, icon: MessageSquare, color: "text-purple-500", bg: "bg-purple-500/10", href: "/company/inbox" },
-              { label: "Credits", value: "1,240", icon: Wallet, color: "text-amber-500", bg: "bg-amber-500/10", href: "/company/wallet" },
+
             ].map((stat, idx) => (
               <Link
                 key={idx}
@@ -188,9 +188,9 @@ export default function CompanyDashboard() {
                   </div>
 
                   <div className="flex-1 space-y-2 overflow-y-auto">
-                    {stage.candidates.map((candidateName) => (
+                    {stage.candidates.map((candidateName,idx) => (
                       <div
-                        key={candidateName}
+                        key={candidateName + idx}
                         className="bg-muted border border-border rounded-lg p-2.5 hover:border-[#4BC957]/50 transition-all duration-200"
                       >
                         <p className="text-sm font-semibold text-foreground truncate">{candidateName}</p>
