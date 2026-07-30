@@ -131,7 +131,8 @@ export default function CandidateCVPage() {
       toast.success(result.details || "CV uploaded successfully");
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-      setAnalysis(null);
+       setShowAnalysis(true)
+   
       setTaskId(null);
       await refetchCv();
     } catch {
@@ -269,11 +270,14 @@ export default function CandidateCVPage() {
 
             {/* Upload Button (outside dropzone) — now opens analysis popup */}
             <button
-              onClick={() => setShowAnalysis(true)}
-              disabled={!selectedFile}
+              onClick={handleUpload}
+              disabled={!selectedFile || isUploading}
               className="w-full bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white font-bold px-5 py-3 rounded-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="flex items-center justify-center gap-2"><Upload className="h-4 w-4" /> Review My CV</span>
+              <span className="flex items-center justify-center gap-2">
+                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {isUploading ? "Uploading..." : "Review My CV"}
+              </span>
             </button>
           </div>
 
