@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Search,
   Filter,
@@ -13,18 +14,19 @@ import {
   XCircle,
   Loader2,
   AlertTriangle,
+  Briefcase,
 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
   useGetAdminJobsQuery,
   useDeleteAdminJobMutation,
   type AdminJobListItem,
 } from "@/store/authApi";
+import { SkeletonTable } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -47,23 +49,9 @@ const statusStyles: Record<string, string> = {
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={`px-2.5 py-0.5 rounded text-[11px] font-semibold ${statusStyles[status] ?? "bg-muted text-muted-foreground"}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-semibold ${statusStyles[status] ?? "bg-muted text-muted-foreground"}`}>
       {status}
     </span>
-  );
-}
-
-// ── Skeleton row ─────────────────────────────────────────────────────────────
-
-function SkeletonRow() {
-  return (
-    <tr className="border-b border-border">
-      {[140, 120, 120, 60, 80, 80, 60].map((w, i) => (
-        <td key={i} className="px-5 py-4">
-          <div className="h-3 rounded bg-muted animate-pulse" style={{ width: w }} />
-        </td>
-      ))}
-    </tr>
   );
 }
 
@@ -71,8 +59,17 @@ function SkeletonRow() {
 
 const PAGE_SIZE = 10;
 
+const rowVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.03, duration: 0.3, ease: "easeOut" },
+  }),
+};
+
 export default function JobManagementPage() {
-  const { data, isLoading, isError } = useGetAdminJobsQuery();
+  const { data, isLoading, isError, refetch } = useGetAdminJobsQuery();
   const jobs = data?.data ?? [];
   const [deleteJob] = useDeleteAdminJobMutation();
 
@@ -117,150 +114,171 @@ export default function JobManagementPage() {
             placeholder="Search by title or company…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
+            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:bg-muted transition-colors">
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            Clear
+          </button>
+        )}
+        <button className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:bg-muted transition-colors">
           <Filter className="h-3.5 w-3.5" /> Filter
         </button>
       </div>
 
       {/* Error */}
       {isError && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
-          <AlertTriangle className="h-4 w-4 shrink-0" />
-          Failed to load jobs. Check your connection and try again.
-        </div>
+        <ErrorState
+          icon={AlertTriangle}
+          title="Unable to load jobs"
+          description="Something went wrong while fetching the job list."
+          onRetry={() => refetch()}
+          retryLabel="Retry"
+        />
       )}
 
       {/* Table */}
-      <div className="rounded-xl bg-card border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px]">
-            <thead>
-              <tr className="border-b border-border">
-                {["Job Title", "Company", "Location", "Matches", "Applications", "Posted", "Status", "Actions"].map((h) => (
-                  <th key={h} className={`px-5 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider ${h === "Actions" ? "text-right" : "text-left"}`}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading
-                ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                : paginated.length === 0
-                  ? (
-                    <tr>
-                      <td colSpan={8} className="text-center py-16 text-muted-foreground text-sm">
-                        {search ? "No jobs match your search." : "No jobs found."}
-                      </td>
-                    </tr>
-                  )
-                  : paginated.map((j, idx) => (
-                    <tr
-                      key={j.id}
-                      className={`border-b border-border hover:bg-muted/50 transition-colors ${idx === paginated.length - 1 ? "border-b-0" : ""}`}
-                    >
-                      {/* Job Title */}
-                      <td className="px-5 py-3.5">
-                        <div>
-                          <span className="text-sm font-medium text-foreground block">{j.title}</span>
-                          <span className="text-xs text-muted-foreground block">{formatSalary(j.salary_min, j.salary_max, j.currency)}</span>
-                        </div>
-                      </td>
+      {!isError && (
+        <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px]" role="grid" aria-label="Jobs list">
+              <thead>
+                <tr className="border-b border-border sticky top-0 bg-card/95 backdrop-blur z-10">
+                  {["Job Title", "Company", "Location", "Matches", "Applications", "Posted", "Status", "Actions"].map((h) => (
+                    <th key={h} className={`px-4 py-3.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider ${h === "Actions" ? "text-right" : "text-left"}`}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading
+                  ? <SkeletonTable rows={5} columns={8} />
+                  : paginated.length === 0
+                    ? (
+                      <tr>
+                        <td colSpan={8}>
+                          <EmptyState
+                            icon={Briefcase}
+                            title="No jobs found"
+                            description={search ? "No jobs match your search criteria." : "Jobs will appear here once companies post them."}
+                          />
+                        </td>
+                      </tr>
+                    )
+                    : paginated.map((j, idx) => (
+                      <motion.tr
+                        key={j.id}
+                        custom={idx}
+                        initial="hidden"
+                        animate="visible"
+                        variants={rowVariants}
+                        className={`border-b border-border hover:bg-muted/50 transition-colors ${idx === paginated.length - 1 ? "border-b-0" : ""}`}
+                      >
+                        {/* Job Title */}
+                        <td className="px-4 py-3.5">
+                          <div>
+                            <span className="text-sm font-medium text-foreground block">{j.title}</span>
+                            <span className="text-xs text-muted-foreground block">{formatSalary(j.salary_min, j.salary_max, j.currency)}</span>
+                          </div>
+                        </td>
 
-                      {/* Company */}
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm text-muted-foreground">{j.company}</span>
-                      </td>
+                        {/* Company */}
+                        <td className="px-4 py-3.5">
+                          <span className="text-sm text-muted-foreground">{j.company}</span>
+                        </td>
 
-                      {/* Location */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
-                          <span className="text-sm text-muted-foreground">{j.location}</span>
-                        </div>
-                      </td>
+                        {/* Location */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="text-sm text-muted-foreground">{j.location}</span>
+                          </div>
+                        </td>
 
-                      {/* Matches */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-1.5">
-                          <Target className="h-3 w-3 text-[#b48eed] shrink-0" />
-                          <span className="text-sm text-[#b48eed] font-medium">{j.matches}</span>
-                        </div>
-                      </td>
+                        {/* Matches */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <Target className="h-3.5 w-3.5 text-[#b48eed] shrink-0" />
+                            <span className="text-sm text-[#b48eed] font-medium">{j.matches}</span>
+                          </div>
+                        </td>
 
-                      {/* Applications */}
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm text-muted-foreground">{j.applications}</span>
-                      </td>
+                        {/* Applications */}
+                        <td className="px-4 py-3.5">
+                          <span className="text-sm text-muted-foreground">{j.applications}</span>
+                        </td>
 
-                      {/* Posted */}
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm text-muted-foreground">{formatDate(j.posted)}</span>
-                      </td>
+                        {/* Posted */}
+                        <td className="px-4 py-3.5">
+                          <span className="text-sm text-muted-foreground">{formatDate(j.posted)}</span>
+                        </td>
 
-                      {/* Status */}
-                      <td className="px-5 py-3.5">
-                        <StatusBadge status={j.job_status} />
-                      </td>
+                        {/* Status */}
+                        <td className="px-4 py-3.5">
+                          <StatusBadge status={j.job_status} />
+                        </td>
 
-                      {/* Actions */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => { setSelectedJob(j); setIsDetailsOpen(true); }}
-                            title="View details"
-                            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(j.id, j.title)}
-                            title="Delete"
-                            className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-              }
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {!isLoading && filtered.length > 0 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-border">
-            <span className="text-xs text-muted-foreground">
-              Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
-            </span>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <button key={n} onClick={() => setPage(n)}
-                  className={`w-7 h-7 rounded-md text-xs font-semibold transition-colors ${n === page ? "bg-[#21c55e]/20 text-[#21c55e]" : "hover:bg-muted text-muted-foreground"}`}>
-                  {n}
-                </button>
-              ))}
-              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
+                        {/* Actions */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => { setSelectedJob(j); setIsDetailsOpen(true); }}
+                              aria-label="View job details"
+                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(j.id, j.title)}
+                              aria-label="Delete job"
+                              className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))
+                }
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination */}
+          {!isLoading && filtered.length > 0 && (
+            <div className="flex items-center justify-between px-5 py-3.5 border-t border-border">
+              <span className="text-xs text-muted-foreground">
+                Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Previous page"
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                  <button key={n} onClick={() => setPage(n)} aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined}
+                    className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors ${n === page ? "bg-[#21c55e]/20 text-[#21c55e]" : "hover:bg-muted text-muted-foreground"}`}>
+                    {n}
+                  </button>
+                ))}
+                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Next page"
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="bg-card border-border text-foreground max-w-[500px] p-6 rounded-xl overflow-hidden !ring-0">
+        <DialogContent className="bg-card border-border text-foreground max-w-[500px] p-6 rounded-2xl overflow-hidden !ring-0">
           <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b border-border">
             <DialogTitle className="text-lg font-bold text-foreground">
               {selectedJob?.title}
@@ -268,7 +286,7 @@ export default function JobManagementPage() {
           </DialogHeader>
 
           {selectedJob && (
-            <div className="grid grid-cols-2 gap-y-6 gap-x-4 py-4 border-b border-border">
+            <div className="grid grid-cols-2 gap-y-6 gap-x-4 py-5 border-b border-border">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Company</p>
                 <p className="text-sm font-medium text-foreground">{selectedJob.company}</p>
@@ -301,13 +319,13 @@ export default function JobManagementPage() {
           )}
 
           <div className="flex items-center gap-2 pt-4">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground text-xs font-medium transition-colors">
+            <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground text-xs font-medium transition-colors">
               <XCircle className="w-3.5 h-3.5" />
               Close Job
             </button>
             <button
               onClick={() => selectedJob && handleDelete(selectedJob.id, selectedJob.title)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-transparent hover:bg-red-500/10 text-red-400 text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-transparent hover:bg-red-500/10 text-red-400 text-xs font-medium transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete

@@ -20,6 +20,10 @@ import {
   usePurchaseJobSlotsMutation,
 } from "@/store/authApi";
 import type { CompanyJobPayload, JobQuota } from "@/store/authApi";
+import { Skeleton, SkeletonForm } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
+import { motion } from "framer-motion";
 
 const EMPTY_PAYLOAD: CompanyJobPayload = {
   title: "",
@@ -115,7 +119,12 @@ export default function PostJobPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
+    <motion.div
+      className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       {/* Top Navigation Back / Title */}
       <div className="space-y-3">
         <Link
@@ -138,305 +147,304 @@ export default function PostJobPage() {
         </div>
       </div>
 
-{error && (
-         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
-           <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
-           <p className="text-sm text-red-500 font-medium">{error}</p>
-         </div>
-       )}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3" role="alert">
+          <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+          <p className="text-sm text-red-500 font-medium">{error}</p>
+        </div>
+      )}
 
-       {quotaExceeded && (
-         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 space-y-4">
-           <div className="flex items-center gap-3">
-             <CreditCard className="h-5 w-5 text-amber-500 shrink-0" />
-             <div>
-               <h3 className="text-sm font-bold text-foreground">Job posting limit reached</h3>
-               <p className="text-xs text-muted-foreground mt-0.5">
-                 You have used all available slots on your {quotaData?.plan ?? "Pro"} plan.
-                 Purchase additional slots to post more jobs.
-               </p>
-             </div>
-           </div>
-           {quotaData && (
-             <div className="grid grid-cols-3 gap-3 text-center">
-               <div className="bg-background rounded-lg p-3">
-                 <p className="text-lg font-bold text-foreground">{quotaData.total_allowed}</p>
-                 <p className="text-[11px] text-muted-foreground">Total slots</p>
-               </div>
-               <div className="bg-background rounded-lg p-3">
-                 <p className="text-lg font-bold text-foreground">{quotaData.used}</p>
-                 <p className="text-[11px] text-muted-foreground">Used</p>
-               </div>
-               <div className="bg-background rounded-lg p-3">
-                 <p className="text-lg font-bold text-red-500">{quotaData.remaining}</p>
-                 <p className="text-[11px] text-muted-foreground">Remaining</p>
-               </div>
-             </div>
-           )}
-           <div className="flex gap-3">
-             <Button
-               type="button"
-               onClick={() => handlePurchaseSlots(1)}
-               disabled={isPurchasing}
-               className="flex items-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-[0.98]"
-             >
-               {isPurchasing ? (
-                 <Loader2 className="h-4 w-4 animate-spin" />
-               ) : (
-                 <CreditCard className="h-4 w-4" />
-               )}
-               Purchase 1 slot
-             </Button>
-             <Button
-               type="button"
-               variant="outline"
-               onClick={() => { setQuotaExceeded(false); setQuotaData(null); }}
-               className="text-sm font-medium"
-             >
-               Dismiss
-             </Button>
-           </div>
-         </div>
-       )}
-
-       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          {/* Main Form (2/3 width) */}
-          <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">
-
-            {/* Job Title */}
-            <div className="space-y-2">
-              <label className="font-bold text-muted-foreground uppercase tracking-wider">Job title</label>
-              <Input
-                type="text"
-                value={form.title}
-                onChange={(e) => updateField("title", e.target.value)}
-                placeholder="e.g. Lead Developer"
-                className="bg-background border-border focus:border-[#4BC957]"
-                required
-              />
+      {quotaExceeded && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 space-y-4" role="alert">
+          <div className="flex items-center gap-3">
+            <CreditCard className="h-5 w-5 text-amber-500 shrink-0" />
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Job posting limit reached</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                You have used all available slots on your {quotaData?.plan ?? "Pro"} plan.
+                Purchase additional slots to post more jobs.
+              </p>
             </div>
-
-            {/* Skills Tag input */}
-            <div className="space-y-2">
-              <label className="font-bold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
-              <Input
-                type="text"
-                value={skillsText}
-                onChange={(e) => setSkillsText(e.target.value)}
-                onBlur={() => updateField("skills", skillsText.split(",").map((s) => s.trim()).filter(Boolean))}
-                placeholder="e.g. Figma, React, TypeScript"
-                className="bg-background border-border focus:border-[#4BC957]"
-              />
+          </div>
+          {quotaData && (
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-lg font-bold text-foreground">{quotaData.total_allowed}</p>
+                <p className="text-[11px] text-muted-foreground">Total slots</p>
+              </div>
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-lg font-bold text-foreground">{quotaData.used}</p>
+                <p className="text-[11px] text-muted-foreground">Used</p>
+              </div>
+              <div className="bg-background rounded-lg p-3">
+                <p className="text-lg font-bold text-red-500">{quotaData.remaining}</p>
+                <p className="text-[11px] text-muted-foreground">Remaining</p>
+              </div>
             </div>
+          )}
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              onClick={() => handlePurchaseSlots(1)}
+              disabled={isPurchasing}
+              className="flex items-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-[0.98]"
+            >
+              {isPurchasing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CreditCard className="h-4 w-4" />
+              )}
+              Purchase 1 slot
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => { setQuotaExceeded(false); setQuotaData(null); }}
+              className="text-sm font-medium"
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
 
-            {/* Location & Employment Type (2 Columns) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {isLoading && (
+        <SkeletonForm fields={6} />
+      )}
+
+      {!isLoading && (
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Main Form (2/3 width) */}
+            <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">
+
+              {/* Job Title */}
               <div className="space-y-2">
-                <label className="font-bold text-muted-foreground uppercase tracking-wider">Location</label>
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Job title</label>
                 <Input
                   type="text"
-                  value={form.location}
-                  onChange={(e) => updateField("location", e.target.value)}
-                  placeholder="Dubai, UAE."
+                  value={form.title}
+                  onChange={(e) => updateField("title", e.target.value)}
+                  placeholder="e.g. Lead Developer"
                   className="bg-background border-border focus:border-[#4BC957]"
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <label className="font-bold text-muted-foreground uppercase tracking-wider">Employment type</label>
-                <Select value={form.employment_type} onValueChange={(v) => v && updateField("employment_type", v)}>
-                  <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
-                    <SelectValue placeholder="Select employment type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border text-foreground">
-                    {EMPLOYMENT_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            {/* Currency & Salary Range (2 Columns) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Skills Tag input */}
               <div className="space-y-2">
-                <label className="font-bold text-muted-foreground uppercase tracking-wider">Currency</label>
-                <Select value={form.currency} onValueChange={(v) => v && updateField("currency", v)}>
-                  <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border text-foreground">
-                    {CURRENCIES.map((curr) => (
-                      <SelectItem key={curr.value} value={curr.value}>
-                        {curr.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
+                <Input
+                  type="text"
+                  value={skillsText}
+                  onChange={(e) => setSkillsText(e.target.value)}
+                  onBlur={() => updateField("skills", skillsText.split(",").map((s) => s.trim()).filter(Boolean))}
+                  placeholder="e.g. Figma, React, TypeScript"
+                  className="bg-background border-border focus:border-[#4BC957]"
+                />
               </div>
-              <div className="space-y-2">
-                <label className="font-bold text-muted-foreground uppercase tracking-wider">Salary range</label>
-                <div className="flex items-center gap-2">
+
+              {/* Location & Employment Type (2 Columns) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-muted-foreground uppercase tracking-wider">Location</label>
                   <Input
-                    type="number"
-                    value={form.salary_min || ""}
-                    onChange={(e) => updateField("salary_min", Number(e.target.value))}
-                    placeholder="Min"
-                    className="bg-background border-border focus:border-[#4BC957]"
-                    required
-                  />
-                  <span className="text-muted-foreground">—</span>
-                  <Input
-                    type="number"
-                    value={form.salary_max || ""}
-                    onChange={(e) => updateField("salary_max", Number(e.target.value))}
-                    placeholder="Max"
+                    type="text"
+                    value={form.location}
+                    onChange={(e) => updateField("location", e.target.value)}
+                    placeholder="Dubai, UAE."
                     className="bg-background border-border focus:border-[#4BC957]"
                     required
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Job Description */}
-            <div className="space-y-2">
-              <label className="font-bold text-muted-foreground uppercase tracking-wider">Job description</label>
-              <textarea
-                rows={4}
-                value={form.description}
-                onChange={(e) => updateField("description", e.target.value)}
-                placeholder="Describe the role..."
-                className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
-                required
-              />
-            </div>
-
-            {/* Requirements */}
-            <div className="space-y-2">
-              <label className="font-bold text-muted-foreground uppercase tracking-wider">Requirements (one per line)</label>
-              <textarea
-                rows={4}
-                value={form.requirements}
-                onChange={(e) => updateField("requirements", e.target.value)}
-                placeholder={"Requirement 1\nRequirement 2\nRequirement 3"}
-                className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
-                required
-              />
-            </div>
-
-            {/* GCC Flags Switches Group */}
-            <div className="border border-border rounded-xl p-5 space-y-4">
-              <h3 className="font-bold text-muted-foreground uppercase tracking-wider mb-2">GCC flags</h3>
-
-              {/* Visa */}
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-foreground">Visa sponsorship offered</span>
-                <Switch
-                  checked={visaSp}
-                  onCheckedChange={setVisaSp}
-                  className="data-checked:bg-[#4BC957]!"
-                />
-              </div>
-
-              {/* Emiratization */}
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-foreground">Emiratization (UAE national priority)</span>
-                <Switch
-                  checked={emiratization}
-                  onCheckedChange={setEmiratization}
-                  className="data-checked:bg-[#4BC957]!"
-                />
-              </div>
-
-              {/* Saudization */}
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-foreground">Saudization (Nitaqat-aligned)</span>
-                <Switch
-                  checked={saudization}
-                  onCheckedChange={setSaudization}
-                  className="data-checked:bg-[#4BC957]!"
-                />
-              </div>
-
-              {/* Remote */}
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-foreground">Open to remote</span>
-                <Switch
-                  checked={remote}
-                  onCheckedChange={setRemote}
-                  className="data-checked:bg-[#4BC957]!"
-                />
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex justify-start gap-3 border-t border-border pt-6">
-              <Link
-                href="/company/jobs"
-                className="border border-border hover:bg-muted text-foreground font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors text-center"
-              >
-                Cancel
-              </Link>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98]"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Publishing...
-                  </>
-                ) : (
-                  "Publish & get approved"
-                )}
-              </Button>
-            </div>
-
-          </div>
-
-          {/* Sidebar Info Columns (1/3 width) */}
-          <div className="space-y-6">
-
-            {/* What happens next */}
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-                <Sparkles className="h-4.5 w-4.5 text-[#4BC957]" />
-                What happens next
-              </h3>
-              <ol className="space-y-3.5 text-muted-foreground list-decimal pl-4 leading-relaxed font-medium">
-                <li>AI scans 50,000+ candidate profiles</li>
-                <li>Top 10 ranked shortlist within minutes</li>
-                <li>Candidates appear anonymised — unlock with credits</li>
-                <li>Message directly inside the platform</li>
-              </ol>
-            </div>
-
-            {/* Cost breakdown */}
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
-              <h3 className="text-sm font-bold text-foreground">Cost</h3>
-
-              <div className="space-y-3.5 font-semibold">
-            
-                <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Top 10 shortlist</span>
-                  <span className="text-foreground">Free</span>
-                </div>
-                <div className="flex justify-between items-center text-muted-foreground">
-                  <span>Per unlock</span>
-                  <span className="text-foreground">2 credits</span>
+                <div className="space-y-2">
+                  <label className="font-bold text-muted-foreground uppercase tracking-wider">Employment type</label>
+                  <Select value={form.employment_type} onValueChange={(v) => v && updateField("employment_type", v)}>
+                    <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
+                      <SelectValue placeholder="Select employment type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border text-foreground">
+                      {EMPLOYMENT_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              
+              {/* Currency & Salary Range (2 Columns) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="font-bold text-muted-foreground uppercase tracking-wider">Currency</label>
+                  <Select value={form.currency} onValueChange={(v) => v && updateField("currency", v)}>
+                    <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border text-foreground">
+                      {CURRENCIES.map((curr) => (
+                        <SelectItem key={curr.value} value={curr.value}>
+                          {curr.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="font-bold text-muted-foreground uppercase tracking-wider">Salary range</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={form.salary_min || ""}
+                      onChange={(e) => updateField("salary_min", Number(e.target.value))}
+                      placeholder="Min"
+                      className="bg-background border-border focus:border-[#4BC957]"
+                      required
+                    />
+                    <span className="text-muted-foreground">—</span>
+                    <Input
+                      type="number"
+                      value={form.salary_max || ""}
+                      onChange={(e) => updateField("salary_max", Number(e.target.value))}
+                      placeholder="Max"
+                      className="bg-background border-border focus:border-[#4BC957]"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Job Description */}
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Job description</label>
+                <textarea
+                  rows={4}
+                  value={form.description}
+                  onChange={(e) => updateField("description", e.target.value)}
+                  placeholder="Describe the role..."
+                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
+                  required
+                />
+              </div>
+
+              {/* Requirements */}
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Requirements (one per line)</label>
+                <textarea
+                  rows={4}
+                  value={form.requirements}
+                  onChange={(e) => updateField("requirements", e.target.value)}
+                  placeholder={"Requirement 1\nRequirement 2\nRequirement 3"}
+                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
+                  required
+                />
+              </div>
+
+              {/* GCC Flags Switches Group */}
+              <div className="border border-border rounded-xl p-5 space-y-4">
+                <h3 className="font-bold text-muted-foreground uppercase tracking-wider mb-2">GCC flags</h3>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-foreground">Visa sponsorship offered</span>
+                  <Switch
+                    checked={visaSp}
+                    onCheckedChange={setVisaSp}
+                    className="data-checked:bg-[#4BC957]!"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-foreground">Emiratization (UAE national priority)</span>
+                  <Switch
+                    checked={emiratization}
+                    onCheckedChange={setEmiratization}
+                    className="data-checked:bg-[#4BC957]!"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-foreground">Saudization (Nitaqat-aligned)</span>
+                  <Switch
+                    checked={saudization}
+                    onCheckedChange={setSaudization}
+                    className="data-checked:bg-[#4BC957]!"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-foreground">Open to remote</span>
+                  <Switch
+                    checked={remote}
+                    onCheckedChange={setRemote}
+                    className="data-checked:bg-[#4BC957]!"
+                  />
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex justify-start gap-3 border-t border-border pt-6">
+                <Link
+                  href="/company/jobs"
+                  className="border border-border hover:bg-muted text-foreground font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors text-center"
+                >
+                  Cancel
+                </Link>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#4BC957]/50 focus-visible:ring-offset-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Publishing...
+                    </>
+                  ) : (
+                    "Publish & get approved"
+                  )}
+                </Button>
+              </div>
+
             </div>
 
+            {/* Sidebar Info Columns (1/3 width) */}
+            <div className="space-y-6">
+
+              {/* What happens next */}
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                  <Sparkles className="h-4.5 w-4.5 text-[#4BC957]" />
+                  What happens next
+                </h3>
+                <ol className="space-y-3.5 text-muted-foreground list-decimal pl-4 leading-relaxed font-medium">
+                  <li>AI scans 50,000+ candidate profiles</li>
+                  <li>Top 10 ranked shortlist within minutes</li>
+                  <li>Candidates appear anonymised — unlock with credits</li>
+                  <li>Message directly inside the platform</li>
+                </ol>
+              </div>
+
+              {/* Cost breakdown */}
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-5 shadow-sm">
+                <h3 className="text-sm font-bold text-foreground">Cost</h3>
+
+                <div className="space-y-3.5 font-semibold">
+                  <div className="flex justify-between items-center text-muted-foreground">
+                    <span>Top 10 shortlist</span>
+                    <span className="text-foreground">Free</span>
+                  </div>
+                  <div className="flex justify-between items-center text-muted-foreground">
+                    <span>Per unlock</span>
+                    <span className="text-foreground">2 credits</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      )}
+    </motion.div>
   );
 }

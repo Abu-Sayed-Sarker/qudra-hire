@@ -3,17 +3,16 @@
 import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Upload, X, FileText } from "lucide-react";
 import { useRegisterCandidateMutation, useRegisterCompanyMutation } from "@/store/authApi";
 import { setTokens } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
 import Image from "next/image";
 
-// ─── Shared input class ────────────────────────────────────────────────────────
 const inputCls =
-  "w-full bg-surface-deep border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957]/50 transition-colors";
+  "w-full bg-surface-deep border border-border rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-muted-foreground focus:outline-none focus:border-[#23C65F]/50 transition-colors";
 
-// ─── Google SVG ────────────────────────────────────────────────────────────────
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -23,7 +22,6 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// ─── Password field with show/hide ────────────────────────────────────────────
 function PasswordInput({
   value,
   onChange,
@@ -40,20 +38,22 @@ function PasswordInput({
   const [show, setShow] = useState(false);
   return (
     <div>
-      <label className="block text-xs font-medium text-on-surface mb-1.5">{label}</label>
+      <label htmlFor={label} className="block text-xs font-medium text-on-surface mb-1.5">{label}</label>
       <div className="relative">
         <input
+          id={label}
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required={required}
+          aria-required={required}
           className={`${inputCls} pr-11`}
         />
         <button
           type="button"
           onClick={() => setShow((v) => !v)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-subtle hover:text-on-surface transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-on-surface transition-colors"
           aria-label={show ? "Hide password" : "Show password"}
         >
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -63,7 +63,6 @@ function PasswordInput({
   );
 }
 
-// ─── File drop zone ────────────────────────────────────────────────────────────
 function FileDropZone({
   label,
   hint,
@@ -86,7 +85,7 @@ function FileDropZone({
         tabIndex={0}
         onClick={() => ref.current?.click()}
         onKeyDown={(e) => e.key === "Enter" && ref.current?.click()}
-        className="border border-dashed border-surface bg-surface-deep/50 rounded-xl p-6 text-center hover:bg-surface-deep transition-colors cursor-pointer"
+        className="border border-dashed border-border bg-surface-deep/50 rounded-xl p-6 text-center hover:bg-surface-deep transition-colors cursor-pointer"
       >
         <input
           ref={ref}
@@ -97,7 +96,7 @@ function FileDropZone({
         />
         {file ? (
           <div className="flex items-center justify-center gap-2">
-            <FileText size={16} className="text-[#4BC957] shrink-0" />
+            <FileText size={16} className="text-[#23C65F] shrink-0" />
             <span className="text-sm text-on-surface truncate max-w-[200px]">{file.name}</span>
             <button
               type="button"
@@ -106,7 +105,7 @@ function FileDropZone({
                 onFile(null);
                 if (ref.current) ref.current.value = "";
               }}
-              className="ml-1 text-on-surface-subtle hover:text-red-500 transition-colors"
+              className="ml-1 text-muted-foreground hover:text-red-500 transition-colors"
               aria-label="Remove file"
             >
               <X size={14} />
@@ -114,16 +113,14 @@ function FileDropZone({
           </div>
         ) : (
           <>
-            <Upload className="h-5 w-5 text-on-surface-muted mx-auto mb-2" />
-            <p className="text-xs text-on-surface-muted leading-relaxed">{hint}</p>
+            <Upload className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground leading-relaxed">{hint}</p>
           </>
         )}
       </div>
     </div>
   );
 }
-
-// ─── Main page ─────────────────────────────────────────────────────────────────
 
 export default function SignupPage() {
   const router = useRouter();
@@ -132,7 +129,6 @@ export default function SignupPage() {
   const [accountType, setAccountType] = useState<"candidate" | "company">("candidate");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Candidate fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [candidateEmail, setCandidateEmail] = useState("");
@@ -140,7 +136,6 @@ export default function SignupPage() {
   const [candidateConfirm, setCandidateConfirm] = useState("");
   const [cvFile, setCvFile] = useState<File | null>(null);
 
-  // Company fields
   const [companyName, setCompanyName] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
   const [companyPassword, setCompanyPassword] = useState("");
@@ -152,7 +147,6 @@ export default function SignupPage() {
 
   const isLoading = loadingCandidate || loadingCompany;
 
-  // ── Candidate submit ──────────────────────────────────────────────────────
   async function handleCandidateSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg("");
@@ -189,7 +183,6 @@ export default function SignupPage() {
     }
   }
 
-  // ── Company submit ────────────────────────────────────────────────────────
   async function handleCompanySubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg("");
@@ -227,33 +220,37 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface px-4 py-12 text-on-surface">
-      <div className="w-full max-w-[450px] bg-surface-card border border-surface rounded-3xl p-6 sm:p-10 shadow-2xl">
-
-        {/* Logo */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[450px] bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm"
+      >
         <div className="flex justify-center mb-8">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
+          <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Home">
             <div className="hidden dark:block">
-              <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+              <Image src="/logo.png" height={700} width={700} className="w-48 h-auto" alt="logo" />
             </div>
             <div className="block dark:hidden">
-              <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+              <Image src="/light-logo.png" height={700} width={700} className="w-48 h-auto" alt="logo" />
             </div>
           </Link>
         </div>
 
         <h1 className="text-xl sm:text-2xl font-bold text-on-surface mb-2">Create your account</h1>
-        <p className="text-on-surface-muted text-sm mb-6">Start progressing in under a minute.</p>
+        <p className="text-muted-foreground text-sm mb-6">Start progressing in under a minute.</p>
 
-        {/* Toggle */}
-        <div className="flex bg-surface-deep border border-surface p-1 rounded-2xl mb-8">
+        <div className="flex bg-surface-deep border border-border p-1 rounded-xl mb-8" role="tablist" aria-label="Account type">
           {(["candidate", "company"] as const).map((type) => (
             <button
               key={type}
               type="button"
+              role="tab"
+              aria-selected={accountType === type}
               onClick={() => { setAccountType(type); setErrorMsg(""); }}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-xl transition-all capitalize ${accountType === type
-                ? "bg-[#4BC957] text-white"
-                : "text-on-surface-muted hover:text-on-surface"
+              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all capitalize ${accountType === type
+                ? "bg-[#23C65F] text-white"
+                : "text-muted-foreground hover:text-on-surface"
                 }`}
             >
               {type}
@@ -261,35 +258,40 @@ export default function SignupPage() {
           ))}
         </div>
 
-        {/* Error message (shared) */}
         {errorMsg && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+          <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm" role="alert">
             {errorMsg}
           </div>
         )}
 
-        {/* ── Candidate Form ─────────────────────────────────────────────── */}
         {accountType === "candidate" && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            role="tabpanel"
+          >
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-3 bg-surface-item hover:bg-surface-deep border border-surface text-on-surface text-sm font-medium py-3 rounded-xl transition-colors mb-6"
+              aria-label="Continue with Google"
+              className="w-full flex items-center justify-center gap-3 bg-surface-item hover:bg-surface-deep border border-border text-on-surface text-sm font-medium py-3 rounded-xl transition-all mb-6"
             >
               <GoogleIcon />
               Continue with Google
             </button>
 
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-px flex-1 bg-surface-deep" />
-              <span className="text-[10px] text-on-surface-subtle font-bold uppercase tracking-wider">OR</span>
-              <div className="h-px flex-1 bg-surface-deep" />
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">OR</span>
+              <div className="h-px flex-1 bg-border" />
             </div>
 
-            <form className="space-y-4" onSubmit={handleCandidateSubmit}>
+            <form className="space-y-4" onSubmit={handleCandidateSubmit} noValidate>
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-on-surface mb-1.5">First name</label>
+                  <label htmlFor="c-firstName" className="block text-xs font-medium text-on-surface mb-1.5">First name</label>
                   <input
+                    id="c-firstName"
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -300,8 +302,9 @@ export default function SignupPage() {
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-on-surface mb-1.5">Last name</label>
+                  <label htmlFor="c-lastName" className="block text-xs font-medium text-on-surface mb-1.5">Last name</label>
                   <input
+                    id="c-lastName"
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
@@ -314,8 +317,9 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-on-surface mb-1.5">Email</label>
+                <label htmlFor="c-email" className="block text-xs font-medium text-on-surface mb-1.5">Email</label>
                 <input
+                  id="c-email"
                   type="email"
                   value={candidateEmail}
                   onChange={(e) => setCandidateEmail(e.target.value)}
@@ -342,7 +346,7 @@ export default function SignupPage() {
 
               <FileDropZone
                 label="CV / Résumé"
-                hint={"Upload CV (PDF / DOCX) — AI parses into a structured profile"}
+                hint="Upload CV (PDF / DOCX) — AI parses into a structured profile"
                 accept=".pdf,.doc,.docx"
                 file={cvFile}
                 onFile={setCvFile}
@@ -351,22 +355,28 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
+                aria-label={isLoading ? "Creating account" : "Create account and start matching"}
+                className="w-full flex items-center justify-center gap-2 bg-[#23C65F] hover:bg-[#1a9e4a] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
+                {isLoading && <Loader2 size={16} className="animate-spin" />}
                 {isLoading ? "Creating account…" : "Create account & start matching"}
               </button>
             </form>
-          </div>
+          </motion.div>
         )}
 
-        {/* ── Company Form ──────────────────────────────────────────────── */}
         {accountType === "company" && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <form className="space-y-4" onSubmit={handleCompanySubmit}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            role="tabpanel"
+          >
+            <form className="space-y-4" onSubmit={handleCompanySubmit} noValidate>
               <div>
-                <label className="block text-xs font-medium text-on-surface mb-1.5">Company name</label>
+                <label htmlFor="co-name" className="block text-xs font-medium text-on-surface mb-1.5">Company name</label>
                 <input
+                  id="co-name"
                   type="text"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
@@ -378,8 +388,9 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-on-surface mb-1.5">Work email</label>
+                <label htmlFor="co-email" className="block text-xs font-medium text-on-surface mb-1.5">Work email</label>
                 <input
+                  id="co-email"
                   type="email"
                   value={companyEmail}
                   onChange={(e) => setCompanyEmail(e.target.value)}
@@ -406,7 +417,7 @@ export default function SignupPage() {
 
               <FileDropZone
                 label="Trade licence"
-                hint={"Upload trade licence (UAE / KSA / GCC) as PDF or DOCX"}
+                hint="Upload trade licence (UAE / KSA / GCC) as PDF or DOCX"
                 accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                 file={licenceFile}
                 onFile={setLicenceFile}
@@ -415,24 +426,25 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
+                aria-label={isLoading ? "Creating account" : "Create account"}
+                className="w-full flex items-center justify-center gap-2 bg-[#23C65F] hover:bg-[#1a9e4a] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {/*{isLoading && <Loader2 size={16} className="animate-spin" />}*/}
+                {isLoading && <Loader2 size={16} className="animate-spin" />}
                 {isLoading ? "Creating account…" : "Create account"}
               </button>
             </form>
-          </div>
+          </motion.div>
         )}
 
         <div className="mt-8 text-center">
-          <p className="text-xs text-on-surface-muted">
+          <p className="text-xs text-muted-foreground">
             Already a member?{" "}
-            <Link href="/login" className="text-[#4BC957] font-semibold hover:underline">
+            <Link href="/login" className="text-[#23C65F] font-semibold hover:underline">
               Log in
             </Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

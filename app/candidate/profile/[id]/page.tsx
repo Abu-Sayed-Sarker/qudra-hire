@@ -39,7 +39,6 @@ import {
   useSetDefaultCandidateProfileMutation,
   useChangePasswordMutation,
   useToggleCandidateAutoApplyMutation,
-  useUploadProfileImageMutation,
 } from "@/store/authApi";
 import { Switch } from "@/components/ui/switch";
 import type {
@@ -62,7 +61,6 @@ export default function CandidateProfilePage() {
   const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [toggleAutoApply, { isLoading: isTogglingAutoApply }] = useToggleCandidateAutoApplyMutation();
-  const [uploadProfileImage, { isLoading: isUploadingImage }] = useUploadProfileImageMutation();
 
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
@@ -241,36 +239,34 @@ export default function CandidateProfilePage() {
   // ── Save (PATCH) ──
   async function handleSave() {
     try {
-      let imageUrl = profile?.image ?? null;
+      const formData = new FormData();
+      formData.append("first_name", form.first_name);
+      formData.append("last_name", form.last_name);
+      formData.append("role_title", form.role_title);
+      formData.append("industry", form.industry || "");
+      formData.append("about_me", form.about_me || "");
+      formData.append("phone_whatsapp", form.phone_whatsapp || "");
+      formData.append("location", form.location || "");
+      formData.append("linkedin", form.linkedin || "");
+      formData.append("website_portfolio", form.website_portfolio || "");
+      formData.append("age", form.age ? String(form.age) : "");
+      formData.append("gender", form.gender || "");
 
       if (imageFile) {
-        const imgRes = await uploadProfileImage({ id, file: imageFile }).unwrap();
-        imageUrl = imgRes.data?.image ?? imageUrl;
+        formData.append("image", imageFile);
       }
 
-      const body: Record<string, any> = {
-        first_name: form.first_name,
-        last_name: form.last_name,
-        role_title: form.role_title,
-        industry: form.industry || null,
-        about_me: form.about_me || null,
-        phone_whatsapp: form.phone_whatsapp || null,
-        location: form.location || null,
-        linkedin: form.linkedin || null,
-        website_portfolio: form.website_portfolio || null,
-        age: form.age ? Number(form.age) : null,
-        gender: form.gender || null,
-        image: imageUrl,
-        educations: educations.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
-        experiences: experiences.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
-        skills: skills.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
-        projects: projects.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
-        certifications: certifications.map(({ id, ...rest }) => id ? { id, ...rest } : rest),
-      };
-      await patchProfile({ id, body }).unwrap();
+      formData.append("educations", JSON.stringify(educations.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
+      formData.append("experiences", JSON.stringify(experiences.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
+      formData.append("skills", JSON.stringify(skills.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
+      formData.append("projects", JSON.stringify(projects.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
+      formData.append("certifications", JSON.stringify(certifications.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
+
+      await patchProfile({ id, body: formData }).unwrap();
       toast.success("Profile updated successfully");
       setIsEditing(false);
       setImageFile(null);
+      setImagePreview(profile?.image ?? null);
     } catch (err: any) {
       toast.error(err?.data?.details ?? "Failed to update profile");
     }
@@ -383,7 +379,7 @@ export default function CandidateProfilePage() {
                   Cancel
                 </button>
                 <button onClick={handleSave} disabled={isSaving} className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
-                  {isSaving && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />}
+                  {/* {isSaving && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />} */}
                   Save changes
                 </button>
               </>
@@ -878,7 +874,7 @@ export default function CandidateProfilePage() {
               Cancel
             </button>
             <button onClick={handleSave} disabled={isSaving} className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-50">
-              {isSaving && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />}
+              {/* {isSaving && <Loader2 className="h-4 w-4 animate-spin inline mr-1" />} */}
               Save changes
             </button>
           </div>

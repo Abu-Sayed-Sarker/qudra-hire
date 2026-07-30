@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Search, Eye, Pencil, Trash2, Globe,
   ChevronLeft, ChevronRight, Loader2,
@@ -21,6 +22,10 @@ import {
   useUnsuspendAdminCompanyMutation,
   type AdminCompanyListItem,
 } from "@/store/authApi";
+import { SkeletonTable, SkeletonStatCard } from "@/components/ui/skeleton-cards";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
+import { Building2 } from "lucide-react";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -46,7 +51,7 @@ function ApprovalBadge({ status }: { status: string }) {
     REJECTED: "bg-red-500/15 text-red-500",
   };
   return (
-    <span className={`px-2.5 py-0.5 rounded text-[11px] font-semibold ${map[status] ?? "bg-muted text-muted-foreground"}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-semibold ${map[status] ?? "bg-muted text-muted-foreground"}`}>
       {status}
     </span>
   );
@@ -54,26 +59,11 @@ function ApprovalBadge({ status }: { status: string }) {
 
 function SuspendedBadge({ suspended }: { suspended: boolean }) {
   return suspended ? (
-    <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-red-500/15 text-red-500">Suspended</span>
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-red-500/15 text-red-500">Suspended</span>
   ) : (
-    <span className="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#21c55e]/15 text-[#21c55e]">Active</span>
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-[11px] font-semibold bg-[#21c55e]/15 text-[#21c55e]">Active</span>
   );
 }
-
-// ── Skeleton row ───────────────────────────────────────────────────────────────
-
-function SkeletonRow() {
-  return (
-    <tr className="border-b border-border">
-      {[140, 160, 60, 60, 70, 80, 80, 60].map((w, i) => (
-        <td key={i} className="px-5 py-4">
-          <div className="h-3 rounded bg-muted animate-pulse" style={{ width: w }} />
-        </td>
-      ))}
-    </tr>
-  );
-}
-
 
 // ── Detail Panel ───────────────────────────────────────────────────────────────
 
@@ -111,7 +101,7 @@ function DetailPanel({
       {/* Header row */}
       <div className="flex items-center gap-4 pb-5 border-b border-border">
         <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-bold text-white shrink-0"
+          className="w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
           style={{ background: avatarColor(c.id) }}
         >
           {getInitials(c.company_name)}
@@ -130,7 +120,7 @@ function DetailPanel({
       {c.logo && (
         <div className="py-4 border-b border-border">
           <p className="text-[11px] text-muted-foreground mb-2">Logo</p>
-          <img src={c.logo} alt={`${c.company_name} logo`} className="h-16 w-16 rounded-lg object-cover" />
+          <img src={c.logo} alt={`${c.company_name} logo`} className="h-16 w-16 rounded-xl object-cover" />
         </div>
       )}
 
@@ -142,10 +132,6 @@ function DetailPanel({
           ["Country", c.country || "—"],
           ["Subscription", c.subsription || "—"],
           ["Active Jobs", String(c.active_jobs)],
-          // ["Status", c.is_suspended ? "Suspended" : "Active"],
-          // ["Licence No.", c.licence_number || "—"],
-          // ["Licence Verified", c.is_licence_verified ? "Yes" : "No"],
-          // ["Since", formatDate(c.since)],
           ...(c.rejection_reason ? [["Rejection Reason", c.rejection_reason]] : []),
         ].map(([label, val]) => (
           <div key={label}>
@@ -164,41 +150,40 @@ function DetailPanel({
       {/* Action buttons */}
       <div className="flex flex-wrap gap-2 pt-4">
         <button onClick={onEdit}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground text-xs font-medium transition-colors">
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground text-xs font-medium transition-colors">
           <Pencil className="w-3.5 h-3.5" /> Edit
         </button>
         {c.approval_status !== "VERIFIED" && (
           <button onClick={onApprove}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#21c55e]/20 hover:bg-[#21c55e]/10 text-[#21c55e] text-xs font-medium transition-colors">
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#21c55e]/20 hover:bg-[#21c55e]/10 text-[#21c55e] text-xs font-medium transition-colors">
             <CheckCircle className="w-3.5 h-3.5" /> Approve
           </button>
         )}
         {c.approval_status !== "REJECTED" && (
           <button onClick={onReject}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/20 hover:bg-amber-500/10 text-amber-500 text-xs font-medium transition-colors">
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/20 hover:bg-amber-500/10 text-amber-500 text-xs font-medium transition-colors">
             <XCircle className="w-3.5 h-3.5" /> Reject
           </button>
         )}
         <button onClick={onResetPwd}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground text-xs font-medium transition-colors">
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-muted-foreground text-xs font-medium transition-colors">
           <Key className="w-3.5 h-3.5" /> Reset Password
         </button>
         <button onClick={onSuspend}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${c.is_suspended
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${c.is_suspended
               ? "border-amber-500/20 hover:bg-amber-500/10 text-amber-500"
               : "border-orange-500/20 hover:bg-orange-500/10 text-orange-500"
             }`}>
           <Ban className="w-3.5 h-3.5" /> {c.is_suspended ? "Unsuspend" : "Suspend"}
         </button>
         <button onClick={onDelete}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/10 text-red-500 text-xs font-medium transition-colors ml-auto">
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/20 hover:bg-red-500/10 text-red-500 text-xs font-medium transition-colors ml-auto">
           <Trash2 className="w-3.5 h-3.5" /> Delete
         </button>
       </div>
     </>
   );
 }
-
 
 // ── Edit Form ──────────────────────────────────────────────────────────────────
 
@@ -246,12 +231,12 @@ function EditForm({ company, onClose }: { company: AdminCompanyListItem; onClose
     }
   }
 
-  const inp = "w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-[#6366f1]/50 transition-colors placeholder:text-muted-foreground";
+  const inp = "w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-[#6366f1]/50 transition-colors placeholder:text-muted-foreground";
 
   return (
     <div className="py-4 space-y-4">
-      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
-      {success && <p className="text-xs text-[#21c55e] bg-[#21c55e]/10 border border-[#21c55e]/20 px-3 py-2 rounded-lg">Saved!</p>}
+      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2.5 rounded-xl">{error}</p>}
+      {success && <p className="text-xs text-[#21c55e] bg-[#21c55e]/10 border border-[#21c55e]/20 px-3 py-2.5 rounded-xl">Saved!</p>}
       <div>
         <label className="text-xs text-muted-foreground mb-1.5 block">Company Name</label>
         <input className={inp} value={form.company_name} onChange={(e) => set("company_name", e.target.value)} />
@@ -279,7 +264,7 @@ function EditForm({ company, onClose }: { company: AdminCompanyListItem; onClose
       <div className="flex justify-end gap-3 pt-4 border-t border-border">
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleSave} disabled={isLoading || success}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors">
 
           {isLoading ? "Saving…" : "Save Changes"}
         </button>
@@ -311,7 +296,7 @@ function RejectForm({ company, onClose }: { company: AdminCompanyListItem; onClo
       <p className="text-sm text-muted-foreground">
         Rejecting <span className="font-semibold text-foreground">{company.company_name}</span>. Please state the reason.
       </p>
-      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
+      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2.5 rounded-xl">{error}</p>}
       <div>
         <label className="text-xs text-muted-foreground mb-1.5 block">Reason</label>
         <textarea
@@ -319,13 +304,13 @@ function RejectForm({ company, onClose }: { company: AdminCompanyListItem; onClo
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="e.g. Invalid trade licence…"
-          className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-amber-500/40 transition-colors resize-none placeholder:text-muted-foreground"
+          className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-amber-500/40 transition-colors resize-none placeholder:text-muted-foreground"
         />
       </div>
       <div className="flex justify-end gap-3 pt-2 border-t border-border">
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleReject} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
 
           {isLoading ? "Rejecting…" : "Reject Company"}
         </button>
@@ -361,11 +346,11 @@ function DeleteConfirm({ company, onClose }: { company: AdminCompanyListItem; on
           </p>
         </div>
       </div>
-      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
+      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2.5 rounded-xl">{error}</p>}
       <div className="flex justify-end gap-3 pt-2 border-t border-border">
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleDelete} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
 
           {isLoading ? "Deleting…" : "Yes, Delete"}
         </button>
@@ -395,11 +380,11 @@ function ApproveConfirm({ company, onClose }: { company: AdminCompanyListItem; o
       <p className="text-sm text-muted-foreground">
         Approve <span className="font-semibold text-foreground">{company.company_name}</span>? They will be able to post jobs and use the platform.
       </p>
-      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
+      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2.5 rounded-xl">{error}</p>}
       <div className="flex justify-end gap-3 pt-2 border-t border-border">
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleApprove} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#21c55e] hover:bg-[#00c98e] disabled:opacity-60 text-white text-sm font-semibold transition-colors">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#21c55e] hover:bg-[#00c98e] disabled:opacity-60 text-white text-sm font-semibold transition-colors">
 
           {isLoading ? "Approving…" : "Approve"}
         </button>
@@ -447,11 +432,11 @@ function SuspendConfirm({ company, onClose }: { company: AdminCompanyListItem; o
           </p>
         </div>
       </div>
-      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
+      {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2.5 rounded-xl">{error}</p>}
       <div className="flex justify-end gap-3 pt-2 border-t border-border">
         <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
         <button onClick={handleToggle} disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 disabled:opacity-60 text-white text-sm font-medium transition-colors">
 
           {isLoading ? "Processing…" : isSuspended ? "Unsuspend" : "Suspend"}
         </button>
@@ -486,7 +471,7 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const inp = "w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-[#6366f1]/50 transition-colors placeholder:text-muted-foreground";
+  const inp = "w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-[#6366f1]/50 transition-colors placeholder:text-muted-foreground";
 
   return (
     <div className="py-4 space-y-4">
@@ -495,7 +480,7 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
           <p className="text-sm text-muted-foreground">
             Set a new password for <span className="font-semibold text-foreground">{company.company_name}</span>.
           </p>
-          {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 px-3 py-2.5 rounded-xl">{error}</p>}
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">New Password</label>
             <input
@@ -509,7 +494,7 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
           <div className="flex justify-end gap-3 pt-2 border-t border-border">
             <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted text-sm font-medium transition-colors">Cancel</button>
             <button onClick={handleReset} disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors">
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] hover:bg-[#6366f1]/90 disabled:opacity-60 text-white text-sm font-medium transition-colors">
 
               {isLoading ? "Resetting…" : "Reset Password"}
             </button>
@@ -518,7 +503,7 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
       ) : (
         <>
           <p className="text-sm text-[#21c55e]">Password reset successfully! Share this with the company:</p>
-          <div className="flex items-center gap-2 bg-background border border-border rounded-lg px-4 py-3">
+          <div className="flex items-center gap-2 bg-background border border-border rounded-xl px-4 py-3">
             <code className="flex-1 text-sm font-mono text-foreground tracking-wider">{password}</code>
             <button onClick={copyPwd} className="text-muted-foreground hover:text-foreground transition-colors">
               {copied ? <Check className="h-4 w-4 text-[#21c55e]" /> : <Copy className="h-4 w-4" />}
@@ -534,14 +519,22 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
   );
 }
 
-
 // ── Main page ──────────────────────────────────────────────────────────────────
 
 const PAGE_SIZE = 10;
 type ModalMode = "view" | "edit" | "delete" | "approve" | "reject" | "reset-pwd" | "suspend" | null;
 
+const rowVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.03, duration: 0.3, ease: "easeOut" },
+  }),
+};
+
 export default function CompanyManagementPage() {
-  const { data, isLoading, isError } = useGetAdminCompaniesQuery();
+  const { data, isLoading, isError, refetch } = useGetAdminCompaniesQuery();
   const companies = data?.data ?? [];
 
   const [search, setSearch] = useState("");
@@ -588,147 +581,160 @@ export default function CompanyManagementPage() {
             placeholder="Search by name or email…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full bg-background border border-border rounded-lg pl-9 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
+            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
           />
         </div>
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {/* Error banner */}
       {isError && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
-          <AlertTriangle className="h-4 w-4 shrink-0" />
-          Failed to load companies. Check your connection and try again.
-        </div>
+        <ErrorState
+          icon={AlertTriangle}
+          title="Unable to load companies"
+          description="Something went wrong while fetching the company list."
+          onRetry={() => refetch()}
+          retryLabel="Retry"
+        />
       )}
 
       {/* Table */}
-      <div className="rounded-xl bg-card border border-border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[860px]">
-            <thead>
-              <tr className="border-b border-border">
-                {["Company", "Country", "Jobs", "Subcription",
-                  //  "Approval",
-                  "Status",
-                  // "Since",
-                  "Actions"].map((h) => (
-                    <th key={h} className={`px-5 py-3 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider ${h === "Actions" ? "text-right" : "text-left"}`}>
+      {!isError && (
+        <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px]" role="grid" aria-label="Companies list">
+              <thead>
+                <tr className="border-b border-border sticky top-0 bg-card/95 backdrop-blur z-10">
+                  {["Company", "Country", "Jobs", "Subscription", "Status", "Actions"].map((h) => (
+                    <th key={h} className={`px-4 py-3.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider ${h === "Actions" ? "text-right" : "text-left"}`}>
                       {h}
                     </th>
                   ))}
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading
-                ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                : paginated.length === 0
-                  ? (
-                    <tr>
-                      <td colSpan={8} className="text-center py-16 text-muted-foreground text-sm">
-                        {search ? "No companies match your search." : "No companies found."}
-                      </td>
-                    </tr>
-                  )
-                  : paginated.map((c, idx) => (
-                    <tr key={c.id}
-                      className={`border-b border-border hover:bg-muted/50 transition-colors ${idx === paginated.length - 1 ? "border-b-0" : ""}`}>
-                      {/* Company */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold text-white shrink-0"
-                            style={{ background: avatarColor(c.id) }}>
-                            {getInitials(c.company_name)}
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading
+                  ? <SkeletonTable rows={5} columns={6} />
+                  : paginated.length === 0
+                    ? (
+                      <tr>
+                        <td colSpan={6}>
+                          <EmptyState
+                            icon={Building2}
+                            title="No companies found"
+                            description={search ? "No companies match your search criteria." : "Get started by adding your first company to the platform."}
+                          />
+                        </td>
+                      </tr>
+                    )
+                    : paginated.map((c, idx) => (
+                      <motion.tr
+                        key={c.id}
+                        custom={idx}
+                        initial="hidden"
+                        animate="visible"
+                        variants={rowVariants}
+                        className={`border-b border-border hover:bg-muted/50 transition-colors ${idx === paginated.length - 1 ? "border-b-0" : ""}`}
+                      >
+                        {/* Company */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0"
+                              style={{ background: avatarColor(c.id) }}>
+                              {getInitials(c.company_name)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{c.company_name}</p>
+                              <p className="text-xs text-muted-foreground">{c.email}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{c.company_name}</p>
-                            <p className="text-xs text-muted-foreground">{c.email}</p>
+                        </td>
+                        {/* Country */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="text-sm text-muted-foreground">{c.country || "—"}</span>
                           </div>
-                        </div>
-                      </td>
-                      {/* Country */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-1.5">
-                          <Globe className="h-3 w-3 text-muted-foreground shrink-0" />
-                          <span className="text-sm text-muted-foreground">{c.country || "—"}</span>
-                        </div>
-                      </td>
-                      {/* Jobs */}
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm text-muted-foreground">{c.active_jobs}</span>
-                      </td>
-
-                      {/* subscription */}
-                      <td className="px-5 py-3.5">
-                        {/* <ApprovalBadge status={c.approval_status} /> */}
-                        <span className="capitalize text-blue-600 bg-blue-600/10 px-2 py-1 inline-block text-center rounded-md"> {c.subscription ?? "....."}</span>
-                      </td>
-                      {/* Suspended */}
-                      <td className="px-5 py-3.5">
-                        <SuspendedBadge suspended={c.is_suspended} />
-                      </td>
-                      {/* Since */}
-                      {/* <td className="px-5 py-3.5">
-                        <span className="text-sm text-muted-foreground">{formatDate(c.since)}</span>
-                      </td> */}
-                      {/* Actions */}
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => open("view", c)} title="View"
-                            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                            <Eye className="h-3.5 w-3.5" />
-                          </button>
-                          <button onClick={() => open("edit", c)} title="Edit"
-                            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          {c.approval_status === "PENDING" && (
-                            <button onClick={() => open("approve", c)} title="Approve"
-                              className="p-1.5 rounded-md hover:bg-[#21c55e]/10 text-muted-foreground hover:text-[#21c55e] transition-colors">
-                              <CheckCircle className="h-3.5 w-3.5" />
+                        </td>
+                        {/* Jobs */}
+                        <td className="px-4 py-3.5">
+                          <span className="text-sm text-muted-foreground">{c.active_jobs}</span>
+                        </td>
+                        {/* subscription */}
+                        <td className="px-4 py-3.5">
+                          <span className="capitalize text-blue-600 bg-blue-600/10 px-2 py-1 inline-block text-center rounded-lg text-xs font-semibold"> {c.subscription ?? "....."}</span>
+                        </td>
+                        {/* Suspended */}
+                        <td className="px-4 py-3.5">
+                          <SuspendedBadge suspended={c.is_suspended} />
+                        </td>
+                        {/* Actions */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center justify-end gap-1">
+                            <button onClick={() => open("view", c)} aria-label="View company"
+                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                              <Eye className="h-3.5 w-3.5" />
                             </button>
-                          )}
-                          <button onClick={() => open("delete", c)} title="Delete"
-                            className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-              }
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {!isLoading && filtered.length > 0 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-border">
-            <span className="text-xs text-muted-foreground">
-              Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
-            </span>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <button key={n} onClick={() => setPage(n)}
-                  className={`w-7 h-7 rounded-md text-xs font-semibold transition-colors ${n === page ? "bg-[#21c55e]/20 text-[#21c55e]" : "hover:bg-muted text-muted-foreground"}`}>
-                  {n}
-                </button>
-              ))}
-              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
+                            <button onClick={() => open("edit", c)} aria-label="Edit company"
+                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            {c.approval_status === "PENDING" && (
+                              <button onClick={() => open("approve", c)} aria-label="Approve company"
+                                className="p-1.5 rounded-lg hover:bg-[#21c55e]/10 text-muted-foreground hover:text-[#21c55e] transition-colors">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            <button onClick={() => open("delete", c)} aria-label="Delete company"
+                              className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))
+                }
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination */}
+          {!isLoading && filtered.length > 0 && (
+            <div className="flex items-center justify-between px-5 py-3.5 border-t border-border">
+              <span className="text-xs text-muted-foreground">
+                Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Previous page"
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                  <button key={n} onClick={() => setPage(n)} aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined}
+                    className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors ${n === page ? "bg-[#21c55e]/20 text-[#21c55e]" : "hover:bg-muted text-muted-foreground"}`}>
+                    {n}
+                  </button>
+                ))}
+                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Next page"
+                  className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Single dialog for all modals */}
       <Dialog open={modal !== null} onOpenChange={(o) => { if (!o) close(); }}>
-        <DialogContent className="bg-card border-border text-foreground max-w-lg p-6 rounded-xl overflow-hidden !ring-0 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border text-foreground max-w-lg p-6 rounded-2xl overflow-hidden !ring-0 max-h-[90vh] overflow-y-auto">
           <DialogHeader className="pb-4 border-b border-border">
             <DialogTitle className="text-lg font-bold text-foreground">
               {modal ? modalTitle[modal] : ""}

@@ -1790,12 +1790,13 @@ export const authApi = createApi({
     // PATCH /auth/candidate/profiles/{id}/
     patchCandidateProfile: builder.mutation<
       ApiResponse<CandidateProfile>,
-      { id: number; body: Partial<CandidateProfile> }
+      { id: number; body: FormData }
     >({
       query: ({ id, body }) => ({
         url: `auth/candidate/profiles/${id}/`,
         method: "PATCH",
         body,
+        formData: true,
       }),
       invalidatesTags: (result, error, { id }) => [
         "CandidateProfiles",
