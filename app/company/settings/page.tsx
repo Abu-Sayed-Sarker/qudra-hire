@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   UploadCloud,
   ShieldCheck,
@@ -11,14 +11,30 @@ import {
   Lock,
   FileText,
   Check,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useChangePasswordMutation } from "@/store/authApi";
+import { useChangePasswordMutation, useGetCompanyProfileQuery, useUpdateCompanyProfileMutation } from "@/store/authApi";
+import type { CompanyProfile } from "@/store/authApi";
 
 export default function CompanySettingsPage() {
-  const [about, setAbout] = useState(
-    "Emirates NBD is a leading banking group in the MENAT region. We are driving innovation in engineering, data and design."
-  );
+  const { data: profileData, isLoading: isLoadingProfile, refetch } = useGetCompanyProfileQuery();
+  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateCompanyProfileMutation();
+  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+
+  const [companyName, setCompanyName] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [phone, setPhone] = useState("");
+  const [workEmail, setWorkEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [about, setAbout] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [licenceNumber, setLicenceNumber] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [tradeLicenceFile, setTradeLicenceFile] = useState<File | null>(null);
+
   const maxAbout = 600;
 
   const [showCurrent, setShowCurrent] = useState(false);
@@ -27,7 +43,77 @@ export default function CompanySettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
+
+  useEffect(() => {
+    if (profileData?.data) {
+      const p: CompanyProfile = profileData.data;
+      setCompanyName(p.company_name);
+      setIndustry(p.industry);
+      setPhone(p.phone);
+      setWorkEmail(p.work_email);
+      setAddress(p.address || "");
+      setAbout(p.about || "");
+      setFirstName(p.first_name);
+      setLastName(p.last_name);
+      setLicenceNumber(p.licence_number || "");
+      setLogoPreview(p.logo);
+    }
+  }, [profileData]);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Logo must be under 2 MB");
+        return;
+      }
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleTradeLicenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== "application/pdf") {
+        toast.error("Trade licence must be a PDF file");
+        return;
+      }
+      setTradeLicenceFile(file);
+    }
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("company_name", companyName);
+    formData.append("industry", industry);
+    formData.append("phone", phone);
+    formData.append("work_email", workEmail);
+    formData.append("address", address);
+    formData.append("about", about);
+    formData.append("first_name", firstName);
+    formData.append("last_name", lastName);
+    formData.append("licence_number", licenceNumber);
+
+    if (logoFile) {
+      formData.append("logo", logoFile);
+    }
+    if (tradeLicenceFile) {
+      formData.append("trade_licence", tradeLicenceFile);
+    }
+
+    try {
+      await updateProfile(formData).unwrap();
+      toast.success("Profile updated successfully");
+      setLogoFile(null);
+      setTradeLicenceFile(null);
+      refetch();
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to update profile");
+    }
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +147,22 @@ export default function CompanySettingsPage() {
     }
   };
 
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-full bg-background text-foreground">
+        <div className="max-w-full mx-auto px-6 py-8 space-y-8">
+          <div className="space-y-3">
+            <div className="h-8 w-48 bg-muted rounded-xl animate-pulse" />
+            <div className="h-4 w-64 bg-muted rounded-xl animate-pulse" />
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
+            <div className="h-40 bg-muted rounded-2xl animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-full bg-background text-foreground">
       <div className="max-w-full mx-auto px-6 py-8 space-y-8">
@@ -72,87 +174,131 @@ export default function CompanySettingsPage() {
         </div>
 
         {/* Profile Card */}
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
+        <form onSubmit={handleSaveProfile}>
+          <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
 
-          {/* Logo Upload */}
-          <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-xl bg-muted border border-border flex items-center justify-center text-lg font-extrabold text-foreground shrink-0">
-              ENB
-            </div>
-            <div>
-              <button className="flex items-center gap-2 text-sm font-semibold text-foreground border border-border bg-background hover:bg-muted px-4 py-2 rounded-lg transition-colors">
-                <UploadCloud className="w-4 h-4" />
-                Upload logo
-              </button>
-              <p className="text-xs text-muted-foreground mt-1.5">PNG or JPG • square, max 2 MB</p>
-            </div>
-          </div>
-
-          {/* Form Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Company name</label>
-              <input
-                type="text"
-                defaultValue="Emirates NBD"
-                className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Industry</label>
-              <input
-                type="text"
-                defaultValue="Banking & Financial Services"
-                className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Phone</label>
-              <input
-                type="text"
-                defaultValue="+971 4 609 2222"
-                className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Work email</label>
-              <input
-                type="email"
-                defaultValue="talent@emiratesnbd.com"
-                className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
-              />
-            </div>
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Address</label>
-              <input
-                type="text"
-                defaultValue="Dubai, UAE"
-                className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
-              />
-            </div>
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">About</label>
-              <div className="relative">
-                <textarea
-                  rows={4}
-                  value={about}
-                  onChange={(e) => setAbout(e.target.value.slice(0, maxAbout))}
-                  className="w-full bg-background border border-border rounded-lg px-3 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none transition"
-                />
-                <span className="absolute bottom-3 right-3 text-[10px] text-muted-foreground">
-                  {about.length}/{maxAbout}
-                </span>
+            {/* Logo Upload */}
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 rounded-xl bg-muted border border-border flex items-center justify-center text-lg font-extrabold text-foreground shrink-0 overflow-hidden">
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  profileData?.data?.company_name?.charAt(0)?.toUpperCase() || "L"
+                )}
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-foreground border border-border bg-background hover:bg-muted px-4 py-2 rounded-lg transition-colors cursor-pointer">
+                  <UploadCloud className="w-4 h-4" />
+                  Upload logo
+                  <input type="file" accept="image/png,image/jpeg" onChange={handleLogoChange} className="hidden" />
+                </label>
+                <p className="text-xs text-muted-foreground mt-1.5">PNG or JPG • square, max 2 MB</p>
               </div>
             </div>
-          </div>
 
-          {/* Save Profile Button */}
-          <div className="flex justify-end pt-2">
-            <button className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-lg transition-colors">
-              Save changes
-            </button>
+            {/* Form Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">First name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Last name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Company name</label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Industry</label>
+                <input
+                  type="text"
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Phone</label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Work email</label>
+                <input
+                  type="email"
+                  value={workEmail}
+                  onChange={(e) => setWorkEmail(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Address</label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">About</label>
+                <div className="relative">
+                  <textarea
+                    rows={4}
+                    value={about}
+                    onChange={(e) => setAbout(e.target.value.slice(0, maxAbout))}
+                    className="w-full bg-background border border-border rounded-lg px-3 py-3 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none transition"
+                  />
+                  <span className="absolute bottom-3 right-3 text-[10px] text-muted-foreground">
+                    {about.length}/{maxAbout}
+                  </span>
+                </div>
+              </div>
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-xs font-semibold text-muted-foreground">Licence number</label>
+                <input
+                  type="text"
+                  value={licenceNumber}
+                  onChange={(e) => setLicenceNumber(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring transition"
+                />
+              </div>
+            </div>
+
+            {/* Save Profile Button */}
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                disabled={isUpdatingProfile}
+                className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isUpdatingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isUpdatingProfile ? "Saving..." : "Save changes"}
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
 
         {/* Trade Licence */}
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
@@ -173,23 +319,20 @@ export default function CompanySettingsPage() {
                 <FileText className="w-5 h-5 text-[#4BC957]" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground">EmiratesNBD_TradeLicense_2026.pdf</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">512 KB • updated 5 days ago</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {profileData?.data?.trade_licence ? profileData.data.trade_licence.split("/").pop() : "No trade licence uploaded"}
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  {profileData?.data?.licence_number || "No licence number"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground border border-border bg-background hover:bg-muted px-3 py-1.5 rounded-lg transition-colors">
-                <Eye className="w-3.5 h-3.5" /> View
-              </button>
-              <button className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-destructive border border-border bg-background hover:bg-muted px-3 py-1.5 rounded-lg transition-colors">
-                <Trash2 className="w-3.5 h-3.5" /> Remove
-              </button>
-              <button className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground border border-border bg-background hover:bg-muted px-3 py-1.5 rounded-lg transition-colors">
-                <Download className="w-3.5 h-3.5" /> Download
-              </button>
-              <button className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground border border-border bg-background hover:bg-muted px-3 py-1.5 rounded-lg transition-colors">
-                <RefreshCw className="w-3.5 h-3.5" /> Update
-              </button>
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground border border-border bg-background hover:bg-muted px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                <RefreshCw className="w-3.5 h-3.5" />
+                Update
+                <input type="file" accept="application/pdf" onChange={handleTradeLicenceChange} className="hidden" />
+              </label>
             </div>
           </div>
         </div>

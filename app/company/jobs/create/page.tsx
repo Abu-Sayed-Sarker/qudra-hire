@@ -8,6 +8,13 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   useCreateCompanyJobMutation,
   useGetJobQuotaQuery,
   usePurchaseJobSlotsMutation,
@@ -34,6 +41,19 @@ const EMPTY_PAYLOAD: CompanyJobPayload = {
   additional_questions: [],
 };
 
+const EMPLOYMENT_TYPES = [
+  { value: "FULL_TIME", label: "Full Time" },
+  { value: "REMOTE", label: "Remote" },
+  { value: "HYBRID", label: "Hybrid" },
+] as const;
+
+const CURRENCIES = [
+  { value: "AED", label: "AED" },
+  { value: "USD", label: "USD" },
+  { value: "SAR", label: "SAR" },
+  { value: "QAR", label: "QAR" },
+] as const;
+
 export default function PostJobPage() {
   const router = useRouter();
   const [visaSp, setVisaSp] = useState(false);
@@ -41,6 +61,7 @@ export default function PostJobPage() {
   const [saudization, setSaudization] = useState(false);
   const [remote, setRemote] = useState(false);
   const [form, setForm] = useState<CompanyJobPayload>(EMPTY_PAYLOAD);
+  const [skillsText, setSkillsText] = useState(form.skills.join(", "));
   const [error, setError] = useState<string | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [quotaData, setQuotaData] = useState<JobQuota | null>(null);
@@ -201,8 +222,9 @@ export default function PostJobPage() {
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
               <Input
                 type="text"
-                value={form.skills.join(", ")}
-                onChange={(e) => updateField("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                value={skillsText}
+                onChange={(e) => setSkillsText(e.target.value)}
+                onBlur={() => updateField("skills", skillsText.split(",").map((s) => s.trim()).filter(Boolean))}
                 placeholder="e.g. Figma, React, TypeScript"
                 className="bg-background border-border focus:border-[#4BC957]"
               />
@@ -216,21 +238,25 @@ export default function PostJobPage() {
                   type="text"
                   value={form.location}
                   onChange={(e) => updateField("location", e.target.value)}
-                  placeholder="e.g. Riyadh, KSA"
+                  placeholder="Dubai, UAE."
                   className="bg-background border-border focus:border-[#4BC957]"
                   required
                 />
               </div>
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Employment type</label>
-                <Input
-                  type="text"
-                  value={form.employment_type}
-                  onChange={(e) => updateField("employment_type", e.target.value.toUpperCase())}
-                  placeholder="e.g. FULL_TIME"
-                  className="bg-background border-border focus:border-[#4BC957]"
-                  required
-                />
+                <Select value={form.employment_type} onValueChange={(v) => v && updateField("employment_type", v)}>
+                  <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
+                    <SelectValue placeholder="Select employment type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border text-foreground">
+                    {EMPLOYMENT_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -238,14 +264,18 @@ export default function PostJobPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Currency</label>
-                <Input
-                  type="text"
-                  value={form.currency}
-                  onChange={(e) => updateField("currency", e.target.value)}
-                  placeholder="e.g. SAR, USD"
-                  className="bg-background border-border focus:border-[#4BC957]"
-                  required
-                />
+                <Select value={form.currency} onValueChange={(v) => v && updateField("currency", v)}>
+                  <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border text-foreground">
+                    {CURRENCIES.map((curr) => (
+                      <SelectItem key={curr.value} value={curr.value}>
+                        {curr.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Salary range</label>

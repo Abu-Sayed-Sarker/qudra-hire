@@ -307,6 +307,40 @@ export interface CompanyJobPayload {
   additional_questions: any[];
 }
 
+export interface CompanyProfile {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  company_name: string;
+  industry: string;
+  phone: string;
+  work_email: string;
+  address: string | null;
+  about: string;
+  image: string | null;
+  logo: string | null;
+  trade_licence: string | null;
+  licence_number: string | null;
+  is_licence_verified: boolean;
+  ai_status: string;
+}
+
+export interface CompanyProfilePayload {
+  company_name: string;
+  industry: string;
+  phone: string;
+  work_email: string;
+  address: string;
+  about: string;
+  logo: string | null;
+  trade_licence: string | null;
+  licence_number: string;
+  first_name: string;
+  last_name: string;
+  image: string | null;
+}
+
 export interface CompanyInterviewQuestion {
   id: string;
   question_text: string;
@@ -1095,7 +1129,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "Notifications", "ChatConversations", "Contacts"],
+   tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "CompanyProfile", "Notifications", "ChatConversations", "Contacts"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1348,6 +1382,25 @@ export const authApi = createApi({
         method: "POST",
         body,
       }),
+    }),
+
+    // ── Company Profile endpoints ───────────────────────────────────────────────
+
+    // GET /auth/company/profile/
+    getCompanyProfile: builder.query<ApiResponse<CompanyProfile>, void>({
+      query: () => "auth/company/profile/",
+      providesTags: ["CompanyProfile"],
+    }),
+
+    // PUT /auth/company/profile/
+    updateCompanyProfile: builder.mutation<ApiResponse<CompanyProfile>, FormData>({
+      query: (formData) => ({
+        url: "auth/company/profile/",
+        method: "PUT",
+        body: formData,
+        formData: true,
+      }),
+      invalidatesTags: ["CompanyProfile"],
     }),
 
     // ── Company Interview endpoints ─────────────────────────────────────────────
@@ -2020,6 +2073,9 @@ export const {
   useRequestCompanyJobEditMutation,
   useGetJobQuotaQuery,
   usePurchaseJobSlotsMutation,
+  // Company Profile
+  useGetCompanyProfileQuery,
+  useUpdateCompanyProfileMutation,
   // Company Interviews
   useGetCompanyInterviewsQuery,
   useCreateCompanyInterviewMutation,

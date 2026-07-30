@@ -8,10 +8,30 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   useGetCompanyJobDetailQuery,
   useRequestCompanyJobEditMutation,
 } from "@/store/authApi";
 import type { CompanyJob, CompanyJobPayload } from "@/store/authApi";
+
+const EMPLOYMENT_TYPES = [
+  { value: "FULL_TIME", label: "Full Time" },
+  { value: "REMOTE", label: "Remote" },
+  { value: "HYBRID", label: "Hybrid" },
+] as const;
+
+const CURRENCIES = [
+  { value: "AED", label: "AED" },
+  { value: "USD", label: "USD" },
+  { value: "SAR", label: "SAR" },
+  { value: "QAR", label: "QAR" },
+] as const;
 
 function EditJobInner() {
   const searchParams = useSearchParams();
@@ -41,6 +61,7 @@ function EditJobInner() {
     open_to_remote: false,
     additional_questions: [],
   });
+  const [skillsText, setSkillsText] = useState("");
   const [original, setOriginal] = useState<CompanyJobPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [requestSent, setRequestSent] = useState(false);
@@ -80,6 +101,7 @@ function EditJobInner() {
       };
       setForm(payload);
       setOriginal(payload);
+      setSkillsText(payload.skills.join(", "));
       setVisaSp(job.visa_sponsorship);
       setEmiratization(job.emiratization);
       setSaudization(job.saudization);
@@ -237,8 +259,9 @@ function EditJobInner() {
               <label className="font-bold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
               <Input
                 type="text"
-                value={form.skills.join(", ")}
-                onChange={(e) => updateField("skills", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}
+                value={skillsText}
+                onChange={(e) => setSkillsText(e.target.value)}
+                onBlur={() => updateField("skills", skillsText.split(",").map((s) => s.trim()).filter(Boolean))}
                 placeholder="e.g. Figma, React, TypeScript"
                 className="bg-background border-border focus:border-[#4BC957]"
               />
@@ -252,19 +275,24 @@ function EditJobInner() {
                   type="text"
                   value={form.location}
                   onChange={(e) => updateField("location", e.target.value)}
-                  placeholder="e.g. Riyadh, KSA"
+                  placeholder="Dubai, UAE."
                   className="bg-background border-border focus:border-[#4BC957]"
                 />
               </div>
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Employment type</label>
-                <Input
-                  type="text"
-                  value={form.employment_type}
-                  onChange={(e) => updateField("employment_type", e.target.value.toUpperCase())}
-                  placeholder="e.g. FULL_TIME"
-                  className="bg-background border-border focus:border-[#4BC957]"
-                />
+                <Select value={form.employment_type} onValueChange={(v) => v && updateField("employment_type", v)}>
+                  <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
+                    <SelectValue placeholder="Select employment type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border text-foreground">
+                    {EMPLOYMENT_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -272,13 +300,18 @@ function EditJobInner() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Currency</label>
-                <Input
-                  type="text"
-                  value={form.currency}
-                  onChange={(e) => updateField("currency", e.target.value)}
-                  placeholder="e.g. SAR, USD"
-                  className="bg-background border-border focus:border-[#4BC957]"
-                />
+                <Select value={form.currency} onValueChange={(v) => v && updateField("currency", v)}>
+                  <SelectTrigger className="bg-background border-border focus:border-[#4BC957] h-10 w-full">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border text-foreground">
+                    {CURRENCIES.map((curr) => (
+                      <SelectItem key={curr.value} value={curr.value}>
+                        {curr.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <label className="font-bold text-muted-foreground uppercase tracking-wider">Salary range</label>

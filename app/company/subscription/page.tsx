@@ -26,7 +26,9 @@ export default function CompanySubscriptionPage() {
 
   const resolveCompanyProfileId = () => {
     if (!user) return null;
+
     const profile = user.company_profile;
+  
     return typeof profile === "number" ? profile : profile?.id ?? null;
   };
 

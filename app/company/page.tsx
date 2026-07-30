@@ -169,7 +169,7 @@ export default function CompanyDashboard() {
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               Recruitment pipeline
             </h2>
-            <Link href={"/company/candidates"} className="text-[#4BC957] font-semibold hover:underline flex items-center gap-1.5">
+            <Link href={"/company/interviews"} className="text-[#4BC957] font-semibold hover:underline flex items-center gap-1.5">
               Open board <ExternalLink className="h-3.5 w-3.5" />
             </Link>
           </div>
