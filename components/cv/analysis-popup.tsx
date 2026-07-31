@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import { Dialog } from "@base-ui/react/dialog"
-import { cn } from "@/lib/utils"
-import { FileText, Sparkles, Check, Loader2 } from "lucide-react"
+import { FileText, Check, Loader2 } from "lucide-react"
 
 const STEPS = [
   { label: "Reading CV document...", duration: 2000 },
@@ -13,12 +12,21 @@ const STEPS = [
   { label: "Finalizing report...", duration: 1000 },
 ]
 
-const TOTAL_DURATION = STEPS.reduce((sum, s) => sum + s.duration, 0)
+const TOTAL_DURATION = STEPS.reduce((sum, s) => sum + s.duration, 0) // Exactly 10 seconds
 
-export function AnalysisPopup({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+export function AnalysisPopup({
+  open,
+  onOpenChange,
+  isAnalyzing,
+  isDone,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  isAnalyzing?: boolean;
+  isDone?: boolean;
+}) {
   const [progress, setProgress] = useState(0)
   const [stepIndex, setStepIndex] = useState(0)
-  const [stepProgress, setStepProgress] = useState(0)
   const [done, setDone] = useState(false)
   const startRef = useRef(0)
   const frameRef = useRef(0)
@@ -27,7 +35,6 @@ export function AnalysisPopup({ open, onOpenChange }: { open: boolean; onOpenCha
     if (!open) {
       setProgress(0)
       setStepIndex(0)
-      setStepProgress(0)
       setDone(false)
       return
     }
@@ -36,33 +43,59 @@ export function AnalysisPopup({ open, onOpenChange }: { open: boolean; onOpenCha
 
     function animate(now: number) {
       const elapsed = now - startRef.current
-      const pct = Math.min(elapsed / TOTAL_DURATION, 1)
-      setProgress(pct)
 
+      // Determine step label index from elapsed time
       let acc = 0
+      let currentStep = 0
       for (let i = 0; i < STEPS.length; i++) {
         const nextAcc = acc + STEPS[i].duration
-        if (elapsed < nextAcc) {
-          setStepIndex(i)
-          setStepProgress((elapsed - acc) / STEPS[i].duration)
+        if (elapsed < nextAcc || i === STEPS.length - 1) {
+          currentStep = i
           break
         }
         acc = nextAcc
       }
+      setStepIndex(currentStep)
 
-      if (pct < 1) {
+      if (elapsed < TOTAL_DURATION) {
+        // Always run for at least 10 seconds regardless of fast API response
+        const pct = Math.min(elapsed / TOTAL_DURATION, 0.98)
+        setProgress(pct)
         frameRef.current = requestAnimationFrame(animate)
       } else {
-        setStepIndex(STEPS.length - 1)
-        setStepProgress(1)
-        setDone(true)
-        setTimeout(() => onOpenChange(false), 1200)
+        // 10 seconds minimum duration completed
+        if (isDone || !isAnalyzing) {
+          setProgress(1)
+          setStepIndex(STEPS.length - 1)
+          setDone(true)
+          const timer = setTimeout(() => onOpenChange(false), 1200)
+          return () => clearTimeout(timer)
+        } else {
+          // Hold at 98% if API takes longer than 10s
+          setProgress(0.98)
+          setStepIndex(STEPS.length - 1)
+          frameRef.current = requestAnimationFrame(animate)
+        }
       }
     }
 
     frameRef.current = requestAnimationFrame(animate)
     return () => cancelAnimationFrame(frameRef.current)
-  }, [open, onOpenChange])
+  }, [open, onOpenChange, isAnalyzing, isDone])
+
+  // Watch for API completion after 10s has elapsed
+  useEffect(() => {
+    if (open && (isDone || !isAnalyzing) && !done) {
+      const elapsed = performance.now() - startRef.current
+      if (elapsed >= TOTAL_DURATION) {
+        setProgress(1)
+        setStepIndex(STEPS.length - 1)
+        setDone(true)
+        const timer = setTimeout(() => onOpenChange(false), 1200)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [open, isDone, isAnalyzing, done, onOpenChange])
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -108,7 +141,7 @@ export function AnalysisPopup({ open, onOpenChange }: { open: boolean; onOpenCha
 
                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-green-400 to-green-600 dark:from-[#4BC957] dark:to-[#00B96E] rounded-full transition-all duration-150 ease-linear"
-                      style={{ width: `${(stepIndex + stepProgress) / STEPS.length * 100}%` }} />
+                      style={{ width: `${progress * 100}%` }} />
                   </div>
 
                   <p className="text-xs text-slate-400 dark:text-slate-500">

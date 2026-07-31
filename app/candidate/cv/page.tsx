@@ -69,12 +69,13 @@ export default function CandidateCVPage() {
     if (status === "SUCCESS" && statusData.data.result) {
       setAnalysis(statusData.data.result);
       setTaskId(null);
+      refetchCv();
       toast.success("AI analysis complete");
     } else if (status === "FAILURE") {
       toast.error(statusData.data.error || "Auto-suggest failed");
       setTaskId(null);
     }
-  }, [statusData?.data?.status, taskId]);
+  }, [statusData?.data?.status, taskId, refetchCv]);
 
   const triggerAutoSuggest = useCallback(async () => {
     if (!cvData?.data) return;
@@ -91,7 +92,7 @@ export default function CandidateCVPage() {
   }, [autoSuggest, cvData]);
 
   useEffect(() => {
-    if (mounted && cvData?.data && !taskId && !analysis) {
+    if (mounted && cvData?.data && !taskId && !analysis && (cvData.data.ats_score === 0 || !cvData.data.parsed_skills?.length)) {
       triggerAutoSuggest();
     }
   }, [mounted, cvData, taskId, analysis, triggerAutoSuggest]);
@@ -131,13 +132,29 @@ export default function CandidateCVPage() {
       toast.success(result.details || "CV uploaded successfully");
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
-       setShowAnalysis(true)
-   
+      setShowAnalysis(true);
+
+      setAnalysis(null);
       setTaskId(null);
       await refetchCv();
+
+      // Trigger AI auto-suggest for the new CV automatically
+      try {
+        const suggestResult = await autoSuggest(undefined).unwrap();
+        if (suggestResult.data?.task_id) {
+          setTaskId(suggestResult.data.task_id);
+        }
+      } catch (err) {
+        console.error("Auto suggest trigger error:", err);
+      }
     } catch {
       toast.error("Failed to upload CV");
     }
+  };
+
+  const handleAutoSuggestClick = async () => {
+    setShowAnalysis(true);
+    await triggerAutoSuggest();
   };
 
   const handleDownload = async () => {
@@ -174,9 +191,11 @@ export default function CandidateCVPage() {
   }
 
   const hasCv = !!cvData?.data;
-  const isAnalyzing = !!taskId && !analysis;
-  const atsScore = analysis?.ats_score ?? 0;
-  const parsedSkills = analysis?.parsed_skills ?? [];
+  const isAnalyzing = (!!taskId && !analysis) || isUploading;
+  const atsScore = analysis?.ats_score ?? cvData?.data?.ats_score ?? 0;
+  const parsedSkills = (analysis?.parsed_skills && analysis.parsed_skills.length > 0)
+    ? analysis.parsed_skills
+    : (cvData?.data?.parsed_skills ?? []);
   const suggestions = analysis?.suggestions ?? [];
 
   const suggestIcon = isAnalyzing || isSuggesting ? (
@@ -284,8 +303,8 @@ export default function CandidateCVPage() {
           {/* Action buttons */}
           <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-[#1E293B]/40">
             <button
-              onClick={() => setShowAnalysis(true)}
-              disabled={!hasCv}
+              onClick={handleAutoSuggestClick}
+              disabled={!hasCv || isSuggesting || isAnalyzing}
               className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white dark:text-white px-4 py-2.5 rounded-xl font-bold transition-all shadow-md shadow-green-500/10 dark:shadow-[#4BC957]/10 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {suggestIcon}
@@ -337,7 +356,7 @@ export default function CandidateCVPage() {
                 <div className="space-y-2 pt-2">
                   <h4 className="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-wider">Suggestions</h4>
                   <ul className="space-y-2">
-                    {suggestions.map((suggestion, idx) => (
+                    {suggestions.map((suggestion: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-sm">
                         <Check className="h-4 w-4 text-green-600 dark:text-[#4BC957] flex-shrink-0 mt-0.5" />
                         <span>{suggestion}</span>
@@ -351,7 +370,12 @@ export default function CandidateCVPage() {
         </div>
       </div>
 
-      <AnalysisPopup open={showAnalysis} onOpenChange={setShowAnalysis} />
+      <AnalysisPopup
+        open={showAnalysis}
+        onOpenChange={setShowAnalysis}
+        isAnalyzing={isAnalyzing}
+        isDone={!isAnalyzing && !!analysis}
+      />
     </div>
   );
 }
