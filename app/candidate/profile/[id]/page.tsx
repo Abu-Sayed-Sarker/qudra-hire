@@ -441,50 +441,57 @@ export default function CandidateProfilePage() {
         {/* Basic Info */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
           <div className="flex gap-8">
-            <div className="relative shrink-0">
-              <div className="w-20  relative! h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground ">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 bg-[#4BC957] text-white p-1.5 rounded-full shadow-sm hover:bg-[#3DAF49] transition-colors"
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                </button>
+            <div className="relative shrink-0 w-20 h-20">
+              <div className="w-20 h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground overflow-hidden">
                 {imagePreview ? (
-                  <img src={imagePreview} alt="Profile" className="w-full h-full rounded-full  object-cover" />
+                  <img src={imagePreview} alt="Profile" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   initials || "?"
                 )}
               </div>
-              {isEditing && (
-                <>
 
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      if (file.size > 2 * 1024 * 1024) {
-                        toast.error("Image must be under 2MB");
-                        return;
-                      }
-                      setImageFile(file);
-                      const reader = new FileReader();
-                      reader.onload = () => setImagePreview(reader.result as string);
-                      reader.readAsDataURL(file);
-                    }}
-                  />
-                  {imageFile && (
-                    <button
-                      onClick={() => { setImageFile(null); setImagePreview(profile?.image ?? null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                      className="absolute -top-1 -right-1 bg-red-500 text-white p-0.5 rounded-full shadow-sm hover:bg-red-600 transition-colors"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-0 right-0 bg-[#4BC957] text-white p-1.5 rounded-full shadow-md hover:bg-[#3DAF49] transition-all cursor-pointer hover:scale-105 active:scale-95 z-10"
+                title="Upload profile picture"
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast.error("Image must be under 5MB");
+                    return;
+                  }
+                  setImageFile(file);
+                  const reader = new FileReader();
+                  reader.onload = () => setImagePreview(reader.result as string);
+                  reader.readAsDataURL(file);
+                  if (!isEditing) setIsEditing(true);
+                }}
+              />
+
+              {imageFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null);
+                    setImagePreview(profile?.image ?? null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600 transition-colors z-10"
+                  title="Remove selected image"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
             </div>
 

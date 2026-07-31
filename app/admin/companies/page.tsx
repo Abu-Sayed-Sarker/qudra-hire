@@ -5,7 +5,7 @@ import { motion, type Variants } from "framer-motion";
 import {
   Search, Eye, Pencil, Trash2, Globe,
   ChevronLeft, ChevronRight, Loader2,
-  CheckCircle, XCircle, Key, AlertTriangle, Copy, Check, Ban,
+  CheckCircle, XCircle, Key, AlertTriangle, Copy, Check, Ban, X,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -22,7 +22,7 @@ import {
   useUnsuspendAdminCompanyMutation,
   type AdminCompanyListItem,
 } from "@/store/authApi";
-import { SkeletonTable, SkeletonStatCard } from "@/components/ui/skeleton-cards";
+import { SkeletonTable } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { Building2 } from "lucide-react";
@@ -30,6 +30,7 @@ import { Building2 } from "lucide-react";
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function getInitials(name: string) {
+  if (!name) return "CO";
   return name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 }
 
@@ -39,6 +40,7 @@ function avatarColor(id: number) {
 }
 
 function formatDate(iso: string) {
+  if (!iso) return "N/A";
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
@@ -521,7 +523,6 @@ function ResetPasswordPanel({ company, onClose }: { company: AdminCompanyListIte
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE = 10;
 type ModalMode = "view" | "edit" | "delete" | "approve" | "reject" | "reset-pwd" | "suspend" | null;
 
 const rowVariants: Variants = {
@@ -534,23 +535,55 @@ const rowVariants: Variants = {
 };
 
 export default function CompanyManagementPage() {
-  const { data, isLoading, isError, refetch } = useGetAdminCompaniesQuery();
-  const companies = data?.data ?? [];
-
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("ALL");
+  const [place, setPlace] = useState("");
+  const [industry, setIndustry] = useState("");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
   const [modal, setModal] = useState<ModalMode>(null);
   const [selected, setSelected] = useState<AdminCompanyListItem | null>(null);
+
+  const { data: res, isLoading, isFetching, isError, refetch } = useGetAdminCompaniesQuery({
+    page,
+    page_size: pageSize,
+    search: search || undefined,
+    status: status !== "ALL" ? status : undefined,
+    place: place || undefined,
+    industry: industry || undefined,
+  });
+
+  const rawData = res?.data ?? res;
+  const companies: AdminCompanyListItem[] = Array.isArray(rawData)
+    ? rawData
+    : Array.isArray(rawData?.results)
+    ? rawData.results
+    : Array.isArray(res?.results)
+    ? res.results
+    : [];
+
+  const totalCount: number =
+    typeof res?.count === "number"
+      ? res.count
+      : typeof rawData?.count === "number"
+      ? rawData.count
+      : companies.length;
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   function open(mode: ModalMode, c: AdminCompanyListItem) { setSelected(c); setModal(mode); }
   function close() { setModal(null); setSelected(null); }
 
-  const filtered = companies.filter((c) =>
-    c.company_name.toLowerCase().includes(search.toLowerCase()) ||
-    c.email.toLowerCase().includes(search.toLowerCase())
-  );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasFilters = !!search || status !== "ALL" || !!place || !!industry;
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatus("ALL");
+    setPlace("");
+    setIndustry("");
+    setPage(1);
+  };
 
   const modalTitle: Record<NonNullable<ModalMode>, string> = {
     view: "Company Details",
@@ -568,29 +601,78 @@ export default function CompanyManagementPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Company Management</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {isLoading ? "Loading…" : `${companies.length} total companies`}
+          {isLoading ? "Loading…" : `${totalCount} total companies found`}
         </p>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
+      {/* Toolbar & Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[240px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by name or email…"
+            placeholder="Search name, email, contact…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
+            className="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
           />
+          {search && (
+            <button
+              onClick={() => { setSearch(""); setPage(1); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
-        {search && (
+
+        {/* Status Filter */}
+        <select
+          value={status}
+          onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+          className="bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
+        >
+          <option value="ALL">All Statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="VERIFIED">Verified</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="ACTIVE">Active</option>
+          <option value="SUSPENDED">Suspended</option>
+        </select>
+
+        {/* Country / Place Input Filter */}
+        <input
+          type="text"
+          placeholder="Filter by country/place…"
+          value={place}
+          onChange={(e) => { setPlace(e.target.value); setPage(1); }}
+          className="bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-[#21c55e]/40 transition-colors max-w-[180px]"
+        />
+
+        {/* Page size */}
+        <select
+          value={pageSize}
+          onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+          className="bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-[#21c55e]/40 transition-colors"
+        >
+          <option value={10}>10 / page</option>
+          <option value={20}>20 / page</option>
+          <option value={50}>50 / page</option>
+          <option value={100}>100 / page</option>
+        </select>
+
+        {hasFilters && (
           <button
-            onClick={() => setSearch("")}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            onClick={clearFilters}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            Clear
+            <X className="h-3.5 w-3.5" /> Clear Filters
           </button>
+        )}
+
+        {isFetching && !isLoading && (
+          <Loader2 className="h-4 w-4 animate-spin text-[#21c55e] ml-auto" />
         )}
       </div>
 
@@ -605,14 +687,14 @@ export default function CompanyManagementPage() {
         />
       )}
 
-      {/* Table */}
+      {/* Table Card */}
       {!isError && (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px]" role="grid" aria-label="Companies list">
               <thead>
                 <tr className="border-b border-border sticky top-0 bg-card/95 backdrop-blur z-10">
-                  {["Company", "Country", "Jobs", "Subscription", "Status", "Actions"].map((h) => (
+                  {["Company", "Country", "Jobs", "Subscription", "Approval", "Status", "Actions"].map((h) => (
                     <th key={h} className={`px-4 py-3.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider ${h === "Actions" ? "text-right" : "text-left"}`}>
                       {h}
                     </th>
@@ -621,27 +703,27 @@ export default function CompanyManagementPage() {
               </thead>
               <tbody>
                 {isLoading
-                  ? <SkeletonTable rows={5} columns={6} />
-                  : paginated.length === 0
+                  ? <SkeletonTable rows={5} columns={7} />
+                  : companies.length === 0
                     ? (
                       <tr>
-                        <td colSpan={6}>
+                        <td colSpan={7}>
                           <EmptyState
                             icon={Building2}
                             title="No companies found"
-                            description={search ? "No companies match your search criteria." : "Get started by adding your first company to the platform."}
+                            description={hasFilters ? "No companies match your selected filters." : "Get started by adding your first company to the platform."}
                           />
                         </td>
                       </tr>
                     )
-                    : paginated.map((c, idx) => (
+                    : companies.map((c, idx) => (
                       <motion.tr
                         key={c.id}
                         custom={idx}
                         initial="hidden"
                         animate="visible"
                         variants={rowVariants}
-                        className={`border-b border-border hover:bg-muted/50 transition-colors ${idx === paginated.length - 1 ? "border-b-0" : ""}`}
+                        className={`border-b border-border hover:bg-muted/50 transition-colors ${idx === companies.length - 1 ? "border-b-0" : ""}`}
                       >
                         {/* Company */}
                         <td className="px-4 py-3.5">
@@ -656,6 +738,7 @@ export default function CompanyManagementPage() {
                             </div>
                           </div>
                         </td>
+
                         {/* Country */}
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-1.5">
@@ -663,18 +746,27 @@ export default function CompanyManagementPage() {
                             <span className="text-sm text-muted-foreground">{c.country || "—"}</span>
                           </div>
                         </td>
+
                         {/* Jobs */}
                         <td className="px-4 py-3.5">
-                          <span className="text-sm text-muted-foreground">{c.active_jobs}</span>
+                          <span className="text-sm text-muted-foreground">{c.active_jobs ?? 0}</span>
                         </td>
-                        {/* subscription */}
+
+                        {/* Subscription */}
                         <td className="px-4 py-3.5">
-                          <span className="capitalize text-blue-600 bg-blue-600/10 px-2 py-1 inline-block text-center rounded-lg text-xs font-semibold"> {c.subscription ?? "....."}</span>
+                          <span className="capitalize text-blue-600 bg-blue-600/10 px-2 py-1 inline-block text-center rounded-lg text-xs font-semibold"> {c.subscription ?? "—"}</span>
                         </td>
-                        {/* Suspended */}
+
+                        {/* Approval */}
+                        <td className="px-4 py-3.5">
+                          <ApprovalBadge status={c.approval_status} />
+                        </td>
+
+                        {/* Suspended Status */}
                         <td className="px-4 py-3.5">
                           <SuspendedBadge suspended={c.is_suspended} />
                         </td>
+
                         {/* Actions */}
                         <td className="px-4 py-3.5">
                           <div className="flex items-center justify-end gap-1">
@@ -705,23 +797,25 @@ export default function CompanyManagementPage() {
             </table>
           </div>
 
-          {/* Pagination */}
-          {!isLoading && filtered.length > 0 && (
-            <div className="flex items-center justify-between px-5 py-3.5 border-t border-border">
+          {/* Pagination Controls */}
+          {!isLoading && totalCount > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 border-t border-border">
               <span className="text-xs text-muted-foreground">
-                Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+                Showing {Math.min((page - 1) * pageSize + 1, totalCount)}–{Math.min(page * pageSize, totalCount)} of {totalCount} companies
               </span>
               <div className="flex items-center gap-1">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Previous page"
                   className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
                   <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                  <button key={n} onClick={() => setPage(n)} aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined}
-                    className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors ${n === page ? "bg-[#21c55e]/20 text-[#21c55e]" : "hover:bg-muted text-muted-foreground"}`}>
-                    {n}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
+                  .map((n) => (
+                    <button key={n} onClick={() => setPage(n)} aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined}
+                      className={`w-7 h-7 rounded-lg text-xs font-semibold transition-colors ${n === page ? "bg-[#21c55e]/20 text-[#21c55e]" : "hover:bg-muted text-muted-foreground"}`}>
+                      {n}
+                    </button>
+                  ))}
                 <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Next page"
                   className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
                   <ChevronRight className="h-3.5 w-3.5" />

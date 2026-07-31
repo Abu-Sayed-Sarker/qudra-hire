@@ -37,8 +37,9 @@ const statusLabel = (s: string) => {
 export default function CandidateApplicationsPage() {
   const { data, isLoading, isError, refetch } = useGetCandidateApplicationsQuery();
   const applications = data?.data?.applications ?? [];
+  const serverCounts = data?.data?.counts;
 
-  const counts = applications.reduce(
+  const clientCounts = applications.reduce(
     (acc, app) => {
       const s = app.application_status;
       acc[s] = (acc[s] || 0) + 1;
@@ -48,11 +49,32 @@ export default function CandidateApplicationsPage() {
   );
 
   const stats = [
-    { label: "Applied", count: (counts["APPLIED"] ?? 0) + (counts["UNDER_REVIEW"] ?? 0) },
-    { label: "Shortlisted", count: counts["SHORTLISTED"] ?? 0 },
-    { label: "Interview", count: counts["INTERVIEW"] ?? 0 },
-    { label: "Offer", count: counts["OFFER"] ?? 0 },
-    { label: "Rejected", count: counts["REJECTED"] ?? 0 },
+    {
+      label: "Applied",
+      count: serverCounts?.applied ?? ((clientCounts["SUBMITTED"] ?? 0) + (clientCounts["UNDER_REVIEW"] ?? 0) + (clientCounts["APPLIED"] ?? 0)),
+    },
+    {
+      label: "Shortlisted",
+      count: serverCounts?.shortlisted ?? (clientCounts["SHORTLISTED"] ?? 0),
+    },
+    {
+      label: "Interview",
+      count: serverCounts?.interview ?? (
+        (clientCounts["INTERVIEW"] ?? 0) +
+        (clientCounts["AI_INTERVIEW_INVITED"] ?? 0) +
+        (clientCounts["AI_INTERVIEW_PASSED"] ?? 0) +
+        (clientCounts["AI_INTERVIEW_FAILED"] ?? 0) +
+        (clientCounts["PHYSICAL_INTERVIEW_INVITED"] ?? 0)
+      ),
+    },
+    {
+      label: "Offer",
+      count: serverCounts?.offer ?? ((clientCounts["OFFER"] ?? 0) + (clientCounts["HIRED"] ?? 0)),
+    },
+    {
+      label: "Rejected",
+      count: serverCounts?.rejected ?? (clientCounts["REJECTED"] ?? 0),
+    },
   ];
 
   return (

@@ -90,6 +90,18 @@ export interface AdminCandidateListItem {
   registered: string;
 }
 
+export interface AdminCandidatesQueryParams {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  name?: string;
+  place?: string;
+  age?: number;
+  min_age?: number;
+  max_age?: number;
+  status?: string;
+}
+
 export interface AdminCandidateDetail {
   id: number;
   full_name: string;
@@ -478,6 +490,19 @@ export interface AdminJobListItem {
   salary_max: number;
   currency: string;
   job_status: string;
+}
+
+export interface AdminJobsQueryParams {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  title?: string;
+  name?: string;
+  place?: string;
+  location?: string;
+  company?: string;
+  status?: string;
+  employment_type?: string;
 }
 
 export interface AdminJobEditRequest {
@@ -1033,6 +1058,16 @@ export interface AdminCompanyListItem {
   subscription: string;
 }
 
+export interface AdminCompaniesQueryParams {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  name?: string;
+  place?: string;
+  industry?: string;
+  status?: string;
+}
+
 export interface AdminCompanyDetail {
   id: number;
   company_name: string;
@@ -1223,8 +1258,23 @@ export const authApi = createApi({
     // ── Admin Candidate endpoints ─────────────────────────────────────────────
 
     // GET /admin/candidates/
-    getAdminCandidates: builder.query<ApiResponse<AdminCandidateListItem[]>, void>({
-      query: () => "admin/candidates/",
+    getAdminCandidates: builder.query<any, AdminCandidatesQueryParams | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params) {
+          if (params.page) queryParams.set("page", String(params.page));
+          if (params.page_size) queryParams.set("page_size", String(params.page_size));
+          if (params.search) queryParams.set("search", params.search);
+          if (params.name) queryParams.set("name", params.name);
+          if (params.place) queryParams.set("place", params.place);
+          if (params.age !== undefined && params.age !== null) queryParams.set("age", String(params.age));
+          if (params.min_age !== undefined && params.min_age !== null) queryParams.set("min_age", String(params.min_age));
+          if (params.max_age !== undefined && params.max_age !== null) queryParams.set("max_age", String(params.max_age));
+          if (params.status && params.status !== "ALL") queryParams.set("status", params.status);
+        }
+        const queryString = queryParams.toString();
+        return `admin/candidates/${queryString ? `?${queryString}` : ""}`;
+      },
       providesTags: ["AdminCandidates"],
     }),
 
@@ -1490,8 +1540,24 @@ export const authApi = createApi({
     // ── Admin Job endpoints ────────────────────────────────────────────────────
 
     // GET /admin/jobs/
-    getAdminJobs: builder.query<ApiResponse<AdminJobListItem[]>, void>({
-      query: () => "admin/jobs/",
+    getAdminJobs: builder.query<any, AdminJobsQueryParams | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params) {
+          if (params.page) queryParams.set("page", String(params.page));
+          if (params.page_size) queryParams.set("page_size", String(params.page_size));
+          if (params.search) queryParams.set("search", params.search);
+          if (params.title) queryParams.set("title", params.title);
+          if (params.name) queryParams.set("name", params.name);
+          if (params.place) queryParams.set("place", params.place);
+          if (params.location) queryParams.set("location", params.location);
+          if (params.company) queryParams.set("company", params.company);
+          if (params.status && params.status !== "ALL") queryParams.set("status", params.status);
+          if (params.employment_type && params.employment_type !== "ALL") queryParams.set("employment_type", params.employment_type);
+        }
+        const queryString = queryParams.toString();
+        return `admin/jobs/${queryString ? `?${queryString}` : ""}`;
+      },
       providesTags: ["AdminJobs"],
     }),
 
@@ -1590,8 +1656,21 @@ export const authApi = createApi({
     // ── Admin Company endpoints ───────────────────────────────────────────────
 
     // GET /admin/companies/
-    getAdminCompanies: builder.query<ApiResponse<AdminCompanyListItem[]>, void>({
-      query: () => "admin/companies/",
+    getAdminCompanies: builder.query<any, AdminCompaniesQueryParams | void>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params) {
+          if (params.page) queryParams.set("page", String(params.page));
+          if (params.page_size) queryParams.set("page_size", String(params.page_size));
+          if (params.search) queryParams.set("search", params.search);
+          if (params.name) queryParams.set("name", params.name);
+          if (params.place) queryParams.set("place", params.place);
+          if (params.industry) queryParams.set("industry", params.industry);
+          if (params.status && params.status !== "ALL") queryParams.set("status", params.status);
+        }
+        const queryString = queryParams.toString();
+        return `admin/companies/${queryString ? `?${queryString}` : ""}`;
+      },
       providesTags: ["AdminCompanies"],
     }),
 
