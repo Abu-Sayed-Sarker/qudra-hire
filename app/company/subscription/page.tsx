@@ -25,7 +25,7 @@ export default function CompanySubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<{ id: string; name: string; price: string } | null>(null);
 
   const resolveCompanyProfileId = () => {
-    debugger;
+
     if (!user) return null;
 
     const profile = user.company_profile;
@@ -38,7 +38,7 @@ export default function CompanySubscriptionPage() {
   const companyProfileId = resolveCompanyProfileId();
 
   const openCheckout = (plan: { id: string; name: string; price: string }) => {
-    debugger;
+   
     if (!companyProfileId) {
       toast.error("Company profile not found in session. Please log in again.");
       return;

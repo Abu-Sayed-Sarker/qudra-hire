@@ -1943,7 +1943,7 @@ export const authApi = createApi({
     // POST /subscriptions/stripe/checkout-session/
     createStripeCheckoutSession: builder.mutation<
       ApiResponse<{ checkout_url: string; session_id: string }>,
-      { plan_id: string; profile_id: number }
+      { plan_id: string; profile_id: number | string }
     >({
       query: (body) => ({
         url: "subscriptions/stripe/checkout-session/",
