@@ -157,7 +157,7 @@ export default function CandidateProfilePage() {
     setAutoApplyEnabled(profile.is_ai_auto_apply ?? false);
     setImagePreview(profile.image ?? null);
     setImageFile(null);
-    
+
   }, [profile]);
 
   // ── Generic field updater ──
@@ -364,15 +364,15 @@ export default function CandidateProfilePage() {
 
   return (
     <div className="min-h-full bg-background text-foreground pb-20">
-      <div className="max-w-full mx-auto px-6 py-8 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border pb-4">
+        <div className="flex items-center justify-between border-b border-border flex-wrap pb-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
             <p className="text-sm text-muted-foreground mt-1">Keep your profile up to date to stand out to potential employers.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {isEditing ? (
               <>
                 <button onClick={handleCancel} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors">
@@ -440,8 +440,8 @@ export default function CandidateProfilePage() {
 
         {/* Basic Info */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex gap-8">
-            <div className="relative shrink-0 w-20 h-20">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="relative shrink-0 w-20 h-20 mx-auto md:mx-0">
               <div className="w-20 h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground overflow-hidden">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Profile" className="w-full h-full rounded-full object-cover" />
@@ -495,7 +495,7 @@ export default function CandidateProfilePage() {
               )}
             </div>
 
-            <div className="flex-1 grid grid-cols-2 gap-5">
+            <div className="flex-1 grid grid-cols-1 gap-5">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">First name *</label>
                 <input type="text" value={form.first_name} onChange={(e) => setField("first_name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
@@ -551,7 +551,7 @@ export default function CandidateProfilePage() {
         {/* Contact info */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
           <h2 className="text-base font-bold text-foreground mb-4">Contact info</h2>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#4BC957]" /> Email</label>
               <input type="email" value={profile.email} disabled className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground cursor-not-allowed" />
@@ -599,7 +599,7 @@ export default function CandidateProfilePage() {
                   <p className="text-[11px] text-muted-foreground truncate max-w-[300px]">{profile.cv}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <a href={profile.cv} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold bg-[#4BC957]/10 hover:bg-[#4BC957]/20 text-[#4BC957] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
                   <Eye className="w-3.5 h-3.5" /> View CV
                 </a>
@@ -636,7 +636,7 @@ export default function CandidateProfilePage() {
                   </button>
                 )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{edu.school || `Education ${i + 1}`}</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">School / University *</label>
                     <input type="text" value={edu.school} onChange={(e) => updateEducation(i, "school", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
@@ -649,7 +649,7 @@ export default function CandidateProfilePage() {
                     <label className="text-[11px] font-semibold text-muted-foreground">Field of study</label>
                     <input type="text" value={edu.field_of_study} onChange={(e) => updateEducation(i, "field_of_study", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-semibold text-muted-foreground">From</label>
                       <input type="date" value={edu.start_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "start_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
@@ -691,7 +691,7 @@ export default function CandidateProfilePage() {
                   </button>
                 )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{exp.job_title || `Experience ${i + 1}`}</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Company / Organization *</label>
                     <input type="text" value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
@@ -700,7 +700,7 @@ export default function CandidateProfilePage() {
                     <label className="text-[11px] font-semibold text-muted-foreground">Job Title</label>
                     <input type="text" value={exp.job_title} onChange={(e) => updateExperience(i, "job_title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-semibold text-muted-foreground">From</label>
                       <input type="date" value={exp.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
@@ -710,11 +710,11 @@ export default function CandidateProfilePage() {
                       <input type="date" value={exp.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "end_date", e.target.value)} disabled={ro || exp.is_current} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${(ro || exp.is_current) ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
                   </div>
-                  <div className="col-span-2 flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <input type="checkbox" checked={exp.is_current} onChange={(e) => updateExperience(i, "is_current", e.target.checked)} id={`current-${i}`} disabled={ro} className="accent-[#4BC957]" />
                     <label htmlFor={`current-${i}`} className="text-[11px] font-semibold text-muted-foreground">Currently working here</label>
                   </div>
-                  <div className="col-span-2 space-y-1.5">
+                  <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
                     <textarea rows={3} value={exp.description} onChange={(e) => updateExperience(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
@@ -783,30 +783,34 @@ export default function CandidateProfilePage() {
                   </button>
                 )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{proj.title || `Project ${i + 1}`}</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2 space-y-1.5">
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Title *</label>
                     <input type="text" value={proj.title} onChange={(e) => updateProject(i, "title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
-                  <div className="col-span-2 space-y-1.5">
+                  <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
                     <textarea rows={2} value={proj.description} onChange={(e) => updateProject(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">URL</label>
-                    <input type="text" value={proj.url} onChange={(e) => updateProject(i, "url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-semibold text-muted-foreground">Start date</label>
+                      <input type="date" value={proj.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-semibold text-muted-foreground">End date</label>
+                      <input type="date" value={proj.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "end_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Technologies</label>
-                    <input type="text" value={proj.technologies} onChange={(e) => updateProject(i, "technologies", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Start date</label>
-                    <input type="date" value={proj.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">End date</label>
-                    <input type="date" value={proj.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "end_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-semibold text-muted-foreground">URL</label>
+                      <input type="text" value={proj.url} onChange={(e) => updateProject(i, "url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-semibold text-muted-foreground">Technologies</label>
+                      <input type="text" value={proj.technologies} onChange={(e) => updateProject(i, "technologies", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -840,7 +844,7 @@ export default function CandidateProfilePage() {
                   </button>
                 )}
                 <h3 className="text-sm font-bold text-foreground mb-4">{cert.name || `Certification ${i + 1}`}</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-semibold text-muted-foreground">Name *</label>
                     <input type="text" value={cert.name} onChange={(e) => updateCertification(i, "name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
@@ -950,8 +954,8 @@ export default function CandidateProfilePage() {
             </form>
           </DialogContent>
         </Dialog>
-
       </div>
     </div>
+
   );
 }
