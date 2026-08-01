@@ -556,8 +556,9 @@ export interface CandidateJobDetail {
   additional_questions: { question: string; required: boolean }[];
   published_at: string;
   created_at: string;
-  match_score: number;
+  match_score: number | null;
   has_saved_cv: boolean;
+  already_applied: boolean;
 }
 
 export interface TailoredCv {
@@ -571,6 +572,56 @@ export interface TailoredCv {
   html_url: string | null;
   pdf_url: string | null;
   created_at: string;
+}
+
+export interface CandidateJobItem {
+  id: string;
+  company_name: string;
+  company_logo: string | null;
+  title: string;
+  location: string;
+  employment_type: string;
+  employment_type_display: string;
+  currency: string;
+  salary_min: number;
+  salary_max: number;
+  salary_period: string;
+  visa_sponsorship: boolean;
+  emiratization: boolean;
+  saudization: boolean;
+  open_to_remote: boolean;
+  description: string;
+  requirements: string;
+  requirements_list: string[];
+  skills: string[];
+  preferred_skills: string[];
+  benefits: string[];
+  additional_questions: { question: string; required: boolean }[];
+  published_at: string;
+  created_at: string;
+  match_score: number | null;
+  has_saved_cv: boolean;
+  already_applied: boolean;
+}
+
+export interface CandidateJobsParams {
+  search?: string;
+  title?: string;
+  name?: string;
+  location?: string;
+  place?: string;
+  company?: string;
+  company_name?: string;
+  company_id?: number;
+  employment_type?: string;
+  industry?: string;
+  min_salary?: number;
+  max_salary?: number;
+  visa_sponsorship?: boolean;
+  emiratization?: boolean;
+  saudization?: boolean;
+  open_to_remote?: boolean;
+  skills?: string;
 }
 
 // ─── Candidate Application types ─────────────────────────────────────────────
@@ -1165,7 +1216,7 @@ export const authApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "CompanyProfile", "Notifications", "ChatConversations", "Contacts"],
+  tagTypes: ["AdminCandidates", "AdminCompanies", "AdminDashboard", "AdminJobs", "AdminJobEditRequests", "AdminSettings", "AdminSubscriptions", "AdminApplications", "CandidateDashboard", "CandidateApplications", "CandidateJobDetail", "CandidateJobs", "CandidateCv", "CandidateProfiles", "CompanyCandidates", "CompanyJobs", "CompanyDashboard", "CompanyInterviews", "CompanyProfile", "Notifications", "ChatConversations", "Contacts"],
   endpoints: (builder) => ({
     // POST /auth/login/email/
     loginWithEmail: builder.mutation<ApiResponse<LoginData>, LoginPayload>({
@@ -1776,6 +1827,22 @@ export const authApi = createApi({
       query: (id) => `candidate/tailored-cvs/${id}/`,
     }),
 
+    // GET /candidate/jobs/ (browse active jobs with optional filtering)
+    getCandidateJobs: builder.query<ApiResponse<CandidateJobItem[]>, CandidateJobsParams | void>({
+      query: (params) => {
+        if (!params) return "candidate/jobs/";
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            searchParams.append(key, String(value));
+          }
+        });
+        const queryString = searchParams.toString();
+        return `candidate/jobs/${queryString ? `?${queryString}` : ""}`;
+      },
+      providesTags: ["CandidateJobs"],
+    }),
+
     // ── Candidate CV endpoints ──────────────────────────────────────────────────
 
     // GET /auth/candidate/cv/
@@ -2134,6 +2201,8 @@ export const {
   useApplyToJobMutation,
   useTailorCandidateCvMutation,
   useGetTailoredCvQuery,
+  // Candidate Jobs List
+  useGetCandidateJobsQuery,
   // Candidate CV
   useGetCandidateCvQuery,
   useUploadCandidateCvMutation,

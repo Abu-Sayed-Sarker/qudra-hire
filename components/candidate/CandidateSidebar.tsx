@@ -43,7 +43,8 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 
 const navItems = [
-  { label: "Browse jobs", href: "/candidate", icon: Briefcase },
+  { label: "Dashboard", href: "/candidate", icon: Briefcase },
+  { label: "Browse Jobs", href: "/candidate/jobs", icon: Briefcase },
   { label: "My CV", href: "/candidate/cv", icon: FileText },
   { label: "Applications", href: "/candidate/applications", icon: ClipboardList },
   { label: "Inbox", href: "/candidate/inbox", icon: MessageSquare },

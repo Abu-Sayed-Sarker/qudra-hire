@@ -126,7 +126,7 @@ export default function CandidateApplicationsPage() {
               description="Start applying to jobs to track your progress here."
               action={{
                 label: "Browse jobs",
-                onClick: () => (window.location.href = "/candidate"),
+                onClick: () => (window.location.href = "/candidate/jobs"),
               }}
             />
           ) : (
