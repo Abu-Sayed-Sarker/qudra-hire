@@ -6,9 +6,9 @@ import { LayoutDashboard, LogOut } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import GoogleTranslate from "@/components/shared/GoogleTranslate";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
-import GoogleTranslate from "@/components/shared/GoogleTranslate";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -86,9 +86,6 @@ export default function QudraHeader() {
 
         {/* Right actions */}
         <div className="flex items-center gap-3">
-          {/* Language button */}
-          <div id="google_translate_element"></div>
-
           {isLoggedIn ? (
             <>
               {/* Dashboard button */}
@@ -132,6 +129,10 @@ export default function QudraHeader() {
           {/* Theme Toggle — desktop */}
           <div className="hidden md:block">
             <ThemeToggle />
+          </div>
+
+          <div className="hidden md:block">
+            <GoogleTranslate />
           </div>
 
           {/* Hamburger */}
