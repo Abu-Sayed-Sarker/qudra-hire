@@ -29,10 +29,10 @@ export default function CompanySubscriptionPage() {
     if (!user) return null;
 
     const profile = user.company_profile;
-    const directId = typeof profile === "number" ? profile : profile?.id;
+    const directId = typeof profile === "number" ? profile : profile?.id ?? user?.id ?? null;
     if (directId) return directId;
 
-    return user.company_profiles?.[0]?.id ?? null;
+    return user.company_profiles?.[0]?.id ?? user.id ?? null;
   };
 
   const companyProfileId = resolveCompanyProfileId();
