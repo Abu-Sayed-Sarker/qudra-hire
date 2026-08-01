@@ -358,7 +358,7 @@ export default function SignupPage() {
                 aria-label={isLoading ? "Creating account" : "Create account and start matching"}
                 className="w-full flex items-center justify-center gap-2 bg-[#23C65F] hover:bg-[#1a9e4a] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {/* {isLoading && <Loader2 size={16} className="animate-spin" />} */}
                 {isLoading ? "Creating account…" : "Create account & start matching"}
               </button>
             </form>
@@ -429,7 +429,7 @@ export default function SignupPage() {
                 aria-label={isLoading ? "Creating account" : "Create account"}
                 className="w-full flex items-center justify-center gap-2 bg-[#23C65F] hover:bg-[#1a9e4a] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
               >
-                {isLoading && <Loader2 size={16} className="animate-spin" />}
+                {/* {isLoading && <Loader2 size={16} className="animate-spin" />} */}
                 {isLoading ? "Creating account…" : "Create account"}
               </button>
             </form>
