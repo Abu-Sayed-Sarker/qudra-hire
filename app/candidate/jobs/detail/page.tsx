@@ -20,13 +20,15 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { useGetCandidateJobDetailQuery, useApplyToJobMutation, useTailorCandidateCvMutation, authApi, TailoredCv } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
+import { AlertTriangle } from "lucide-react";
 
 function JobDetailContent() {
   const params = useSearchParams();
   const router = useRouter();
   const id = params.get("id") ?? "";
 
-  const { data, isLoading, isError } = useGetCandidateJobDetailQuery(id);
+  const { data, isLoading, isError, error } = useGetCandidateJobDetailQuery(id);
   const job = data?.data;
 
   const status = params.get("status") as "initial" | "tailoring" | "tailored" | "comparison" | "success" | null;
@@ -192,10 +194,23 @@ function JobDetailContent() {
   }
 
   if (isError || !job) {
+    const msg = get403Message(error);
     return (
       <div className="py-20 text-center">
-        <p className="text-red-400">Failed to load job details.</p>
-        <Link href="/candidate" className="mt-4 text-sm text-[#23C65F] hover:underline inline-block">Go Back</Link>
+        {msg ? (
+          <>
+            <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="h-8 w-8 text-red-500" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">Access Denied</h2>
+            <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">{msg}</p>
+          </>
+        ) : (
+          <>
+            <p className="text-red-400">Failed to load job details.</p>
+            <Link href="/candidate" className="mt-4 text-sm text-[#23C65F] hover:underline inline-block">Go Back</Link>
+          </>
+        )}
       </div>
     );
   }

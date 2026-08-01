@@ -331,10 +331,10 @@ export default function CompanySettingsPage() {
               <ShieldCheck className="w-5 h-5 text-[#4BC957]" />
               <h2 className="text-base font-bold text-foreground">Trade licence</h2>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1 rounded-full">
+            {/* <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1 rounded-full">
               <Check className="w-3 h-3" />
               Verified
-            </span>
+            </span> */}
           </div>
 
           <div className="bg-background border border-border rounded-xl p-4 flex items-center justify-between">

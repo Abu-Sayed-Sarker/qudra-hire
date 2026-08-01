@@ -45,7 +45,7 @@ export default function GoogleTranslate() {
 
       new window.google.translate.TranslateElement(
         {
-          pageLanguage: "en", // আপনার সাইটের মূল ভাষা
+          pageLanguage: "en",
           includedLanguages: "en,ar",
           layout:
             window.google.translate.TranslateElement.InlineLayout.SIMPLE,
@@ -67,6 +67,13 @@ export default function GoogleTranslate() {
       script.async = true;
       document.body.appendChild(script);
     }
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .goog-te-banner-frame, .goog-te-gadget-icon, .skiptranslate, .goog-te-ftab, #google_translate_element { display: none !important; }
+      body { top: 0 !important; }
+    `;
+    document.head.appendChild(style);
   }, []);
 
   return (

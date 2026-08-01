@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Zap,
   ArrowUpRight,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { useGetCandidateDashboardQuery, useGetCandidateProfilesQuery } from "@/store/authApi";
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/skeleton-cards";
 import { ErrorState } from "@/components/ui/error-state";
 import { motion, type Variants } from "framer-motion";
+import { get403Message } from "@/lib/utils";
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -53,7 +55,7 @@ const cardHover =
   "transition-all duration-300 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-0.5";
 
 export default function CandidateDashboard() {
-  const { data, isLoading, isError, refetch } = useGetCandidateDashboardQuery();
+  const { data, isLoading, isError, error, refetch } = useGetCandidateDashboardQuery();
   const { data: profilesData } = useGetCandidateProfilesQuery();
   const profileId = profilesData?.data?.[0]?.id;
   const d = data?.data;
@@ -90,14 +92,23 @@ export default function CandidateDashboard() {
   }
 
   if (isError || !d) {
+    const msg = get403Message(error);
     return (
       <div className="p-6 md:p-10 max-w-full mx-auto">
-        <ErrorState
-          title="Failed to load dashboard"
-          description="Something went wrong while loading your dashboard. Please try again."
-          onRetry={() => refetch()}
-          retryLabel="Retry"
-        />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load dashboard"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || "Something went wrong while loading your dashboard. Please try again."}
+          </p>
+          {!msg && (
+            <button onClick={() => refetch()} className="text-sm font-semibold text-[#23C65F] hover:underline">
+              Retry
+            </button>
+          )}
+        </div>
       </div>
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Send, Sparkles, ChevronLeft } from "lucide-react";
+import { Search, Send, Sparkles, ChevronLeft, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
 import {
@@ -11,6 +11,7 @@ import {
   type ChatConversation,
   type ChatMessage,
 } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 const WS_BASE_URL =
   (process.env.NEXT_PUBLIC_API_URL ?? "https://api.career-sprint.com/api/v1")
@@ -70,11 +71,11 @@ export default function Inbox({
   }, [searchQuery]);
 
   // Fetch conversations
-  const { data: conversationsData, isLoading: conversationsLoading } =
+  const { data: conversationsData, isLoading: conversationsLoading, isError: conversationsError, error: conversationsErrorData } =
     useGetConversationsQuery(debouncedSearch || undefined);
 
   // Fetch initial messages via REST API
-  const { data: messagesData, isLoading: messagesLoading } =
+  const { data: messagesData, isLoading: messagesLoading, isError: messagesError, error: messagesErrorData } =
     useGetConversationMessagesQuery(activeConversation?.id ?? "", {
       skip: !activeConversation,
     });
@@ -226,7 +227,18 @@ export default function Inbox({
             </div>
           )}
           <div className="flex-1 overflow-y-auto divide-y divide-surface">
-            {conversationsLoading ? (
+            {conversationsError ? (() => {
+              const msg = get403Message(conversationsErrorData);
+              return (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
+                    <AlertTriangle className="h-6 w-6 text-red-500" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground mb-1">{msg ? "Access Denied" : "Failed to load conversations"}</p>
+                  <p className="text-xs text-muted-foreground max-w-xs">{msg || "Something went wrong while fetching your messages."}</p>
+                </div>
+              );
+            })() : conversationsLoading ? (
               <div className="flex items-center justify-center py-8 text-sm text-on-surface-muted">
                 Loading conversations...
               </div>
@@ -309,7 +321,18 @@ export default function Inbox({
 
               {/* Messages */}
               <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-4">
-                {messagesLoading ? (
+                {messagesError ? (() => {
+                  const msg = get403Message(messagesErrorData);
+                  return (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
+                        <AlertTriangle className="h-6 w-6 text-red-500" />
+                      </div>
+                      <p className="text-sm font-bold text-foreground mb-1">{msg ? "Access Denied" : "Failed to load messages"}</p>
+                      <p className="text-xs text-muted-foreground max-w-xs">{msg || "Something went wrong while fetching messages."}</p>
+                    </div>
+                  );
+                })() : messagesLoading ? (
                   <div className="flex items-center justify-center py-8 text-sm text-on-surface-muted">
                     Loading messages...
                   </div>

@@ -10,12 +10,14 @@ import {
   CheckCircle2,
   Loader2,
   Clock,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useStartInterviewAttemptMutation, useSubmitInterviewAnswerMutation, useSubmitInterviewAttemptMutation } from "@/store/authApi";
 import type { InterviewAttempt, InterviewAttemptQuestion } from "@/store/authApi";
 import { toast } from "sonner";
+import { get403Message } from "@/lib/utils";
 
 export default function CandidateInterviewPage() {
   const searchParams = useSearchParams();
@@ -179,17 +181,18 @@ export default function CandidateInterviewPage() {
 
   // Error state
   if (startError || startErrorMsg || (!attempt && !isStarting)) {
+    const msg = get403Message(startError);
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
         <div className="text-center space-y-4 max-w-sm">
           <div className="h-14 w-14 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto">
-            <span className="text-red-500 text-xl font-bold">!</span>
+            <AlertTriangle className="h-7 w-7 text-red-500" />
           </div>
-          <h2 className="text-lg font-bold text-foreground">Could not start interview</h2>
+          <h2 className="text-lg font-bold text-foreground">{msg ? "Access Denied" : "Could not start interview"}</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {!inviteId
               ? "No interview invite found. Please go back to the dashboard and try again."
-              : startErrorMsg || "Something went wrong. Please try again or contact support."}
+              : msg || startErrorMsg || "Something went wrong. Please try again or contact support."}
           </p>
           <Link
             href="/candidate"

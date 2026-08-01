@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Zap, Star, ShieldCheck, Lock, Loader2, CreditCard } from "lucide-react";
+import { Check, Zap, Star, ShieldCheck, Lock, Loader2, CreditCard, AlertTriangle } from "lucide-react";
 import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useCreateStripeCheckoutSessionMutation } from "@/store/authApi";
 import { toast } from "sonner";
 import {
@@ -12,10 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { get403Message } from "@/lib/utils";
 
 export default function CandidateSubscriptionPage() {
-  const { data: historyData, isLoading: historyLoading } = useGetSubscriptionHistoryQuery();
-  const { data: plansData, isLoading: plansLoading } = useGetSubscriptionPlansQuery();
+  const { data: historyData, isLoading: historyLoading, isError: isHistoryError, error: historyError } = useGetSubscriptionHistoryQuery();
+  const { data: plansData, isLoading: plansLoading, isError: isPlansError, error: plansError } = useGetSubscriptionPlansQuery();
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [createCheckoutSession, { isLoading: isCheckingOut }] = useCreateStripeCheckoutSessionMutation();
 
@@ -92,6 +93,24 @@ export default function CandidateSubscriptionPage() {
       <div className="min-h-full bg-background text-foreground">
         <div className="max-w-full mx-2 sm:mx-auto px-12 py-8 flex items-center justify-center py-20">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isHistoryError || isPlansError) {
+    const err = isHistoryError ? historyError : plansError;
+    const msg = get403Message(err);
+    return (
+      <div className="min-h-full bg-background text-foreground">
+        <div className="max-w-full mx-2 sm:mx-auto px-12 py-8 flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load subscription"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || "Something went wrong while fetching subscription data."}
+          </p>
         </div>
       </div>
     );

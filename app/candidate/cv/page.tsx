@@ -19,6 +19,7 @@ import {
   useAutoSuggestCandidateCvMutation,
   useGetAutoSuggestStatusQuery,
 } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 function formatDate(iso: string) {
   if (!iso) return "";
@@ -32,7 +33,7 @@ function formatDate(iso: string) {
 }
 
 export default function CandidateCVPage() {
-  const { data: cvData, isLoading, isError, refetch: refetchCv } =
+  const { data: cvData, isLoading, isError, error, refetch: refetchCv } =
     useGetCandidateCvQuery();
   const [uploadCv, { isLoading: isUploading }] = useUploadCandidateCvMutation();
   const [downloadCv, { isLoading: isDownloading }] = useDownloadCandidateCvMutation();
@@ -180,11 +181,22 @@ export default function CandidateCVPage() {
   }
 
   if (isError) {
+    const msg = get403Message(error);
     return (
       <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto text-slate-900 dark:text-white">
-        <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
-          <AlertTriangle className="h-4 w-4 shrink-0" />
-          Failed to load CV data.
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load CV"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || "Something went wrong while fetching your CV data."}
+          </p>
+          {!msg && (
+            <button onClick={() => refetchCv()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );
