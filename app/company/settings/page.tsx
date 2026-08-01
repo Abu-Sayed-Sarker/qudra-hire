@@ -12,13 +12,15 @@ import {
   FileText,
   Check,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useChangePasswordMutation, useGetCompanyProfileQuery, useUpdateCompanyProfileMutation } from "@/store/authApi";
 import type { CompanyProfile } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 export default function CompanySettingsPage() {
-  const { data: profileData, isLoading: isLoadingProfile, refetch } = useGetCompanyProfileQuery();
+  const { data: profileData, isLoading: isLoadingProfile, isError: isProfileError, error: profileError, refetch } = useGetCompanyProfileQuery();
   const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateCompanyProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
 
@@ -158,6 +160,28 @@ export default function CompanySettingsPage() {
           <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
             <div className="h-40 bg-muted rounded-2xl animate-pulse" />
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isProfileError) {
+    const msg = get403Message(profileError);
+    return (
+      <div className="min-h-full bg-background text-foreground">
+        <div className="max-w-full mx-auto px-6 py-8 flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load settings"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || "Something went wrong while fetching your profile."}
+          </p>
+          {!msg && (
+            <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );

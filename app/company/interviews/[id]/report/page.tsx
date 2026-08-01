@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useGetCompanyInterviewReportQuery, useLazyDownloadCompanyInterviewReportPdfQuery } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 function ScoreBar({ score, max = 100 }: { score: number; max?: number }) {
   const pct = Math.round((score / max) * 100);
@@ -34,7 +35,7 @@ function ScoreBar({ score, max = 100 }: { score: number; max?: number }) {
 export default function CompanyInterviewReportPage() {
   const params = useParams();
   const id = params.id as string;
-  const { data, isLoading, isError } = useGetCompanyInterviewReportQuery(id);
+  const { data, isLoading, isError, error } = useGetCompanyInterviewReportQuery(id);
   const [triggerPdf, { isLoading: isDownloading }] = useLazyDownloadCompanyInterviewReportPdfQuery();
   const report = data?.data;
 
@@ -63,9 +64,16 @@ export default function CompanyInterviewReportPage() {
   }
 
   if (isError || !report) {
+    const msg = get403Message(error);
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-muted-foreground">Report not found or still generating.</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+          <AlertTriangle className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Report not found"}</h2>
+        <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+          {msg || "Report not found or still generating."}
+        </p>
       </div>
     );
   }

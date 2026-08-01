@@ -11,10 +11,12 @@ import {
   Send,
   FileText,
   Eye,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { useGetCompanyInterviewsQuery } from "@/store/authApi";
 import type { CompanyInterview } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   COMPLETED: { label: "Completed", color: "text-[#4BC957]", bg: "bg-[#4BC957]/10 border-[#4BC957]/20" },
@@ -37,7 +39,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function CompanyInterviewsPage() {
-  const { data, isLoading, isError } = useGetCompanyInterviewsQuery();
+  const { data, isLoading, isError, error } = useGetCompanyInterviewsQuery();
   const [search, setSearch] = useState("");
 
   const interviews = (data?.data ?? []).filter((inv) => {
@@ -59,9 +61,16 @@ export default function CompanyInterviewsPage() {
   }
 
   if (isError) {
+    const msg = get403Message(error);
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-muted-foreground">Failed to load interviews.</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+          <AlertTriangle className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load interviews"}</h2>
+        <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+          {msg || "Something went wrong while fetching interviews."}
+        </p>
       </div>
     );
   }

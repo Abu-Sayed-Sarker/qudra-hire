@@ -24,6 +24,7 @@ import { Skeleton, SkeletonForm } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { motion } from "framer-motion";
+import { get403Message } from "@/lib/utils";
 
 const EMPTY_PAYLOAD: CompanyJobPayload = {
   title: "",
@@ -72,7 +73,7 @@ export default function PostJobPage() {
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const [createJob, { isLoading }] = useCreateCompanyJobMutation();
-  const { data: quotaRes } = useGetJobQuotaQuery();
+  const { data: quotaRes, isError: isQuotaError, error: quotaError } = useGetJobQuotaQuery();
   const [purchaseSlots] = usePurchaseJobSlotsMutation();
 
   const updateField = <K extends keyof CompanyJobPayload>(key: K, value: CompanyJobPayload[K]) => {
@@ -153,6 +154,21 @@ export default function PostJobPage() {
           <p className="text-sm text-red-500 font-medium">{error}</p>
         </div>
       )}
+
+      {isQuotaError && (() => {
+        const msg = get403Message(quotaError);
+        return (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex flex-col items-center text-center">
+            <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
+              <AlertTriangle className="h-6 w-6 text-red-500" />
+            </div>
+            <h3 className="text-sm font-bold text-foreground mb-1">{msg ? "Access Denied" : "Failed to load quota"}</h3>
+            <p className="text-xs text-muted-foreground max-w-sm">
+              {msg || "Something went wrong while fetching your job quota."}
+            </p>
+          </div>
+        );
+      })()}
 
       {quotaExceeded && (
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 space-y-4" role="alert">

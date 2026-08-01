@@ -30,6 +30,7 @@ import { motion, type Variants } from "framer-motion";
 import {
   useGetCompanyDashboardQuery,
 } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 function getInitials(name: string) {
   return name
@@ -62,17 +63,23 @@ export default function CompanyDashboard() {
   const dashboard = data?.data;
 
   if (isError) {
+    const msg = get403Message(error);
     return (
       <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
-        <ErrorState
-          title="Failed to load dashboard"
-          description={
-            error && "status" in error
-              ? `Error ${error.status}: ${JSON.stringify(error.data)}`
-              : "Something went wrong while fetching the dashboard."
-          }
-          onRetry={refetch}
-        />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load dashboard"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || (error && "status" in error ? `Error ${error.status}: ${JSON.stringify(error.data)}` : "Something went wrong while fetching the dashboard.")}
+          </p>
+          {!msg && (
+            <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+              Retry
+            </button>
+          )}
+        </div>
       </div>
     );
   }

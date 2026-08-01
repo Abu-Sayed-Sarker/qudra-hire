@@ -26,6 +26,7 @@ import {
   useGetCompanyCandidateDetailQuery,
   type CandidateDetail,
 } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 function CandidateProfileInner() {
   const searchParams = useSearchParams();
@@ -64,22 +65,25 @@ function CandidateProfileInner() {
   }
 
   if (isError) {
+    const msg = get403Message(error);
     return (
       <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-          <h2 className="text-xl font-bold text-foreground mb-2">Failed to load profile</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            {error && "status" in error
-              ? `Error ${error.status}: ${JSON.stringify(error.data)}`
-              : "Something went wrong while fetching the candidate profile."}
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load profile"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || "Something went wrong while fetching the candidate profile."}
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="text-sm font-semibold text-[#4BC957] hover:underline"
-          >
-            Retry
-          </button>
+          {!msg && (
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm font-semibold text-[#4BC957] hover:underline"
+            >
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );

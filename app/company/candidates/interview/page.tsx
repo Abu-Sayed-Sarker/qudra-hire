@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2, Plus, Trash2, Clock } from "lucide-react";
+import { ArrowLeft, Sparkles, Send, Loader2, Mic, CheckCircle2, Plus, Trash2, Clock, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,7 @@ import {
   useSendCompanyInterviewMutation,
 } from "@/store/authApi";
 import type { CompanyJob, CompanyInterviewPayload } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 
 function SetAIInterviewInner() {
@@ -39,7 +40,7 @@ function SetAIInterviewInner() {
   const { data: candidateData } = useGetCompanyCandidateDetailQuery(Number(candidateId), {
     skip: !candidateId,
   });
-  const { data: interviewData, isLoading: isLoadingInterview, isError: isInterviewError } = useGetCompanyInterviewDetailQuery(interviewId ?? "", {
+  const { data: interviewData, isLoading: isLoadingInterview, isError: isInterviewError, error: interviewError } = useGetCompanyInterviewDetailQuery(interviewId ?? "", {
     skip: !interviewId,
   });
   const jobs = jobsData?.data ?? [];
@@ -361,10 +362,18 @@ function SetAIInterviewInner() {
                 </div>
               ) : isInterviewError ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <p className="text-sm text-red-500 font-medium mb-2">Failed to load interview details.</p>
-                  <button onClick={() => window.location.reload()} className="text-sm font-semibold text-[#4BC957] hover:underline">
-                    Retry
-                  </button>
+                  <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
+                    <AlertTriangle className="h-6 w-6 text-red-500" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground mb-1">{get403Message(interviewError) ? "Access Denied" : "Failed to load interview details"}</p>
+                  <p className="text-xs text-muted-foreground mb-3 max-w-sm">
+                    {get403Message(interviewError) || "Something went wrong while fetching the interview details."}
+                  </p>
+                  {!get403Message(interviewError) && (
+                    <button onClick={() => window.location.reload()} className="text-xs font-semibold text-[#4BC957] hover:underline">
+                      Retry
+                    </button>
+                  )}
                 </div>
               ) : (
                 <>

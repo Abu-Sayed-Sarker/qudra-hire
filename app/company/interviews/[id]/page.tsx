@@ -12,10 +12,12 @@ import {
   Briefcase,
   Mic,
   MessageSquare,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useGetCompanyInterviewDetailQuery } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   COMPLETED: { label: "Completed", color: "text-[#4BC957]", bg: "bg-[#4BC957]/10 border-[#4BC957]/20" },
@@ -37,7 +39,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function CompanyInterviewDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const { data, isLoading, isError } = useGetCompanyInterviewDetailQuery(id);
+  const { data, isLoading, isError, error } = useGetCompanyInterviewDetailQuery(id);
   const interview = data?.data;
 
   if (isLoading) {
@@ -49,9 +51,16 @@ export default function CompanyInterviewDetailPage() {
   }
 
   if (isError || !interview) {
+    const msg = get403Message(error);
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-sm text-muted-foreground">Interview not found.</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+          <AlertTriangle className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Interview not found"}</h2>
+        <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+          {msg || "Something went wrong while fetching the interview."}
+        </p>
       </div>
     );
   }

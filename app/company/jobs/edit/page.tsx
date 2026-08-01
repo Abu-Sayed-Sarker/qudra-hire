@@ -23,6 +23,7 @@ import { SkeletonForm } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { motion } from "framer-motion";
+import { get403Message } from "@/lib/utils";
 
 const EMPLOYMENT_TYPES = [
   { value: "FULL_TIME", label: "Full Time" },
@@ -166,13 +167,23 @@ function EditJobInner() {
   }
 
   if (isDetailError) {
+    const msg = get403Message(error);
     return (
       <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
-        <ErrorState
-          title="Failed to load job"
-          description="Something went wrong while fetching the job details."
-          onRetry={() => window.location.reload()}
-        />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <AlertTriangle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load job"}</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            {msg || "Something went wrong while fetching the job details."}
+          </p>
+          {!msg && (
+            <button onClick={() => window.location.reload()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+              Retry
+            </button>
+          )}
+        </div>
       </div>
     );
   }

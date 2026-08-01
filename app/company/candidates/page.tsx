@@ -37,6 +37,7 @@ import {
   type CompanyCandidate,
 } from "@/store/authApi";
 import CandidateFilters from "@/components/company/candidate-filters";
+import { get403Message } from "@/lib/utils";
 
 const EMPTY_FILTERS: CompanyCandidatesFilters = {};
 
@@ -216,18 +217,18 @@ export default function CandidatesPage() {
       {/* Error State */}
       {isError && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-muted border border-border flex items-center justify-center mb-4">
-            <FilterX className="h-8 w-8 text-muted-foreground" />
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <FilterX className="h-8 w-8 text-red-500" />
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-1">Something went wrong</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{get403Message(error) ? "Access Denied" : "Something went wrong"}</h3>
           <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-            {error && "status" in error
-              ? `Error ${error.status}: ${JSON.stringify(error.data)}`
-              : "Failed to fetch candidates. Please try again."}
+            {get403Message(error) || (error && "status" in error ? `Error ${error.status}: ${JSON.stringify(error.data)}` : "Failed to fetch candidates. Please try again.")}
           </p>
-          <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
-            Retry
-          </button>
+          {!get403Message(error) && (
+            <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+              Retry
+            </button>
+          )}
         </div>
       )}
 
