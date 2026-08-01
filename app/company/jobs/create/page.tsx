@@ -140,10 +140,10 @@ export default function PostJobPage() {
             <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Post a new job</h1>
             <p className="text-sm text-muted-foreground mt-1">AI will shortlist your top 10 matches within minutes.</p>
           </div>
-          <span className="bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
+          {/* <span className="bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4" />
             Trade-licence verified
-          </span>
+          </span> */}
         </div>
       </div>
 

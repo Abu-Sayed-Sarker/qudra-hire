@@ -216,10 +216,10 @@ function JobViewContent() {
             </div>
             <div className="bg-card border border-border rounded-2xl p-6 space-y-3 shadow-sm">
               <h3 className="text-sm font-bold text-foreground">Verification</h3>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-[#4BC957]" />
                 Trade-licence verified
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

@@ -12,11 +12,16 @@ import {
   Loader2,
   ExternalLink,
   ChevronDown,
+  Sparkles,
+  TrendingUp,
+  ArrowUpRight,
+  Zap,
+  Globe,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetCandidateJobsQuery, type CandidateJobItem } from "@/store/authApi";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +33,26 @@ const EMPLOYMENT_TYPES = [
   "INTERNSHIP",
   "FREELANCE",
 ];
+
+const cardHover =
+  "transition-all duration-300 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-0.5";
+
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.06, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+  }),
+};
+
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, when: "beforeChildren" },
+  },
+};
 
 export default function BrowseJobsPage() {
   const searchParams = useSearchParams();
@@ -82,10 +107,15 @@ export default function BrowseJobsPage() {
     skills,
   ]);
 
-  const { data, isLoading, isError, refetch } = useGetCandidateJobsQuery(queryParams);
+  const { data, isLoading, isError, error, refetch } = useGetCandidateJobsQuery(queryParams);
 
   const jobs = data?.data ?? [];
   const totalResults = data?.data?.length ?? 0;
+
+  const errorMessage =
+    isError && error && (error as any)?.status === 403
+      ? ((error as any).data as { detail?: string })?.detail || "You do not have permission to perform this action."
+      : null;
 
   const clearFilters = () => {
     setSearch("");
@@ -135,7 +165,7 @@ export default function BrowseJobsPage() {
     skills,
   ]);
 
-  const salaryLabel = (job: (typeof jobs)[0]) => {
+  const salaryLabel = (job: CandidateJobItem) => {
     const min = job.salary_min;
     const max = job.salary_max;
     const period = job.salary_period?.toLowerCase() || "";
@@ -149,63 +179,81 @@ export default function BrowseJobsPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
+    <div className="p-6 md:p-10 space-y-8 max-w-full mx-auto">
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="relative"
       >
-        <h1 className="text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">
-          Browse Jobs
-        </h1>
-        <p className="text-sm text-on-surface-muted mt-1 font-medium">
-          {isLoading ? "Searching jobs..." : `${totalResults} active jobs found`}
+        <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl" />
+        <div className="relative flex items-center gap-3 mb-2">
+          <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+            <Briefcase className="h-6 w-6 text-emerald-600" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">Browse Jobs</h1>
+        </div>
+        <p className="text-muted-foreground mt-3 text-base font-medium flex items-center gap-2 ml-1">
+          <TrendingUp className="h-4 w-4 text-emerald-600" />
+          {isLoading ? "Searching opportunities..." : `${totalResults} active opportunities found`}
         </p>
       </motion.div>
 
       {/* Search and Filter Toggle */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-subtle" />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="flex flex-col sm:flex-row gap-3"
+      >
+        <div className="relative flex-1 group">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60 group-focus-within:text-emerald-600 transition-colors" />
           <Input
             placeholder="Search by title, company, or location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 h-11 rounded-xl border-border bg-surface-deep focus:ring-2 focus:ring-[#23C65F]/40"
+            className="pl-11 h-13 rounded-2xl border-border bg-background/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/30 text-sm font-medium shadow-sm transition-all"
           />
         </div>
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
-          className="h-11 px-4 rounded-xl border-border gap-2 font-semibold text-sm"
+          className="h-13 px-5 rounded-2xl border-border gap-2.5 font-bold text-sm shadow-sm hover:shadow-md transition-all"
         >
           <SlidersHorizontal className="h-4 w-4" />
           Filters
           {hasActiveFilters && (
-            <Badge className="bg-[#23C65F] text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+            <Badge className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-lg shadow-emerald-600/20">
               {Object.values(queryParams).filter(Boolean).length}
             </Badge>
           )}
         </Button>
-      </div>
+      </motion.div>
 
       {/* Filters Panel */}
       {showFilters && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="bg-surface-card border border-border rounded-2xl p-5 space-y-4 shadow-sm"
+          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 space-y-6 shadow-sm overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-on-surface text-sm">Filters</h3>
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                <SlidersHorizontal className="h-4 w-4 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-foreground">Filters</h3>
+            </div>
             {hasActiveFilters && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="text-red-500 hover:text-red-600 text-xs font-semibold gap-1"
+                className="text-red-500 hover:text-red-600 text-xs font-bold gap-1.5 hover:bg-red-500/5"
               >
                 <X className="h-3.5 w-3.5" />
                 Clear all
@@ -213,44 +261,34 @@ export default function BrowseJobsPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Job Title / Keyword</label>
-              <Input
-                placeholder="e.g. React, Python"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
-              />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              { label: "Job Title / Keyword", value: title, setter: setTitle, placeholder: "e.g. React, Python" },
+              { label: "Location", value: location, setter: setLocation, placeholder: "e.g. Dubai, Remote" },
+              { label: "Company", value: company, setter: setCompany, placeholder: "e.g. Qudra Technologies" },
+              { label: "Industry", value: industry, setter: setIndustry, placeholder: "e.g. Technology" },
+              { label: "Min Salary", value: minSalary, setter: setMinSalary, placeholder: "Min", type: "number" },
+              { label: "Max Salary", value: maxSalary, setter: setMaxSalary, placeholder: "Max", type: "number" },
+            ].map((field) => (
+              <div key={field.label} className="space-y-2">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{field.label}</label>
+                <Input
+                  type={field.type || "text"}
+                  placeholder={field.placeholder}
+                  value={field.value}
+                  onChange={(e) => field.setter(e.target.value)}
+                  className="h-11 rounded-xl border-border bg-background/60 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30"
+                />
+              </div>
+            ))}
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Location</label>
-              <Input
-                placeholder="e.g. Dubai, Remote"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Company</label>
-              <Input
-                placeholder="e.g. Qudra Technologies"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Employment Type</label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Employment Type</label>
               <div className="relative">
                 <select
                   value={employmentType}
                   onChange={(e) => setEmploymentType(e.target.value)}
-                  className="h-10 w-full rounded-lg border border-border bg-surface-deep text-sm px-3 pr-8 appearance-none text-on-surface focus:ring-2 focus:ring-[#23C65F]/40 outline-none"
+                  className="h-11 w-full rounded-xl border border-border bg-background/60 text-sm font-medium px-4 pr-10 appearance-none text-foreground focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 outline-none"
                 >
                   <option value="">All types</option>
                   {EMPLOYMENT_TYPES.map((type) => (
@@ -259,49 +297,17 @@ export default function BrowseJobsPage() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-subtle pointer-events-none" />
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none" />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Min Salary</label>
-              <Input
-                type="number"
-                placeholder="Min"
-                value={minSalary}
-                onChange={(e) => setMinSalary(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Max Salary</label>
-              <Input
-                type="number"
-                placeholder="Max"
-                value={maxSalary}
-                onChange={(e) => setMaxSalary(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Industry</label>
-              <Input
-                placeholder="e.g. Technology"
-                value={industry}
-                onChange={(e) => setIndustry(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-on-surface-muted">Skills (comma separated)</label>
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Skills</label>
               <Input
                 placeholder="e.g. React, TypeScript"
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}
-                className="h-10 rounded-lg border-border bg-surface-deep text-sm"
+                className="h-11 rounded-xl border-border bg-background/60 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30"
               />
             </div>
           </div>
@@ -309,31 +315,33 @@ export default function BrowseJobsPage() {
           {/* Boolean Filters */}
           <div className="flex flex-wrap gap-3">
             {[
-              { label: "Visa Sponsorship", checked: visaSponorship, setter: setVisaSponsorship },
-              { label: "Open to Remote", checked: openToRemote, setter: setOpenToRemote },
-              { label: "Emiratization", checked: emiratization, setter: setEmiratization },
-              { label: "Saudization", checked: saudization, setter: setSaudization },
+              { label: "Visa Sponsorship", checked: visaSponorship, setter: setVisaSponsorship, color: "emerald" },
+              { label: "Open to Remote", checked: openToRemote, setter: setOpenToRemote, color: "blue" },
+              { label: "Emiratization", checked: emiratization, setter: setEmiratization, color: "violet" },
+              { label: "Saudization", checked: saudization, setter: setSaudization, color: "amber" },
             ].map((filter) => (
-              <label
+              <button
                 key={filter.label}
-                className="flex items-center gap-2 cursor-pointer select-none"
+                onClick={() => filter.setter(!filter.checked)}
+                className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${
+                  filter.checked
+                    ? `bg-${filter.color}-500/10 border-${filter.color}-500/30 text-${filter.color}-600 shadow-sm`
+                    : "border-border bg-background/40 text-muted-foreground hover:border-border/80"
+                }`}
               >
-                <div
-                  className={`h-5 w-5 rounded-md border-2 flex items-center justify-center transition-all ${
-                    filter.checked
-                      ? "bg-[#23C65F] border-[#23C65F]"
-                      : "border-border bg-surface-deep"
-                  }`}
-                  onClick={() => filter.setter(!filter.checked)}
-                >
+                <div className={`h-4 w-4 rounded-md border-2 flex items-center justify-center transition-all ${
+                  filter.checked
+                    ? `bg-${filter.color}-600 border-${filter.color}-600`
+                    : "border-border"
+                }`}>
                   {filter.checked && (
-                    <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                 </div>
-                <span className="text-sm font-medium text-on-surface">{filter.label}</span>
-              </label>
+                {filter.label}
+              </button>
             ))}
           </div>
         </motion.div>
@@ -341,39 +349,67 @@ export default function BrowseJobsPage() {
 
       {/* Error State */}
       {isError && (
-        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
-          <p className="text-sm font-medium text-red-600 dark:text-red-400">
-            Failed to load jobs. Please try again.
-          </p>
-          <Button
-            onClick={() => refetch()}
-            variant="outline"
-            size="sm"
-            className="mt-3 rounded-lg"
-          >
-            Retry
-          </Button>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative bg-card/80 backdrop-blur-sm border border-red-200 dark:border-red-800/50 rounded-3xl p-8 text-center overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent pointer-events-none" />
+          <div className="relative">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+              <X className="h-6 w-6 text-red-500" />
+            </div>
+            <p className="text-sm font-bold text-foreground mb-1">Unable to load jobs</p>
+            <p className="text-sm text-muted-foreground font-medium max-w-md mx-auto">
+              {errorMessage || "Something went wrong while fetching job listings."}
+            </p>
+            {!errorMessage && (
+              <Button
+                onClick={() => refetch()}
+                variant="outline"
+                size="sm"
+                className="mt-5 rounded-xl font-bold text-sm"
+              >
+                Try again
+              </Button>
+            )}
+          </div>
+        </motion.div>
       )}
 
       {/* Loading State */}
       {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+        >
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
+            <motion.div
               key={i}
-              className="bg-surface-card border border-border rounded-2xl p-5 space-y-3 animate-pulse"
+              variants={fadeInUp}
+              custom={i}
+              className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-4"
             >
-              <div className="h-6 bg-muted rounded-lg w-3/4" />
-              <div className="h-4 bg-muted rounded-lg w-1/2" />
-              <div className="h-4 bg-muted rounded-lg w-full" />
-              <div className="flex gap-2">
-                <div className="h-6 bg-muted rounded-full w-16" />
-                <div className="h-6 bg-muted rounded-full w-20" />
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-xl bg-muted/70 animate-pulse" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 bg-muted/70 rounded-lg w-3/4 animate-pulse" />
+                  <div className="h-3 bg-muted/50 rounded-lg w-1/2 animate-pulse" />
+                </div>
               </div>
-            </div>
+              <div className="space-y-2">
+                <div className="h-3 bg-muted/50 rounded-lg w-full animate-pulse" />
+                <div className="h-3 bg-muted/50 rounded-lg w-2/3 animate-pulse" />
+              </div>
+              <div className="flex gap-2">
+                <div className="h-6 bg-muted/50 rounded-lg w-16 animate-pulse" />
+                <div className="h-6 bg-muted/50 rounded-lg w-20 animate-pulse" />
+              </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Jobs Grid */}
@@ -381,106 +417,116 @@ export default function BrowseJobsPage() {
         <>
           {jobs.length === 0 ? (
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-surface-card border border-border rounded-2xl p-12 text-center"
+              className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-12 md:p-16 text-center overflow-hidden"
             >
-              <Briefcase className="h-12 w-12 text-on-surface-subtle mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-on-surface mb-1">No jobs found</h3>
-              <p className="text-sm text-on-surface-muted font-medium max-w-md mx-auto">
-                Try adjusting your search criteria or filters to find more opportunities.
-              </p>
-              {hasActiveFilters && (
-                <Button
-                  onClick={clearFilters}
-                  variant="outline"
-                  className="mt-4 rounded-lg font-semibold text-sm"
-                >
-                  Clear all filters
-                </Button>
-              )}
+              <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-transparent pointer-events-none" />
+              <div className="relative">
+                <div className="w-16 h-16 rounded-3xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-5">
+                  <Briefcase className="h-7 w-7 text-muted-foreground/60" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-2">No jobs found</h3>
+                <p className="text-sm text-muted-foreground font-medium max-w-md mx-auto mb-6">
+                  Try adjusting your search criteria or filters to discover more opportunities.
+                </p>
+                {hasActiveFilters && (
+                  <Button
+                    onClick={clearFilters}
+                    variant="outline"
+                    className="rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all"
+                  >
+                    Clear all filters
+                  </Button>
+                )}
+              </div>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+            >
               {jobs.map((job: CandidateJobItem, idx: number) => (
                 <motion.div
                   key={job.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.04, duration: 0.3 }}
+                  variants={fadeInUp}
+                  custom={idx}
                 >
                   <Link
                     href={`/candidate/jobs/detail?id=${job.id}`}
                     className="block h-full"
                   >
-                    <div className="bg-surface-card border border-border rounded-2xl p-5 space-y-3 hover:border-[#23C65F]/40 hover:shadow-md transition-all cursor-pointer group h-full">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-10 w-10 rounded-xl bg-surface-item border border-surface flex items-center justify-center text-sm font-bold text-on-surface flex-shrink-0">
+                    <div className={`group relative bg-card/80 backdrop-blur-sm border border-border/80 rounded-3xl p-6 ${cardHover} h-full overflow-hidden`}>
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] via-transparent to-blue-500/[0.02] rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="relative flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground flex-shrink-0 shadow-sm">
                             {job.company_name?.slice(0, 2).toUpperCase() || "CO"}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[13px] text-on-surface-muted font-semibold truncate">
-                              {job.company_name}
-                            </p>
-                            <p className="font-bold text-on-surface leading-tight group-hover:text-[#23C65F] transition-colors line-clamp-1">
-                              {job.title}
-                            </p>
+                            <p className="text-xs text-muted-foreground font-semibold truncate">{job.company_name}</p>
+                            <p className="font-bold text-foreground leading-tight group-hover:text-emerald-600 transition-colors line-clamp-1 mt-0.5">{job.title}</p>
                           </div>
                         </div>
                         {job.match_score !== null && (
-                          <span className="text-[12px] font-bold px-2 py-0.5 rounded-md border flex-shrink-0 bg-[#23C65F]/10 text-[#23C65F] border-[#23C65F]/20">
+                          <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 flex-shrink-0 shadow-sm shadow-emerald-500/5">
                             {job.match_score}% match
                           </span>
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-on-surface-muted font-medium">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3 text-on-surface-subtle" />
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground font-medium mt-4">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
                           {job.location}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-on-surface-subtle" />
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
                           {job.employment_type_display}
                         </span>
                       </div>
 
-                      <p className="text-[13px] text-on-surface-muted font-medium flex items-center gap-1">
-                        <DollarSign className="h-3 w-3 text-on-surface-subtle" />
-                        {salaryLabel(job)}
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground font-medium">
+                        <DollarSign className="h-3.5 w-3.5 text-muted-foreground/70" />
+                        <span className="font-semibold text-foreground">{salaryLabel(job)}</span>
+                      </div>
 
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-2 mt-4">
                         {job.skills?.slice(0, 4).map((skill: string, si: number) => (
                           <span
                             key={si}
-                            className="bg-surface-item border border-surface text-on-surface-subtle text-[11px] font-semibold px-2 py-0.5 rounded-md"
+                            className="bg-muted/40 border border-border text-muted-foreground text-[10px] font-bold px-2.5 py-1.5 rounded-lg"
                           >
                             {skill}
                           </span>
                         ))}
                       </div>
 
-                      <div className="flex flex-wrap gap-2 pt-1">
+                      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/50">
                         {job.visa_sponsorship && (
-                          <Badge variant="outline" className="text-[11px] font-semibold border-[#23C65F]/30 text-[#23C65F]">
+                          <Badge variant="outline" className="text-[10px] font-bold border-emerald-500/25 text-emerald-600 bg-emerald-500/5">
+                            <Zap className="h-3 w-3 mr-1" />
                             Visa
                           </Badge>
                         )}
                         {job.open_to_remote && (
-                          <Badge variant="outline" className="text-[11px] font-semibold border-blue-500/30 text-blue-500">
+                          <Badge variant="outline" className="text-[10px] font-bold border-blue-500/25 text-blue-600 bg-blue-500/5">
+                            <Globe className="h-3 w-3 mr-1" />
                             Remote
                           </Badge>
                         )}
                         {job.already_applied && (
-                          <Badge variant="outline" className="text-[11px] font-semibold border-purple-500/30 text-purple-500">
+                          <Badge variant="outline" className="text-[10px] font-bold border-violet-500/25 text-violet-600 bg-violet-500/5">
+                            <Sparkles className="h-3 w-3 mr-1" />
                             Applied
                           </Badge>
                         )}
                       </div>
 
-                      <p className="text-[12px] text-on-surface-subtle font-medium pt-1">
+                      <p className="text-[11px] text-muted-foreground/70 font-semibold mt-4 flex items-center gap-1.5">
+                        <Clock className="h-3 w-3" />
                         {new Date(job.published_at).toLocaleDateString("en-GB", {
                           day: "2-digit",
                           month: "short",
@@ -491,7 +537,7 @@ export default function BrowseJobsPage() {
                   </Link>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </>
       )}
