@@ -83,6 +83,7 @@ export default function PostJobPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setQuotaExceeded(false);
 
     try {
       await createJob({
@@ -94,11 +95,13 @@ export default function PostJobPage() {
       }).unwrap();
       router.push("/company/jobs");
     } catch (err: unknown) {
-      const apiError = err as { data?: { code?: string; details?: string } };
+      const apiError = err as { data?: { code?: string; details?: string; status?: number } };
       if (apiError.data?.code === "JOB_QUOTA_EXCEEDED") {
         setQuotaExceeded(true);
         setQuotaData(quotaRes?.data ?? null);
         setError(null);
+      } else if (apiError.data?.status === 403) {
+        setError(apiError.data.details || "You do not have permission to perform this action.");
       } else {
         setError("Failed to create job. Please try again.");
       }

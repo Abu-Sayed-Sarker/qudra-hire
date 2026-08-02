@@ -241,21 +241,24 @@ export default function SignupPage() {
         <p className="text-muted-foreground text-sm mb-6">Start progressing in under a minute.</p>
 
         <div className="flex bg-surface-deep border border-border p-1 rounded-xl mb-8" role="tablist" aria-label="Account type">
-          {(["candidate", "company"] as const).map((type) => (
-            <button
-              key={type}
-              type="button"
-              role="tab"
-              aria-selected={accountType === type}
-              onClick={() => { setAccountType(type); setErrorMsg(""); }}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all capitalize ${accountType === type
-                ? "bg-[#23C65F] text-white"
-                : "text-muted-foreground hover:text-on-surface"
-                }`}
-            >
-              {type}
-            </button>
-          ))}
+          {(["candidate", "company"] as const).map((type) => {
+            const label = type === "candidate" ? "Talent" : "Employer";
+            return (
+              <button
+                key={type}
+                type="button"
+                role="tab"
+                aria-selected={accountType === type}
+                onClick={() => { setAccountType(type); setErrorMsg(""); }}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all capitalize ${accountType === type
+                  ? "bg-[#23C65F] text-white"
+                  : "text-muted-foreground hover:text-on-surface"
+                  }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {errorMsg && (

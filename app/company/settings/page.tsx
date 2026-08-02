@@ -309,20 +309,8 @@ export default function CompanySettingsPage() {
                 />
               </div>
             </div>
-
-            {/* Save Profile Button */}
-            <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={isUpdatingProfile}
-                className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
-              >
-                {isUpdatingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
-                {isUpdatingProfile ? "Saving..." : "Save changes"}
-              </button>
-            </div>
           </div>
-        </form>
+
 
         {/* Trade Licence */}
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
@@ -360,6 +348,19 @@ export default function CompanySettingsPage() {
             </div>
           </div>
         </div>
+
+        {/* Save Profile Button */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={isUpdatingProfile}
+            className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+          >
+            {isUpdatingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isUpdatingProfile ? "Saving..." : "Save changes"}
+          </button>
+        </div>
+        </form>
 
         {/* Password */}
         <form className="bg-card border border-border rounded-2xl p-6 shadow-sm" onSubmit={handleChangePassword}>

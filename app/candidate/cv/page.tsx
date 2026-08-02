@@ -51,6 +51,7 @@ export default function CandidateCVPage() {
   } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoSuggestTriggeredRef = useRef(false);
 
   const {
     data: statusData,
@@ -93,9 +94,11 @@ export default function CandidateCVPage() {
   }, [autoSuggest, cvData]);
 
   useEffect(() => {
-    if (mounted && cvData?.data && !taskId && !analysis && (cvData.data.ats_score === 0 || !cvData.data.parsed_skills?.length)) {
-      triggerAutoSuggest();
-    }
+    if (autoSuggestTriggeredRef.current) return;
+    if (!mounted || !cvData?.data || taskId || analysis) return;
+
+    autoSuggestTriggeredRef.current = true;
+    // triggerAutoSuggest();
   }, [mounted, cvData, taskId, analysis, triggerAutoSuggest]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,13 +140,14 @@ export default function CandidateCVPage() {
 
       setAnalysis(null);
       setTaskId(null);
-      await refetchCv();
+      // await refetchCv();
 
       // Trigger AI auto-suggest for the new CV automatically
       try {
         const suggestResult = await autoSuggest(undefined).unwrap();
         if (suggestResult.data?.task_id) {
           setTaskId(suggestResult.data.task_id);
+
         }
       } catch (err) {
         console.error("Auto suggest trigger error:", err);
