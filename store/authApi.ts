@@ -1227,6 +1227,15 @@ export const authApi = createApi({
       }),
     }),
 
+    // POST /auth/google/
+    googleLogin: builder.mutation<ApiResponse<LoginData>, { credential: string }>({
+      query: (body) => ({
+        url: "auth/google/",
+        method: "POST",
+        body,
+      }),
+    }),
+
     // POST /auth/register/candidate/  (multipart/form-data)
     registerCandidate: builder.mutation<ApiResponse<RegisterData>, FormData>({
       query: (formData) => ({
@@ -2148,6 +2157,7 @@ export const authApi = createApi({
 
 export const {
   useLoginWithEmailMutation,
+  useGoogleLoginMutation,
   useRegisterCandidateMutation,
   useRegisterCompanyMutation,
   useForgotPasswordMutation,
