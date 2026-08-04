@@ -496,9 +496,8 @@ function JobApplicantsInner() {
                 <div className="flex items-center gap-2">
                   <select
                     value={candidate.applicationStatus || "SUBMITTED"}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) => {
-                      debugger;
-                      e.stopPropagation();
                       handleStatusChange(
                         candidate.application_id,
                         e.target.value as ApplicationStatus
