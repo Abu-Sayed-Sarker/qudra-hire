@@ -144,6 +144,7 @@ function JobApplicantsInner() {
   const interviewStatuses = ["Pending", "In progress", "Completed"];
 
   const toggleStage = (stage: string) => {
+    
     setTempFilters((prev) => ({
       ...prev,
       stages: prev.stages.includes(stage)
@@ -496,6 +497,7 @@ function JobApplicantsInner() {
                   <select
                     value={candidate.applicationStatus || "SUBMITTED"}
                     onChange={(e) => {
+                      debugger;
                       e.stopPropagation();
                       handleStatusChange(
                         candidate.application_id,

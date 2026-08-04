@@ -21,6 +21,8 @@ import {
   Star,
   Lock,
   Sparkles,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -117,7 +119,18 @@ export default function CandidateProfilePage() {
   const [projects, setProjects] = useState<ProfileProject[]>([]);
   const [certifications, setCertifications] = useState<ProfileCertification[]>([]);
   const [skillInput, setSkillInput] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
+  const [currentStep, setCurrentStep] = useState(0);
+  const profileSteps = [
+    { key: "basic", label: "Basic Info" },
+    { key: "contact", label: "Contact" },
+    { key: "skills", label: "Skills" },
+    { key: "experience", label: "Experience" },
+    { key: "education", label: "Education" },
+    { key: "projects", label: "Projects" },
+    { key: "certifications", label: "Certifications" },
+    { key: "resume", label: "Resume" },
+  ];
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -388,6 +401,22 @@ export default function CandidateProfilePage() {
             <p className="text-sm text-muted-foreground mt-1">Keep your profile up to date to stand out to potential employers.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            {isDefault ? (
+              <span className="text-sm font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 px-4 py-2 rounded-lg flex items-center gap-1.5">
+                <Star className="h-3.5 w-3.5 fill-[#4BC957]" /> Published
+              </span>
+            ) : (
+              <button onClick={handleSetDefault} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+                <Star className="h-3.5 w-3.5" /> Publish
+              </button>
+            )}
+            <button onClick={() => setIsChangePasswordOpen(true)} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" /> Change Password
+            </button>
+            <button onClick={handleDelete} disabled={isDeleting} className="text-sm font-semibold border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
+              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : <Trash2 className="h-4 w-4 inline mr-1" />}
+              Delete
+            </button>
             {isEditing ? (
               <>
                 <button onClick={handleCancel} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors">
@@ -400,22 +429,7 @@ export default function CandidateProfilePage() {
               </>
             ) : (
               <>
-                {isDefault ? (
-                  <span className="text-sm font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 px-4 py-2 rounded-lg flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 fill-[#4BC957]" /> Published
-                  </span>
-                ) : (
-                  <button onClick={handleSetDefault} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5" /> Publish
-                  </button>
-                )}
-                <button onClick={() => setIsChangePasswordOpen(true)} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
-                  <Lock className="h-3.5 w-3.5" /> Change Password
-                </button>
-                <button onClick={handleDelete} disabled={isDeleting} className="text-sm font-semibold border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
-                  {isDeleting ? <Loader2 className="h-4 w-4 animate-spin inline mr-1" /> : <Trash2 className="h-4 w-4 inline mr-1" />}
-                  Delete
-                </button>
+
                 <button onClick={handleEdit} className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
                   <Pencil className="h-3.5 w-3.5" /> Edit
                 </button>
@@ -453,444 +467,531 @@ export default function CandidateProfilePage() {
           )}
         </div>
 
-        {/* Basic Info */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="relative shrink-0 w-20 h-20 mx-auto md:mx-0">
-              <div className="w-20 h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground overflow-hidden">
-                {imagePreview ? (
-                  <img src={imagePreview} alt="Profile" className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  initials || "?"
-                )}
-              </div>
-
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center gap-2 py-4 flex-wrap">
+          {profileSteps.map((step, idx) => (
+            <React.Fragment key={step.key}>
               <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 bg-[#4BC957] text-white p-1.5 rounded-full shadow-md hover:bg-[#3DAF49] transition-all cursor-pointer hover:scale-105 active:scale-95 z-10"
-                title="Upload profile picture"
+                onClick={() => setCurrentStep(idx)}
+                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all ${idx === currentStep
+                  ? "bg-[#4BC957] text-white"
+                  : "bg-background border border-border text-muted-foreground hover:bg-muted"
+                  }`}
+                aria-label={`Step ${idx + 1}: ${step.label}`}
               >
-                <Camera className="w-3.5 h-3.5" />
+                {idx + 1}
               </button>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  if (file.size > 5 * 1024 * 1024) {
-                    toast.error("Image must be under 5MB");
-                    return;
-                  }
-                  setImageFile(file);
-                  const reader = new FileReader();
-                  reader.onload = () => setImagePreview(reader.result as string);
-                  reader.readAsDataURL(file);
-                  if (!isEditing) setIsEditing(true);
-                }}
-              />
-
-              {imageFile && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageFile(null);
-                    setImagePreview(profile?.image ?? null);
-                    if (fileInputRef.current) fileInputRef.current.value = "";
-                  }}
-                  className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600 transition-colors z-10"
-                  title="Remove selected image"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+              {idx < profileSteps.length - 1 && (
+                <div className={`h-px w-8 transition-all ${idx < currentStep ? "bg-[#4BC957]" : "bg-border"}`} />
               )}
-            </div>
-
-            <div className="flex-1 grid grid-cols-1 gap-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">First name *</label>
-                <input type="text" value={form.first_name} onChange={(e) => setField("first_name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Last name *</label>
-                <input type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Age</label>
-                <input type="number" min={0} value={form.age} onChange={(e) => setField("age", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Gender</label>
-                <select value={form.gender} onChange={(e) => setField("gender", e.target.value)} disabled={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring appearance-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`}>
-                  <option value="">Select</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Role title *</label>
-                <input type="text" value={form.role_title} onChange={(e) => setField("role_title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Industry</label>
-                <input type="text" value={form.industry} onChange={(e) => setField("industry", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* About me */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">★</span>
-            <h2 className="text-base font-bold text-foreground">About me</h2>
-          </div>
-          <p className="text-xs text-muted-foreground mb-3">Brief summary of your skills and experience.</p>
-          <div className="relative">
-            <textarea
-              rows={4}
-              value={form.about_me}
-              onChange={(e) => setField("about_me", e.target.value)}
-              readOnly={ro}
-              className={`w-full border border-border rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`}
-            />
-            <span className="absolute bottom-3 right-3 text-[10px] text-muted-foreground">{form.about_me.length}/500</span>
-          </div>
-        </div>
-
-        {/* Contact info */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <h2 className="text-base font-bold text-foreground mb-4">Contact info</h2>
-          <div className="grid grid-cols-1 gap-5">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#4BC957]" /> Email</label>
-              <input type="email" value={profile.email} disabled className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground cursor-not-allowed" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#4BC957]" /> Phone (WhatsApp)</label>
-              <input type="text" value={form.phone_whatsapp} onChange={(e) => setField("phone_whatsapp", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3 text-[#4BC957]" /> Location</label>
-              <input type="text" value={form.location} onChange={(e) => setField("location", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]" /> LinkedIn</label>
-              <input type="text" value={form.linkedin} onChange={(e) => setField("linkedin", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]" /> Website / Portfolio</label>
-              <input type="text" value={form.website_portfolio} onChange={(e) => setField("website_portfolio", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-            </div>
-          </div>
-        </div>
-
-        {/* CV / Resume */}
-        {profile.cv && (
-          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-[#4BC957]" />
-                <h2 className="text-base font-bold text-foreground">CV / Resume</h2>
-              </div>
-              <button className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-                <UploadCloud className="w-3.5 h-3.5" /> Upload CV
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground mb-4">PDF or DOCX, max 10MB.</p>
-
-            <div className="bg-background border border-border rounded-xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-[#4BC957]/10 rounded flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-[#4BC957]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Current CV</p>
-                  <p className="text-[11px] text-muted-foreground truncate max-w-[300px]">{profile.cv}</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <a href={profile.cv} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold bg-[#4BC957]/10 hover:bg-[#4BC957]/20 text-[#4BC957] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
-                  <Eye className="w-3.5 h-3.5" /> View CV
-                </a>
-                <a href={profile.cv} download className="text-xs font-semibold border border-border hover:bg-muted text-foreground px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
-                  <Download className="w-3.5 h-3.5" /> Download
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-
-        {/* Education */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◇</span>
-              <h2 className="text-base font-bold text-foreground">Education</h2>
-            </div>
-            {isEditing && (
-              <button onClick={addEducation} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-                <Plus className="w-3 h-3" /> Add education
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            {educations.map((edu, i) => (
-              <div key={edu.id ?? `new-edu-${i}`} className="border border-border rounded-xl p-5 relative">
-                {isEditing && (
-                  <button onClick={() => removeEducation(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-                <h3 className="text-sm font-bold text-foreground mb-4">{edu.school || `Education ${i + 1}`}</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">School / University *</label>
-                    <input type="text" value={edu.school} onChange={(e) => updateEducation(i, "school", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Degree</label>
-                    <input type="text" value={edu.degree} onChange={(e) => updateEducation(i, "degree", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Field of study</label>
-                    <input type="text" value={edu.field_of_study} onChange={(e) => updateEducation(i, "field_of_study", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">From</label>
-                      <input type="date" value={edu.start_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "start_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">To</label>
-                      <input type="date" value={edu.end_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "end_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {educations.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No education entries yet. Click &quot;Add education&quot; to get started.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Experience */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">▤</span>
-              <h2 className="text-base font-bold text-foreground">Experience</h2>
-            </div>
-            {isEditing && (
-              <button onClick={addExperience} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-                <Plus className="w-3 h-3" /> Add experience
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            {experiences.map((exp, i) => (
-              <div key={exp.id ?? `new-exp-${i}`} className="border border-border rounded-xl p-5 relative">
-                {isEditing && (
-                  <button onClick={() => removeExperience(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-                <h3 className="text-sm font-bold text-foreground mb-4">{exp.job_title || `Experience ${i + 1}`}</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Company / Organization *</label>
-                    <input type="text" value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Job Title</label>
-                    <input type="text" value={exp.job_title} onChange={(e) => updateExperience(i, "job_title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">From</label>
-                      <input type="date" value={exp.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">To</label>
-                      <input type="date" value={exp.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "end_date", e.target.value)} disabled={ro || exp.is_current} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${(ro || exp.is_current) ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input type="checkbox" checked={exp.is_current} onChange={(e) => updateExperience(i, "is_current", e.target.checked)} id={`current-${i}`} disabled={ro} className="accent-[#4BC957]" />
-                    <label htmlFor={`current-${i}`} className="text-[11px] font-semibold text-muted-foreground">Currently working here</label>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
-                    <textarea rows={3} value={exp.description} onChange={(e) => updateExperience(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                </div>
-              </div>
-            ))}
-            {experiences.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No experience entries yet. Click &quot;Add experience&quot; to get started.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Skills */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <h2 className="text-base font-bold text-foreground mb-1">Skills</h2>
-          <p className="text-xs text-muted-foreground mb-4">Add up to 20 skills. Used for AI matching and filtering.</p>
-
-          <div className="flex flex-wrap gap-2 mb-4">
-            {skills.map((skill, i) => (
-              <span key={skill.id ?? `skill-${i}`} className="inline-flex items-center gap-1.5 bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1 rounded-full text-xs font-semibold">
-                {skill.name}
-                {isEditing && (
-                  <button onClick={() => removeSkill(i)} className="hover:text-[#3DAF49]"><X className="w-3 h-3" /></button>
-                )}
+              <span className={`text-xs font-medium max-sm:hidden transition-colors ${idx === currentStep ? "text-[#4BC957]" : "text-muted-foreground"}`}>
+                {step.label}
               </span>
-            ))}
-          </div>
+            </React.Fragment>
+          ))}
+        </div>
 
-          {isEditing && (
-            <div className="relative">
-              <input
-                type="text"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
-                placeholder="Add a skill (e.g. Project Management)"
-                className="w-full bg-background border border-border rounded-lg px-3 py-2 pr-16 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-              <button onClick={addSkill} className="absolute right-2 top-1.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground px-2 py-1 rounded">
-                + Add
-              </button>
-            </div>
+        {/* Step Content */}
+        <div className="space-y-6">
+          {currentStep === 0 && (
+            <>
+              {/* Basic Info */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="relative shrink-0 w-20 h-20 mx-auto md:mx-0">
+                    <div className="w-20 h-20 bg-muted border border-border rounded-full flex items-center justify-center text-xl font-bold text-foreground overflow-hidden">
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        initials || "?"
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute bottom-0 right-0 bg-[#4BC957] text-white p-1.5 rounded-full shadow-md hover:bg-[#3DAF49] transition-all cursor-pointer hover:scale-105 active:scale-95 z-10"
+                      title="Upload profile picture"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                    </button>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error("Image must be under 5MB");
+                          return;
+                        }
+                        setImageFile(file);
+                        const reader = new FileReader();
+                        reader.onload = () => setImagePreview(reader.result as string);
+                        reader.readAsDataURL(file);
+                        if (!isEditing) setIsEditing(true);
+                      }}
+                    />
+
+                    {imageFile && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(profile?.image ?? null);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full shadow-md hover:bg-red-600 transition-colors z-10"
+                        title="Remove selected image"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex-1 grid grid-cols-1 gap-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">First name *</label>
+                      <input type="text" value={form.first_name} onChange={(e) => setField("first_name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Last name *</label>
+                      <input type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Age</label>
+                      <input type="number" min={0} value={form.age} onChange={(e) => setField("age", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Gender</label>
+                      <select value={form.gender} onChange={(e) => setField("gender", e.target.value)} disabled={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring appearance-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`}>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Role title *</label>
+                      <input type="text" value={form.role_title} onChange={(e) => setField("role_title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Industry</label>
+                      <input type="text" value={form.industry} onChange={(e) => setField("industry", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* About me */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">★</span>
+                  <h2 className="text-base font-bold text-foreground">About me</h2>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">Brief summary of your skills and experience.</p>
+                <div className="relative">
+                  <textarea
+                    rows={4}
+                    value={form.about_me}
+                    onChange={(e) => setField("about_me", e.target.value)}
+                    readOnly={ro}
+                    className={`w-full border border-border rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`}
+                  />
+                  <span className="absolute bottom-3 right-3 text-[10px] text-muted-foreground">{form.about_me.length}/500</span>
+                </div>
+              </div>
+
+            </>
+          )}
+
+          {currentStep === 1 && (
+            <>
+              {/* Contact info */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <h2 className="text-base font-bold text-foreground mb-4">Contact info</h2>
+                <div className="grid grid-cols-1 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Mail className="w-3 h-3 text-[#4BC957]" /> Email</label>
+                    <input type="email" value={profile.email} disabled className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-muted-foreground cursor-not-allowed" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Phone className="w-3 h-3 text-[#4BC957]" /> Phone (WhatsApp)</label>
+                    <input type="text" value={form.phone_whatsapp} onChange={(e) => setField("phone_whatsapp", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><MapPin className="w-3 h-3 text-[#4BC957]" /> Location</label>
+                    <input type="text" value={form.location} onChange={(e) => setField("location", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]" /> LinkedIn</label>
+                    <input type="text" value={form.linkedin} onChange={(e) => setField("linkedin", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><LinkIcon className="w-3 h-3 text-[#4BC957]" /> Website / Portfolio</label>
+                    <input type="text" value={form.website_portfolio} onChange={(e) => setField("website_portfolio", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                  </div>
+                </div>
+              </div>
+
+            </>
+          )}
+
+          {currentStep === 7 && (
+            <>
+              {/* CV / Resume */}
+              {profile.cv && (
+                <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#4BC957]" />
+                      <h2 className="text-base font-bold text-foreground">CV / Resume</h2>
+                    </div>
+                    <button className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                      <UploadCloud className="w-3.5 h-3.5" /> Upload CV
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-4">PDF or DOCX, max 10MB.</p>
+
+                  <div className="bg-background border border-border rounded-xl p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-[#4BC957]/10 rounded flex items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5 text-[#4BC957]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Current CV</p>
+                        <p className="text-[11px] text-muted-foreground truncate max-w-[300px]">{profile.cv}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <a href={profile.cv} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold bg-[#4BC957]/10 hover:bg-[#4BC957]/20 text-[#4BC957] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
+                        <Eye className="w-3.5 h-3.5" /> View CV
+                      </a>
+                      <a href={profile.cv} download className="text-xs font-semibold border border-border hover:bg-muted text-foreground px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
+                        <Download className="w-3.5 h-3.5" /> Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
+
+            </>
+          )}
+
+          {currentStep === 4 && (
+            <>
+              {/* Education */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◇</span>
+                    <h2 className="text-base font-bold text-foreground">Education</h2>
+                  </div>
+                  {isEditing && (
+                    <button onClick={addEducation} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                      <Plus className="w-3 h-3" /> Add education
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  {educations.map((edu, i) => (
+                    <div key={edu.id ?? `new-edu-${i}`} className="border border-border rounded-xl p-5 relative">
+                      {isEditing && (
+                        <button onClick={() => removeEducation(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <h3 className="text-sm font-bold text-foreground mb-4">{edu.school || `Education ${i + 1}`}</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">School / University *</label>
+                          <input type="text" value={edu.school} onChange={(e) => updateEducation(i, "school", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Degree</label>
+                          <input type="text" value={edu.degree} onChange={(e) => updateEducation(i, "degree", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Field of study</label>
+                          <input type="text" value={edu.field_of_study} onChange={(e) => updateEducation(i, "field_of_study", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">From</label>
+                            <input type="date" value={edu.start_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "start_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">To</label>
+                            <input type="date" value={edu.end_year?.slice(0, 10) ?? ""} onChange={(e) => updateEducation(i, "end_year", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {educations.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No education entries yet. Click &quot;Add education&quot; to get started.</p>
+                  )}
+                </div>
+              </div>
+
+            </>
+          )}
+
+          {currentStep === 3 && (
+            <>
+              {/* Experience */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">▤</span>
+                    <h2 className="text-base font-bold text-foreground">Experience</h2>
+                  </div>
+                  {isEditing && (
+                    <button onClick={addExperience} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                      <Plus className="w-3 h-3" /> Add experience
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  {experiences.map((exp, i) => (
+                    <div key={exp.id ?? `new-exp-${i}`} className="border border-border rounded-xl p-5 relative">
+                      {isEditing && (
+                        <button onClick={() => removeExperience(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <h3 className="text-sm font-bold text-foreground mb-4">{exp.job_title || `Experience ${i + 1}`}</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Company / Organization *</label>
+                          <input type="text" value={exp.company} onChange={(e) => updateExperience(i, "company", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Job Title</label>
+                          <input type="text" value={exp.job_title} onChange={(e) => updateExperience(i, "job_title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">From</label>
+                            <input type="date" value={exp.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">To</label>
+                            <input type="date" value={exp.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateExperience(i, "end_date", e.target.value)} disabled={ro || exp.is_current} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${(ro || exp.is_current) ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input type="checkbox" checked={exp.is_current} onChange={(e) => updateExperience(i, "is_current", e.target.checked)} id={`current-${i}`} disabled={ro} className="accent-[#4BC957]" />
+                          <label htmlFor={`current-${i}`} className="text-[11px] font-semibold text-muted-foreground">Currently working here</label>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
+                          <textarea rows={3} value={exp.description} onChange={(e) => updateExperience(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {experiences.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No experience entries yet. Click &quot;Add experience&quot; to get started.</p>
+                  )}
+                </div>
+              </div>
+
+            </>
+          )}
+
+          {currentStep === 2 && (
+            <>
+              {/* Skills */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <h2 className="text-base font-bold text-foreground mb-1">Skills</h2>
+                <p className="text-xs text-muted-foreground mb-4">Add up to 20 skills. Used for AI matching and filtering.</p>
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {skills.map((skill, i) => (
+                    <span key={skill.id ?? `skill-${i}`} className="inline-flex items-center gap-1.5 bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1 rounded-full text-xs font-semibold">
+                      {skill.name}
+                      {isEditing && (
+                        <button onClick={() => removeSkill(i)} className="hover:text-[#3DAF49]"><X className="w-3 h-3" /></button>
+                      )}
+                    </span>
+                  ))}
+                </div>
+
+                {isEditing && (
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }}
+                      placeholder="Add a skill (e.g. Project Management)"
+                      className="w-full bg-background border border-border rounded-lg px-3 py-2 pr-16 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    />
+                    <button onClick={addSkill} className="absolute right-2 top-1.5 text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground px-2 py-1 rounded">
+                      + Add
+                    </button>
+                  </div>
+                )}
+              </div>
+
+            </>
+          )}
+
+          {currentStep === 5 && (
+            <>
+              {/* Projects */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◆</span>
+                    <h2 className="text-base font-bold text-foreground">Projects</h2>
+                  </div>
+                  {isEditing && (
+                    <button onClick={addProject} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                      <Plus className="w-3 h-3" /> Add project
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  {projects.map((proj, i) => (
+                    <div key={proj.id ?? `new-proj-${i}`} className="border border-border rounded-xl p-5 relative">
+                      {isEditing && (
+                        <button onClick={() => removeProject(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <h3 className="text-sm font-bold text-foreground mb-4">{proj.title || `Project ${i + 1}`}</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Title *</label>
+                          <input type="text" value={proj.title} onChange={(e) => updateProject(i, "title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
+                          <textarea rows={2} value={proj.description} onChange={(e) => updateProject(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">Start date</label>
+                            <input type="date" value={proj.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">End date</label>
+                            <input type="date" value={proj.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "end_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">URL</label>
+                            <input type="text" value={proj.url} onChange={(e) => updateProject(i, "url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[11px] font-semibold text-muted-foreground">Technologies</label>
+                            <input type="text" value={proj.technologies} onChange={(e) => updateProject(i, "technologies", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {projects.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No projects yet. Click &quot;Add project&quot; to get started.</p>
+                  )}
+                </div>
+              </div>
+
+            </>
+          )}
+
+          {currentStep === 6 && (
+            <>
+              {/* Certifications */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◈</span>
+                    <h2 className="text-base font-bold text-foreground">Certifications</h2>
+                  </div>
+                  {isEditing && (
+                    <button onClick={addCertification} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
+                      <Plus className="w-3 h-3" /> Add certification
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-6">
+                  {certifications.map((cert, i) => (
+                    <div key={cert.id ?? `new-cert-${i}`} className="border border-border rounded-xl p-5 relative">
+                      {isEditing && (
+                        <button onClick={() => removeCertification(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <h3 className="text-sm font-bold text-foreground mb-4">{cert.name || `Certification ${i + 1}`}</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Name *</label>
+                          <input type="text" value={cert.name} onChange={(e) => updateCertification(i, "name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Issuing organization</label>
+                          <input type="text" value={cert.issuing_organization} onChange={(e) => updateCertification(i, "issuing_organization", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Issue date</label>
+                          <input type="date" value={cert.issue_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "issue_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Expiration date</label>
+                          <input type="date" value={cert.expiration_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "expiration_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Credential ID</label>
+                          <input type="text" value={cert.credential_id} onChange={(e) => updateCertification(i, "credential_id", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-semibold text-muted-foreground">Credential URL</label>
+                          <input type="text" value={cert.credential_url} onChange={(e) => updateCertification(i, "credential_url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {certifications.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No certifications yet. Click &quot;Add certification&quot; to get started.</p>
+                  )}
+                </div>
+              </div>
+
+            </>
           )}
         </div>
 
-        {/* Projects */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◆</span>
-              <h2 className="text-base font-bold text-foreground">Projects</h2>
-            </div>
-            {isEditing && (
-              <button onClick={addProject} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-                <Plus className="w-3 h-3" /> Add project
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            {projects.map((proj, i) => (
-              <div key={proj.id ?? `new-proj-${i}`} className="border border-border rounded-xl p-5 relative">
-                {isEditing && (
-                  <button onClick={() => removeProject(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-                <h3 className="text-sm font-bold text-foreground mb-4">{proj.title || `Project ${i + 1}`}</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Title *</label>
-                    <input type="text" value={proj.title} onChange={(e) => updateProject(i, "title", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Description</label>
-                    <textarea rows={2} value={proj.description} onChange={(e) => updateProject(i, "description", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">Start date</label>
-                      <input type="date" value={proj.start_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "start_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">End date</label>
-                      <input type="date" value={proj.end_date?.slice(0, 10) ?? ""} onChange={(e) => updateProject(i, "end_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">URL</label>
-                      <input type="text" value={proj.url} onChange={(e) => updateProject(i, "url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] font-semibold text-muted-foreground">Technologies</label>
-                      <input type="text" value={proj.technologies} onChange={(e) => updateProject(i, "technologies", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {projects.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No projects yet. Click &quot;Add project&quot; to get started.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Certifications */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◈</span>
-              <h2 className="text-base font-bold text-foreground">Certifications</h2>
-            </div>
-            {isEditing && (
-              <button onClick={addCertification} className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-                <Plus className="w-3 h-3" /> Add certification
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            {certifications.map((cert, i) => (
-              <div key={cert.id ?? `new-cert-${i}`} className="border border-border rounded-xl p-5 relative">
-                {isEditing && (
-                  <button onClick={() => removeCertification(i)} className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-                <h3 className="text-sm font-bold text-foreground mb-4">{cert.name || `Certification ${i + 1}`}</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Name *</label>
-                    <input type="text" value={cert.name} onChange={(e) => updateCertification(i, "name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Issuing organization</label>
-                    <input type="text" value={cert.issuing_organization} onChange={(e) => updateCertification(i, "issuing_organization", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Issue date</label>
-                    <input type="date" value={cert.issue_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "issue_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Expiration date</label>
-                    <input type="date" value={cert.expiration_date?.slice(0, 10) ?? ""} onChange={(e) => updateCertification(i, "expiration_date", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Credential ID</label>
-                    <input type="text" value={cert.credential_id} onChange={(e) => updateCertification(i, "credential_id", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-muted-foreground">Credential URL</label>
-                    <input type="text" value={cert.credential_url} onChange={(e) => updateCertification(i, "credential_url", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
-                  </div>
-                </div>
-              </div>
-            ))}
-            {certifications.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No certifications yet. Click &quot;Add certification&quot; to get started.</p>
-            )}
-          </div>
+        {/* Step Navigation */}
+        <div className="flex items-center justify-between pt-4 border-t border-border mt-6">
+          <button
+            onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+            disabled={currentStep === 0 || isLoading}
+            className="flex items-center gap-2 border border-border hover:bg-muted text-foreground px-5 py-2.5 rounded-xl text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Previous
+          </button>
+          <button
+            onClick={() => setCurrentStep((s) => Math.min(profileSteps.length - 1, s + 1))}
+            disabled={currentStep === profileSteps.length - 1 || isLoading}
+            className="flex items-center gap-2 bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-[#4BC957]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
 
         {/* Footer actions */}
