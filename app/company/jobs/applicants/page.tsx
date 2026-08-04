@@ -31,7 +31,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useGetCompanyJobApplicationsQuery,
+  useChangeApplicationStatusMutation,
   type CompanyJobApplication,
+  type ApplicationStatus,
+  APPLICATION_STATUSES,
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 
@@ -67,6 +70,17 @@ function JobApplicantsInner() {
   const { data, isLoading, isError, error, refetch } = useGetCompanyJobApplicationsQuery(jobId ?? "", {
     skip: !jobId,
   });
+
+  const [changeApplicationStatus, { isLoading: isStatusChanging }] = useChangeApplicationStatusMutation();
+
+  async function handleStatusChange(appId: string, newStatus: ApplicationStatus) {
+    try {
+      await changeApplicationStatus({ id: appId, status: newStatus }).unwrap();
+      refetch();
+    } catch {
+      // error handled via refetch failure or toast
+    }
+  }
 
   const applications: CompanyJobApplication[] = data?.data ?? [];
 
@@ -107,6 +121,7 @@ function JobApplicantsInner() {
       phone: app.phone,
       application_id: app.id,
       job: app.job,
+      applicationStatus: app.application_status,
     };
   });
 
@@ -395,7 +410,7 @@ function JobApplicantsInner() {
               key={candidate.id}
               onClick={(e) => {
                 e.stopPropagation();
-                router.push(`/company/candidates/profile?id=${candidate.id}`);
+                router.push(`/company/candidates/profile?id=${candidate.id}&application_id=${candidate.application_id}`);
               }}
               className="bg-[#0F172A] border border-[#1E293B]/60 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-[#2A3C58] transition-all duration-300 relative group cursor-pointer"
             >
@@ -478,6 +493,24 @@ function JobApplicantsInner() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
+                  <select
+                    value={candidate.applicationStatus || "SUBMITTED"}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      handleStatusChange(
+                        candidate.application_id,
+                        e.target.value as ApplicationStatus
+                      );
+                    }}
+                    className="bg-[#131926] border border-[#2A3C58]/60 focus:border-[#4BC957] text-slate-200 rounded-xl px-3 py-1.5 text-xs font-medium transition-colors"
+                    disabled={isStatusChanging}
+                  >
+                    {APPLICATION_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status.replace(/_/g, " ")}
+                      </option>
+                    ))}
+                  </select>
                   <button onClick={(e) => {
                     e.stopPropagation();
                     router.push(`/company/inbox?user_id=${candidate.id}`);

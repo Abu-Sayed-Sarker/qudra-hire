@@ -388,6 +388,28 @@ export interface CompanyJobApplication {
   candidate_email: string;
 }
 
+export const APPLICATION_STATUSES = [
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "SHORTLISTED",
+  "AI_INTERVIEW_INVITED",
+  "AI_INTERVIEW_PASSED",
+  "AI_INTERVIEW_FAILED",
+  "PHYSICAL_INTERVIEW_INVITED",
+  "HIRED",
+  "OFFER",
+  "REJECTED",
+  "WITHDRAWN",
+] as const;
+
+export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
+
+export interface ChangeApplicationStatusPayload {
+  id: string;
+  status: ApplicationStatus;
+  reason?: string;
+}
+
 export interface CompanyInterview {
   id: string;
   company: number;
@@ -1597,6 +1619,16 @@ export const authApi = createApi({
       providesTags: (_r, _e, jobId) => [{ type: "CompanyJobs", id: jobId }],
     }),
 
+    // POST /company/applications/{id}/status/
+    changeApplicationStatus: builder.mutation<ApiResponse<CompanyJobApplication>, ChangeApplicationStatusPayload>({
+      query: ({ id, ...body }) => ({
+        url: `company/applications/${id}/status/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_r, _e, { id }) => [{ type: "CompanyJobs", id }],
+    }),
+
     // ── Admin Job endpoints ────────────────────────────────────────────────────
 
     // GET /admin/jobs/
@@ -2257,6 +2289,7 @@ export const {
   useGenerateCompanyInterviewQuestionsMutation,
   useSendCompanyInterviewMutation,
   useGetCompanyJobApplicationsQuery,
+  useChangeApplicationStatusMutation,
   // Subscriptions
   useGetSubscriptionHistoryQuery,
   useGetSubscriptionPlansQuery,

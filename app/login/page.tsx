@@ -180,7 +180,7 @@ export default function LoginPage() {
             aria-label={isEmailLoading ? "Logging in" : "Log in"}
             className="w-full flex items-center justify-center gap-2 bg-[#23C65F] hover:bg-[#1a9e4a] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold px-6 py-3 rounded-xl transition-all mt-2"
           >
-            {isEmailLoading && <Loader2 size={16} className="animate-spin" />}
+            {/* {isEmailLoading && <Loader2 size={16} className="animate-spin" />} */}
             {isEmailLoading ? "Logging in…" : "Log in"}
           </button>
         </form>

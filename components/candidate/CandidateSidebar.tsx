@@ -69,12 +69,15 @@ export default function CandidateSidebar() {
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
 
   const handleCreateProfile = async () => {
-    if (!selectedFile) {
-      toast.error("Please select a CV file");
-      return;
-    }
+    // if (!selectedFile) {
+    //   toast.error("Please select a CV file");
+    //   return;
+    // }
     const formData = new FormData();
-    formData.append("cv", selectedFile);
+    if (selectedFile) {
+      formData.append("cv", selectedFile);
+    }
+
     try {
       const result = await createProfile(formData).unwrap();
       toast.success(result.details || "Profile created successfully");
@@ -261,7 +264,7 @@ export default function CandidateSidebar() {
             </Button>
             <Button
               onClick={handleCreateProfile}
-              disabled={!selectedFile || isCreating}
+              // disabled={!selectedFile || isCreating}
               className="bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white"
             >
               {isCreating ? (

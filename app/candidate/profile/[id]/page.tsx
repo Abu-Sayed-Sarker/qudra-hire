@@ -402,11 +402,11 @@ export default function CandidateProfilePage() {
               <>
                 {isDefault ? (
                   <span className="text-sm font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 px-4 py-2 rounded-lg flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5 fill-[#4BC957]" /> Default
+                    <Star className="h-3.5 w-3.5 fill-[#4BC957]" /> Published
                   </span>
                 ) : (
                   <button onClick={handleSetDefault} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
-                    <Star className="h-3.5 w-3.5" /> Set as default
+                    <Star className="h-3.5 w-3.5" /> Publish
                   </button>
                 )}
                 <button onClick={() => setIsChangePasswordOpen(true)} className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">

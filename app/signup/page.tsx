@@ -366,14 +366,14 @@ export default function SignupPage() {
                 placeholder="Re-enter password"
                 required
               />
-
+{/* 
               <FileDropZone
                 label="CV / Résumé"
                 hint="Upload CV (PDF / DOCX) — AI parses into a structured profile"
                 accept=".pdf,.doc,.docx"
                 file={cvFile}
                 onFile={setCvFile}
-              />
+              /> */}
 
               <button
                 type="submit"
@@ -438,13 +438,13 @@ export default function SignupPage() {
                 required
               />
 
-              <FileDropZone
+              {/* <FileDropZone
                 label="Trade licence"
                 hint="Upload trade licence (UAE / KSA / GCC) as PDF or DOCX"
                 accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
                 file={licenceFile}
                 onFile={setLicenceFile}
-              />
+              /> */}
 
               <button
                 type="submit"

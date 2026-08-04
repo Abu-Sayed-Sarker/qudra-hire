@@ -12,7 +12,7 @@ import { logout } from "@/store/authSlice";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/jobs", label: "Find jobs" },
+  // { href: "/jobs", label: "Find jobs" },
   { href: "/about", label: "About us" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact us" },
