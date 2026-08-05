@@ -9,6 +9,7 @@
   --font-heading: var(--font-playfair);
   --font-script-heading: var(--font-script);
   --font-serif: var(--font-playfair);
+  --font-display: var(--font-geist-sans);
   --color-brand-navy: #0B2545;
   --color-brand-orange: #FF5C35;
   --color-brand-cream: #FDFBF7;
@@ -710,6 +711,141 @@ iframe#\:2\.container {
 body {
     top: 0 !important;
 } */
+
+/* ── QudraHire Theme ── */
+.qh-theme {
+  --primary: #6366F1;
+  --secondary: #3B82F8;
+  --glow: #8B5CF6;
+  --highlight: #23C65F;
+  --ink: #F9FAFB;
+}
+
+@utility glass {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(28px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 10%),
+    0 24px 60px -30px oklch(0 0 0 / 80%);
+}
+
+@utility glass-strong {
+  background: var(--glass-strong);
+  border: 1px solid oklch(1 0 0 / 14%);
+  backdrop-filter: blur(36px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 14%),
+    var(--shadow-cine);
+}
+
+@utility aurora {
+  background-image: var(--gradient-aurora);
+}
+
+@utility text-gradient {
+  background-image: var(--gradient-text);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sheen 9s ease-in-out infinite;
+}
+
+@utility glow-ring {
+  box-shadow:
+    0 0 0 1px oklch(0.76 0.19 148 / 35%),
+    0 0 40px -8px oklch(0.76 0.19 148 / 55%);
+}
+
+@utility float-slow {
+  animation: floaty 9s ease-in-out infinite;
+}
+
+@utility float-fast {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s ease;
+  filter: blur(8px);
+  &[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@utility grid-lines {
+  background-image:
+    linear-gradient(oklch(1 0 0 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 4%) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent 85%);
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(0.4deg);
+  }
+}
+
+@keyframes sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+  50% {
+    transform: translate3d(-2%, -1.5%, 0) scale(1.16);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 
 /* div[style*="position: fixed"] {
     display: none !important;
