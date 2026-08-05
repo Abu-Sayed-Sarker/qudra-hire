@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { get403Message } from "@/lib/utils";
+import PageLoader from "@/components/ui/page-loader";
 
 export default function CandidateSubscriptionPage() {
   const { data: historyData, isLoading: historyLoading, isError: isHistoryError, error: historyError } = useGetSubscriptionHistoryQuery();
@@ -91,9 +92,7 @@ export default function CandidateSubscriptionPage() {
   if (isLoading) {
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
+        <PageLoader label="Loading subscription..." />
       </div>
     );
   }

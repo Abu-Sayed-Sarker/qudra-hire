@@ -49,12 +49,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground pb-16 md:pb-0">
+      <body className="min-h-full flex flex-col bg-black text-foreground pb-16 md:pb-0">
         <StoreProvider>
-          <ThemeProvider defaultTheme="dark" enableSystem storageKey="careersprint-theme">
+          <ThemeProvider defaultTheme="dark"  storageKey="careersprint-theme">
             {children}
             <Toaster />
-            {/* <MobileBottomNav /> */}
           </ThemeProvider>
         </StoreProvider>
       </body>
