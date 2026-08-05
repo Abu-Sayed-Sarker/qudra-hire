@@ -68,7 +68,7 @@ export default function CandidateDashboard() {
           <div className="h-10 w-full max-w-[18rem] bg-gradient-to-r from-muted to-muted/50 rounded-2xl animate-pulse" />
           <div className="h-5 w-full max-w-[24rem] bg-muted/50 rounded-xl animate-pulse" />
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonStatCard key={i} />
           ))}
