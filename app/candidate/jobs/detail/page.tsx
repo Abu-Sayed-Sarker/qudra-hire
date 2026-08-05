@@ -22,7 +22,6 @@ import { useAppDispatch } from "@/store/hooks";
 import { useGetCandidateJobDetailQuery, useApplyToJobMutation, useTailorCandidateCvMutation, authApi, TailoredCv } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
-import { AlertTriangle } from "lucide-react";
 
 function JobDetailContent() {
   const params = useSearchParams();

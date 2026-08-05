@@ -51,14 +51,14 @@ export default function CompanySettingsPage() {
   useEffect(() => {
     if (profileData?.data) {
       const p: CompanyProfile = profileData.data;
-      setCompanyName(p.company_name);
-      setIndustry(p.industry);
-      setPhone(p.phone);
-      setWorkEmail(p.work_email);
+      setCompanyName(p.company_name ?? "");
+      setIndustry(p.industry ?? "");
+      setPhone(p.phone ?? "");
+      setWorkEmail(p.work_email ?? "");
       setAddress(p.address || "");
       setAbout(p.about || "");
-      setFirstName(p.first_name);
-      setLastName(p.last_name);
+      setFirstName(p.first_name ?? "");
+      setLastName(p.last_name ?? "");
       setLicenceNumber(p.licence_number || "");
       setLogoPreview(p.logo);
     }

@@ -49,6 +49,7 @@ function CandidateProfileInner() {
   });
 
   const [changeApplicationStatus, { isLoading: isStatusChanging }] = useChangeApplicationStatusMutation();
+  const [currentStep, setCurrentStep] = useState(0);
 
   const candidate: CandidateDetail | undefined = data?.data;
 
@@ -132,7 +133,6 @@ function CandidateProfileInner() {
     { key: "education", label: "Education" },
     { key: "resume", label: "Resume" },
   ];
-  const [currentStep, setCurrentStep] = useState(0);
 
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">

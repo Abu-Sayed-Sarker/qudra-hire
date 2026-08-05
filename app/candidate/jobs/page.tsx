@@ -21,6 +21,8 @@ import {
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGetCandidateJobsQuery, type CandidateJobItem } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -112,11 +114,6 @@ export default function BrowseJobsPage() {
   const jobs = data?.data ?? [];
   const totalResults = data?.data?.length ?? 0;
 
-  const errorMessage =
-    isError && error && (error as any)?.status === 403
-      ? ((error as any).data as { detail?: string })?.detail || "You do not have permission to perform this action."
-      : null;
-
   const clearFilters = () => {
     setSearch("");
     setTitle("");
@@ -177,6 +174,29 @@ export default function BrowseJobsPage() {
     }
     return "Salary not disclosed";
   };
+
+  if (isError) {
+    const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
+    return (
+      <div className="p-6 md:p-10 space-y-8 max-w-full mx-auto">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <X className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Unable to load jobs</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            Something went wrong while fetching job listings.
+          </p>
+          <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-10 space-y-8 max-w-full mx-auto">
@@ -343,36 +363,6 @@ export default function BrowseJobsPage() {
                 {filter.label}
               </button>
             ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Error State */}
-      {isError && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative bg-card/80 backdrop-blur-sm border border-red-200 dark:border-red-800/50 rounded-3xl p-8 text-center overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent pointer-events-none" />
-          <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-              <X className="h-6 w-6 text-red-500" />
-            </div>
-            <p className="text-sm font-bold text-foreground mb-1">Unable to load jobs</p>
-            <p className="text-sm text-muted-foreground font-medium max-w-md mx-auto">
-              {errorMessage || "Something went wrong while fetching job listings."}
-            </p>
-            {!errorMessage && (
-              <Button
-                onClick={() => refetch()}
-                variant="outline"
-                size="sm"
-                className="mt-5 rounded-xl font-bold text-sm"
-              >
-                Try again
-              </Button>
-            )}
           </div>
         </motion.div>
       )}

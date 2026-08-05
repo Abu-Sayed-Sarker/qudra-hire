@@ -35,6 +35,8 @@ import {
   useDeleteCompanyJobMutation,
   type CompanyJob,
 } from "@/store/authApi";
+import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 import { motion, type Variants } from "framer-motion";
 
 const fadeInUp: Variants = {
@@ -64,10 +66,28 @@ export default function JobsPage() {
 
   const jobs: CompanyJob[] = data?.data ?? [];
 
-  const errorMessage =
-    isError && error && (error as any)?.status === 403
-      ? ((error as any).data as { detail?: string })?.detail || "You do not have permission to perform this action."
-      : null;
+  if (isError) {
+    const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
+    return (
+      <div className="p-6 md:p-10 space-y-8 max-w-full mx-auto">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+            <X className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground mb-2">Unable to load jobs</h2>
+          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+            Something went wrong while fetching your job listings.
+          </p>
+          <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Are you sure you want to delete "${title}"?`)) {
@@ -117,34 +137,6 @@ export default function JobsPage() {
           <ArrowUpRight className="h-4 w-4 opacity-60" />
         </Link>
       </motion.div>
-
-      {/* Error State */}
-      {isError && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative bg-card/80 backdrop-blur-sm border border-red-200 dark:border-red-800/50 rounded-3xl p-8 text-center overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent pointer-events-none" />
-          <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-              <X className="h-6 w-6 text-red-500" />
-            </div>
-            <p className="text-sm font-bold text-foreground mb-1">Unable to load jobs</p>
-            <p className="text-sm text-muted-foreground font-medium max-w-md mx-auto">
-              {errorMessage || "Something went wrong while fetching your job listings."}
-            </p>
-            {!errorMessage && (
-              <button
-                onClick={() => refetch()}
-                className="mt-5 inline-flex items-center gap-2 bg-foreground hover:bg-foreground/90 text-background font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-foreground/10 active:scale-[0.98] text-sm"
-              >
-                Try again
-              </button>
-            )}
-          </div>
-        </motion.div>
-      )}
 
       {/* Jobs Container */}
       {!isError && (

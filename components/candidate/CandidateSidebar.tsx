@@ -41,6 +41,7 @@ import { useState, useRef } from "react";
 import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { label: "Dashboard", href: "/candidate", icon: Briefcase },
@@ -55,6 +56,7 @@ export default function CandidateSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const isMobile = useIsMobile();
   const user = useAppSelector((s) => s.auth.user);
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
@@ -163,9 +165,9 @@ export default function CandidateSidebar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-56 bg-card border border-border p-2 shadow-xl"
-              side="right"
+              side={isMobile ? "bottom" : "right"}
               align="start"
-              sideOffset={16}
+              sideOffset={isMobile ? 4 : 16}
             >
               {profilesLoading ? (
                 <div className="flex items-center justify-center py-4">

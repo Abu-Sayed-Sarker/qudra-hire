@@ -47,7 +47,6 @@ import {
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
-import { AlertTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import type {
   CandidateProfile,
@@ -404,6 +403,10 @@ export default function CandidateProfilePage() {
       await toggleAutoApply({ is_enabled: enabled }).unwrap();
     } catch (err: any) {
       setAutoApplyEnabled(prev);
+      if (err?.status === 402) {
+        setIsSubscribeOpen(true);
+        return;
+      }
       toast.error(err?.data?.details ?? "Failed to toggle auto-apply");
     }
   }

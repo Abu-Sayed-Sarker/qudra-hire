@@ -13,7 +13,6 @@ import { ErrorState } from "@/components/ui/error-state";
 import { motion } from "framer-motion";
 import { get403Message } from "@/lib/utils";
 import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
-import { AlertTriangle } from "lucide-react";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
