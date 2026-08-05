@@ -454,7 +454,7 @@ export function GCC() {
 /* ============ Testimonials ============ */
 const quotes = [
   {
-    q: "QudraHire cut our time-to-hire from 61 days to 19. The match scoring is uncannily accurate.",
+    q: "Career-Sprint cut our time-to-hire from 61 days to 19. The match scoring is uncannily accurate.",
     n: "Noura Al-Faisal",
     r: "Group CHRO, Riyadh",
   },
@@ -554,15 +554,14 @@ export function Pricing() {
         {plans.map((p, i) => (
           <Reveal key={p.name} delay={i * 110}>
             <div
-              className={`relative h-full rounded-3xl p-8 transition-transform duration-500 ${
-                p.featured ? "glass-strong lg:scale-[1.07] float-slow" : "glass hover:-translate-y-1.5"
-              }`}
+              className={`relative h-full rounded-3xl p-8 transition-transform duration-500 ${p.featured ? "glass-strong lg:scale-[1.07] float-slow" : "glass hover:-translate-y-1.5"
+                }`}
               style={
                 p.featured
                   ? {
-                      boxShadow:
-                        "0 0 0 1px color-mix(in oklab, var(--glow) 45%, transparent), 0 60px 140px -50px color-mix(in oklab, var(--primary) 65%, transparent)",
-                    }
+                    boxShadow:
+                      "0 0 0 1px color-mix(in oklab, var(--glow) 45%, transparent), 0 60px 140px -50px color-mix(in oklab, var(--primary) 65%, transparent)",
+                  }
                   : undefined
               }
             >
@@ -606,7 +605,7 @@ export function Pricing() {
 const faqs = [
   {
     q: "How accurate is AI candidate matching?",
-    a: "QudraHire scores candidates against role signals, historic outcomes and skill graphs, reaching 96% precision on enterprise requisitions after the first hiring cycle.",
+    a: "Career-Sprint scores candidates against role signals, historic outcomes and skill graphs, reaching 96% precision on enterprise requisitions after the first hiring cycle.",
   },
   {
     q: "Does the platform support Arabic and RTL?",
@@ -638,9 +637,8 @@ export function FAQ() {
           return (
             <Reveal key={f.q} delay={i * 70}>
               <div
-                className={`glass overflow-hidden rounded-3xl transition-all duration-500 ${
-                  isOpen ? "glow-ring" : ""
-                }`}
+                className={`glass overflow-hidden rounded-3xl transition-all duration-500 ${isOpen ? "glow-ring" : ""
+                  }`}
               >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
@@ -717,7 +715,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2fr_1.2fr]">
           <div>
             <span className="font-display text-xl font-semibold text-ink">
-              Qudra<span className="text-primary">Hire</span>
+              Career<span className="text-primary">Sprint</span>
             </span>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               The AI recruitment ecosystem connecting employers with exceptional talent across the
@@ -787,7 +785,7 @@ export function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} QudraHire. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Career-Sprint. All rights reserved.</p>
           <p>Riyadh · Dubai · Doha · Abu Dhabi</p>
         </div>
       </div>

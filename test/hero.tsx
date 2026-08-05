@@ -44,7 +44,7 @@ function Nav() {
             <BrainCircuit className="h-5 w-5" />
           </span>
           <span className="font-display text-lg font-semibold tracking-tight text-ink">
-            Qudra<span className="text-primary">Hire</span>
+            Career<span className="text-primary">Sprint</span>
           </span>
         </a>
         <ul className="hidden items-center gap-8 lg:flex">

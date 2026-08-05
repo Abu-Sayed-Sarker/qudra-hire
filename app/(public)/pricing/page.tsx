@@ -96,16 +96,15 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
     plan.monthlyPrice === 0
       ? null
       : yearly
-      ? plan.yearlyPrice
-      : plan.monthlyPrice;
+        ? plan.yearlyPrice
+        : plan.monthlyPrice;
 
   return (
     <div
-      className={`relative flex flex-col h-full rounded-2xl transition-all duration-300 ${
-        plan.popular
+      className={`relative flex flex-col h-full rounded-2xl transition-all duration-300 ${plan.popular
           ? "bg-green-50 dark:bg-[#0D1117] border-2 border-[#4BC957]/60 shadow-2xl shadow-[#4BC957]/10"
           : "bg-white dark:bg-[#0F172A]/60 border border-slate-200 dark:border-white/8 hover:border-slate-300 dark:hover:border-white/14 shadow-sm"
-      }`}
+        }`}
     >
       {plan.popular && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
@@ -124,9 +123,8 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
             <Zap className="w-4 h-4 text-slate-400 dark:text-slate-500" />
           )}
           <span
-            className={`text-xs font-bold tracking-widest uppercase ${
-              plan.popular ? "text-[#4BC957]" : "text-slate-400 dark:text-slate-500"
-            }`}
+            className={`text-xs font-bold tracking-widest uppercase ${plan.popular ? "text-[#4BC957]" : "text-slate-400 dark:text-slate-500"
+              }`}
           >
             {plan.tier}
           </span>
@@ -136,9 +134,8 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
         <h3 className="text-4xl font-extrabold mb-1 tracking-tight text-slate-900 dark:text-white">
           {plan.name}
         </h3>
-        <p className={`text-sm mb-5 leading-snug ${
-          plan.popular ? "text-slate-600 dark:text-slate-400" : "text-slate-500 dark:text-slate-400"
-        }`}>
+        <p className={`text-sm mb-5 leading-snug ${plan.popular ? "text-slate-600 dark:text-slate-400" : "text-slate-500 dark:text-slate-400"
+          }`}>
           {plan.tagline}
         </p>
 
@@ -161,11 +158,10 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
         <Link
           href={plan.ctaHref}
           id={plan.id}
-          className={`w-full h-12 rounded-xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center mb-6 ${
-            plan.popular
+          className={`w-full h-12 rounded-xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center mb-6 ${plan.popular
               ? "bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/25"
               : "bg-slate-100 hover:bg-slate-200 dark:bg-white/8 dark:hover:bg-white/12 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10"
-          }`}
+            }`}
         >
           {plan.cta}
         </Link>
@@ -228,7 +224,7 @@ export default function PricingPage() {
             className="mt-5 text-[16px] sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto
             animate-[fadeInUp_0.7s_0.2s_ease_forwards] opacity-0"
           >
-            Start free. Upgrade to Premium when you want QudraHire&apos;s AI to apply, tailor and
+            Start free. Upgrade to Premium when you want Career-Sprint&apos;s AI to apply, tailor and
             optimize for you.
           </p>
 
@@ -239,21 +235,19 @@ export default function PricingPage() {
           >
             <button
               onClick={() => setYearly(false)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                !yearly
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${!yearly
                   ? "bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setYearly(true)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                yearly
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${yearly
                   ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
+                }`}
             >
               Yearly.
             </button>
