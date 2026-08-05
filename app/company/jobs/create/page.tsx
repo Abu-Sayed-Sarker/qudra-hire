@@ -43,6 +43,7 @@ const EMPTY_PAYLOAD: CompanyJobPayload = {
   emiratization: false,
   saudization: false,
   open_to_remote: false,
+  custome: "",
   additional_questions: [],
 };
 
@@ -360,8 +361,20 @@ export default function PostJobPage() {
                 />
               </div>
 
+              {/* Custom Name */}
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Custom name</label>
+                <textarea
+                  rows={3}
+                  value={form.custome}
+                  onChange={(e) => updateField("custome", e.target.value)}
+                  placeholder="Enter custom name..."
+                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
+                />
+              </div>
+
               {/* GCC Flags Switches Group */}
-              <div className="border border-border rounded-xl p-5 space-y-4">
+              {/* <div className="border border-border rounded-xl p-5 space-y-4">
                 <h3 className="font-bold text-muted-foreground uppercase tracking-wider mb-2">GCC flags</h3>
 
                 <div className="flex items-center justify-between">
@@ -399,7 +412,7 @@ export default function PostJobPage() {
                     className="data-checked:bg-[#4BC957]!"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Action buttons */}
               <div className="flex justify-start gap-3 border-t border-border pt-6">

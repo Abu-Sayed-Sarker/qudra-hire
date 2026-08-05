@@ -64,6 +64,7 @@ function EditJobInner() {
     emiratization: false,
     saudization: false,
     open_to_remote: false,
+    custome: "",
     additional_questions: [],
   });
   const [skillsText, setSkillsText] = useState("");
@@ -102,6 +103,7 @@ function EditJobInner() {
         emiratization: job.emiratization,
         saudization: job.saudization,
         open_to_remote: job.open_to_remote,
+        custome: job.custome,
         additional_questions: job.additional_questions,
       };
       setForm(payload);
@@ -126,7 +128,7 @@ function EditJobInner() {
       "title", "description", "requirements", "skills", "preferred_skills",
       "benefits", "location", "employment_type", "currency", "salary_min",
       "salary_max", "salary_period", "visa_sponsorship", "emiratization",
-      "saudization", "open_to_remote",
+      "saudization", "open_to_remote", "custome",
     ];
     for (const key of fields) {
       if (JSON.stringify(current[key]) !== JSON.stringify(original[key])) {
@@ -374,6 +376,18 @@ function EditJobInner() {
                   value={form.requirements}
                   onChange={(e) => updateField("requirements", e.target.value)}
                   placeholder={"Requirement 1\nRequirement 2\nRequirement 3"}
+                  className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
+                />
+              </div>
+
+              {/* Custom Name */}
+              <div className="space-y-2">
+                <label className="font-bold text-muted-foreground uppercase tracking-wider">Custom name</label>
+                <textarea
+                  rows={3}
+                  value={form.custome}
+                  onChange={(e) => updateField("custome", e.target.value)}
+                  placeholder="Enter custom name..."
                   className="w-full bg-background border border-border focus:border-[#4BC957] text-foreground placeholder:text-muted-foreground rounded-xl p-4 text-sm focus:outline-none transition-colors resize-none"
                 />
               </div>

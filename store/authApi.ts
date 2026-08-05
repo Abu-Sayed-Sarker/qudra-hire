@@ -289,6 +289,7 @@ export interface CompanyJob {
   emiratization: boolean;
   saudization: boolean;
   open_to_remote: boolean;
+  custome: string;
   job_status: string;
   rejection_reason: string | null;
   ai_matches_count: number;
@@ -316,6 +317,7 @@ export interface CompanyJobPayload {
   emiratization: boolean;
   saudization: boolean;
   open_to_remote: boolean;
+  custome: string;
   additional_questions: any[];
 }
 
