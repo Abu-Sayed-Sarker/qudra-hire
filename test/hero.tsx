@@ -123,7 +123,7 @@ function DashboardCluster() {
         ))}
       </svg>
 
-      <FloatingCard className="left-0 top-4 w-[62%]" style={{ animationDelay: "-1s" }}>
+      <FloatingCard className="left-0 top-0 w-[60%]" style={{ animationDelay: "-1s" }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Target className="h-4 w-4 text-primary" /> AI Match Score
@@ -146,7 +146,7 @@ function DashboardCluster() {
       </FloatingCard>
 
       <FloatingCard
-        className="right-0 top-0 w-[42%]"
+        className="right-0 top-4 w-[38%]"
         style={{ animationDelay: "-3s", animationDuration: "10s" }}
       >
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -166,7 +166,7 @@ function DashboardCluster() {
       </FloatingCard>
 
       <FloatingCard
-        className="left-6 bottom-16 w-[54%]"
+        className="left-0 bottom-0 w-[52%]"
         style={{ animationDelay: "-5s", animationDuration: "11s" }}
       >
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -196,7 +196,7 @@ function DashboardCluster() {
       </FloatingCard>
 
       <FloatingCard
-        className="bottom-0 right-2 w-[46%]"
+        className="bottom-0 right-0 w-[44%]"
         style={{ animationDelay: "-2s", animationDuration: "9s" }}
       >
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -218,7 +218,7 @@ function DashboardCluster() {
       </FloatingCard>
 
       <FloatingCard
-        className="left-[2%] top-[42%] w-[32%]"
+        className="left-[31%] top-[44%] w-[38%]"
         style={{ animationDelay: "-6s", animationDuration: "7s" }}
       >
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
