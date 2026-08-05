@@ -152,7 +152,7 @@ export default function CompanySettingsPage() {
   if (isLoadingProfile) {
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-auto px-6 py-8 space-y-8">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 space-y-8">
           <div className="space-y-3">
             <div className="h-8 w-48 bg-muted rounded-xl animate-pulse" />
             <div className="h-4 w-64 bg-muted rounded-xl animate-pulse" />
@@ -169,7 +169,7 @@ export default function CompanySettingsPage() {
     const msg = get403Message(profileError);
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-auto px-6 py-8 flex flex-col items-center justify-center py-20 text-center">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex flex-col items-center justify-center py-20 text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
@@ -189,7 +189,7 @@ export default function CompanySettingsPage() {
 
   return (
     <div className="min-h-full bg-background text-foreground">
-      <div className="max-w-full mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 space-y-8">
 
         {/* Header */}
         <div>
@@ -202,7 +202,7 @@ export default function CompanySettingsPage() {
           <div className="bg-card border border-border rounded-2xl p-6 space-y-6 shadow-sm">
 
             {/* Logo Upload */}
-            <div className="flex items-center gap-5">
+            <div className="flex flex-wrap items-center gap-5">
               <div className="w-16 h-16 rounded-xl bg-muted border border-border flex items-center justify-center text-lg font-extrabold text-foreground shrink-0 overflow-hidden">
                 {logoPreview ? (
                   <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
@@ -325,16 +325,16 @@ export default function CompanySettingsPage() {
             </span> */}
           </div>
 
-          <div className="bg-background border border-border rounded-xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="bg-background border border-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
               <div className="w-10 h-10 bg-[#4BC957]/10 rounded-lg flex items-center justify-center shrink-0">
                 <FileText className="w-5 h-5 text-[#4BC957]" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
                   {profileData?.data?.trade_licence ? profileData.data.trade_licence.split("/").pop() : "No trade licence uploaded"}
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
                   {profileData?.data?.licence_number || "No licence number"}
                 </p>
               </div>
