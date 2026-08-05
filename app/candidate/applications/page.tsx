@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { motion } from "framer-motion";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 import { AlertTriangle } from "lucide-react";
 
 function formatDate(iso: string) {
@@ -95,13 +96,7 @@ export default function CandidateApplicationsPage() {
       {isError && (() => {
         const msg = get403Message(error);
         return msg ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-              <AlertTriangle className="h-8 w-8 text-red-500" />
-            </div>
-            <h3 className="text-lg font-bold text-foreground mb-1">Access Denied</h3>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm">{msg}</p>
-          </div>
+          <SubscriptionRequiredCard message={msg} />
         ) : (
           <ErrorState
             title="Failed to load applications"

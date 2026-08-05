@@ -46,6 +46,7 @@ import {
   useCreateStripeCheckoutSessionMutation,
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 import { AlertTriangle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import type {
@@ -418,23 +419,18 @@ export default function CandidateProfilePage() {
 
   if (error || !profile) {
     const msg = get403Message(error);
+    if (msg) {
+      return (
+        <div className="min-h-full flex flex-col items-center justify-center px-4">
+          <SubscriptionRequiredCard message={msg} />
+        </div>
+      );
+    }
     return (
       <div className="min-h-full flex flex-col items-center justify-center gap-4 text-center px-4">
-        {msg ? (
-          <>
-            <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-              <AlertTriangle className="h-8 w-8 text-red-500" />
-            </div>
-            <p className="text-lg font-semibold text-foreground">Access Denied</p>
-            <p className="text-sm text-muted-foreground max-w-sm">{msg}</p>
-          </>
-        ) : (
-          <>
-            <AlertCircle className="h-12 w-12 text-destructive" />
-            <p className="text-lg font-semibold text-foreground">Failed to load profile</p>
-            <p className="text-sm text-muted-foreground">The profile could not be found or you don&apos;t have access.</p>
-          </>
-        )}
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <p className="text-lg font-semibold text-foreground">Failed to load profile</p>
+        <p className="text-sm text-muted-foreground">The profile could not be found or you don&apos;t have access.</p>
         <button onClick={() => router.push("/candidate")} className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors">
           Back to Dashboard
         </button>

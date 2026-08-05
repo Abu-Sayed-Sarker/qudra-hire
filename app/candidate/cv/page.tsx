@@ -20,6 +20,7 @@ import {
   useGetAutoSuggestStatusQuery,
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 function formatDate(iso: string) {
   if (!iso) return "";
@@ -186,21 +187,22 @@ export default function CandidateCVPage() {
 
   if (isError) {
     const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
     return (
       <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto text-slate-900 dark:text-white">
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load CV"}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-2">Failed to load CV</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-            {msg || "Something went wrong while fetching your CV data."}
+            Something went wrong while fetching your CV data.
           </p>
-          {!msg && (
-            <button onClick={() => refetchCv()} className="text-sm font-semibold text-[#4BC957] hover:underline">
-              Retry
-            </button>
-          )}
+          <button onClick={() => refetchCv()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+            Retry
+          </button>
         </div>
       </div>
     );

@@ -33,6 +33,7 @@ import {
 import { ErrorState } from "@/components/ui/error-state";
 import { motion, type Variants } from "framer-motion";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -93,21 +94,22 @@ export default function CandidateDashboard() {
 
   if (isError || !d) {
     const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
     return (
       <div className="p-6 md:p-10 max-w-full mx-auto">
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load dashboard"}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-2">Failed to load dashboard</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-            {msg || "Something went wrong while loading your dashboard. Please try again."}
+            Something went wrong while loading your dashboard. Please try again.
           </p>
-          {!msg && (
-            <button onClick={() => refetch()} className="text-sm font-semibold text-[#23C65F] hover:underline">
-              Retry
-            </button>
-          )}
+          <button onClick={() => refetch()} className="text-sm font-semibold text-[#23C65F] hover:underline">
+            Retry
+          </button>
         </div>
       </div>
     );

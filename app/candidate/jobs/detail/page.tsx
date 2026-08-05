@@ -21,6 +21,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { useGetCandidateJobDetailQuery, useApplyToJobMutation, useTailorCandidateCvMutation, authApi, TailoredCv } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 import { AlertTriangle } from "lucide-react";
 
 function JobDetailContent() {
@@ -195,22 +196,13 @@ function JobDetailContent() {
 
   if (isError || !job) {
     const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
     return (
       <div className="py-20 text-center">
-        {msg ? (
-          <>
-            <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="h-8 w-8 text-red-500" />
-            </div>
-            <h2 className="text-xl font-bold text-foreground mb-2">Access Denied</h2>
-            <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">{msg}</p>
-          </>
-        ) : (
-          <>
-            <p className="text-red-400">Failed to load job details.</p>
-            <Link href="/candidate" className="mt-4 text-sm text-[#23C65F] hover:underline inline-block">Go Back</Link>
-          </>
-        )}
+        <p className="text-red-400">Failed to load job details.</p>
+        <Link href="/candidate" className="mt-4 text-sm text-[#23C65F] hover:underline inline-block">Go Back</Link>
       </div>
     );
   }

@@ -37,6 +37,7 @@ import {
   APPLICATION_STATUSES,
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 function getInitials(name: string) {
   return name
@@ -200,21 +201,22 @@ function JobApplicantsInner() {
 
   if (isError) {
     const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
     return (
       <div className="p-4 md:p-8 space-y-6 max-w-full mx-auto">
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load applicants"}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-2">Failed to load applicants</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-            {msg || "Something went wrong while fetching applicants."}
+            Something went wrong while fetching applicants.
           </p>
-          {!msg && (
-            <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
-              Retry
-            </button>
-          )}
+          <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+            Retry
+          </button>
         </div>
       </div>
     );

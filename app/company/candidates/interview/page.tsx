@@ -29,6 +29,7 @@ import {
 } from "@/store/authApi";
 import type { CompanyJob, CompanyInterviewPayload } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 
 function SetAIInterviewInner() {
@@ -361,20 +362,22 @@ function SetAIInterviewInner() {
                   ))}
                 </div>
               ) : isInterviewError ? (
-                <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
-                    <AlertTriangle className="h-6 w-6 text-red-500" />
-                  </div>
-                  <p className="text-sm font-bold text-foreground mb-1">{get403Message(interviewError) ? "Access Denied" : "Failed to load interview details"}</p>
-                  <p className="text-xs text-muted-foreground mb-3 max-w-sm">
-                    {get403Message(interviewError) || "Something went wrong while fetching the interview details."}
-                  </p>
-                  {!get403Message(interviewError) && (
+                get403Message(interviewError) ? (
+                  <SubscriptionRequiredCard message={get403Message(interviewError)!} />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
+                      <AlertTriangle className="h-6 w-6 text-red-500" />
+                    </div>
+                    <p className="text-sm font-bold text-foreground mb-1">Failed to load interview details</p>
+                    <p className="text-xs text-muted-foreground mb-3 max-w-sm">
+                      Something went wrong while fetching the interview details.
+                    </p>
                     <button onClick={() => window.location.reload()} className="text-xs font-semibold text-[#4BC957] hover:underline">
                       Retry
                     </button>
-                  )}
-                </div>
+                  </div>
+                )
               ) : (
                 <>
                   {/* AI Generate Questions Button */}

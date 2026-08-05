@@ -19,6 +19,7 @@ import { useChangePasswordMutation, useGetCompanyProfileQuery, useUpdateCompanyP
 import type { CompanyProfile } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 import PageLoader from "@/components/ui/page-loader";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 export default function CompanySettingsPage() {
   const { data: profileData, isLoading: isLoadingProfile, isError: isProfileError, error: profileError, refetch } = useGetCompanyProfileQuery();
@@ -160,21 +161,26 @@ export default function CompanySettingsPage() {
 
   if (isProfileError) {
     const msg = get403Message(profileError);
+    if (msg) {
+      return (
+        <div className="min-h-full bg-background text-foreground">
+          <SubscriptionRequiredCard message={msg} />
+        </div>
+      );
+    }
     return (
       <div className="min-h-full bg-background text-foreground">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex flex-col items-center justify-center py-20 text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Failed to load settings"}</h2>
+          <h2 className="text-xl font-bold text-foreground mb-2">Failed to load settings</h2>
           <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-            {msg || "Something went wrong while fetching your profile."}
+            Something went wrong while fetching your profile.
           </p>
-          {!msg && (
-            <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
-              Retry
-            </button>
-          )}
+          <button onClick={() => refetch()} className="text-sm font-semibold text-[#4BC957] hover:underline">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -306,7 +312,7 @@ export default function CompanySettingsPage() {
 
 
         {/* Trade Licence */}
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+        <div className="bg-card border border-border rounded-2xl p-6 my-4 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-[#4BC957]" />

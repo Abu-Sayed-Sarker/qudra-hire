@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useGetCompanyInterviewDetailQuery } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   COMPLETED: { label: "Completed", color: "text-[#4BC957]", bg: "bg-[#4BC957]/10 border-[#4BC957]/20" },
@@ -52,14 +53,17 @@ export default function CompanyInterviewDetailPage() {
 
   if (isError || !interview) {
     const msg = get403Message(error);
+    if (msg) {
+      return <SubscriptionRequiredCard message={msg} />;
+    }
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
           <AlertTriangle className="h-8 w-8 text-red-500" />
         </div>
-        <h2 className="text-xl font-bold text-foreground mb-2">{msg ? "Access Denied" : "Interview not found"}</h2>
+        <h2 className="text-xl font-bold text-foreground mb-2">Interview not found</h2>
         <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-          {msg || "Something went wrong while fetching the interview."}
+          Something went wrong while fetching the interview.
         </p>
       </div>
     );

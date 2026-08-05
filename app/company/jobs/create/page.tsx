@@ -25,6 +25,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { motion } from "framer-motion";
 import { get403Message } from "@/lib/utils";
+import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
 
 const EMPTY_PAYLOAD: CompanyJobPayload = {
   title: "",
@@ -161,14 +162,16 @@ export default function PostJobPage() {
 
       {isQuotaError && (() => {
         const msg = get403Message(quotaError);
-        return (
+        return msg ? (
+          <SubscriptionRequiredCard message={msg} />
+        ) : (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex flex-col items-center text-center">
             <div className="h-12 w-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3">
               <AlertTriangle className="h-6 w-6 text-red-500" />
             </div>
-            <h3 className="text-sm font-bold text-foreground mb-1">{msg ? "Access Denied" : "Failed to load quota"}</h3>
+            <h3 className="text-sm font-bold text-foreground mb-1">Failed to load quota</h3>
             <p className="text-xs text-muted-foreground max-w-sm">
-              {msg || "Something went wrong while fetching your job quota."}
+              Something went wrong while fetching your job quota.
             </p>
           </div>
         );
