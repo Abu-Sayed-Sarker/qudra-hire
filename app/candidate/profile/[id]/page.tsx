@@ -23,6 +23,7 @@ import {
   Sparkles,
   ArrowLeft,
   ArrowRight,
+  CreditCard,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -41,6 +42,8 @@ import {
   useSetDefaultCandidateProfileMutation,
   useChangePasswordMutation,
   useToggleCandidateAutoApplyMutation,
+  useGetSubscriptionPlansQuery,
+  useCreateStripeCheckoutSessionMutation,
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
@@ -65,8 +68,12 @@ export default function CandidateProfilePage() {
   const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [toggleAutoApply, { isLoading: isTogglingAutoApply }] = useToggleCandidateAutoApplyMutation();
+  const { data: plansRes } = useGetSubscriptionPlansQuery();
+  const [createCheckoutSession, { isLoading: isSubscribing }] = useCreateStripeCheckoutSessionMutation();
 
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [passwordForm, setPasswordForm] = useState({
     password: "",
     new_password: "",
@@ -174,6 +181,50 @@ export default function CandidateProfilePage() {
     setImageFile(null);
 
   }, [profile]);
+
+  const candidatePlans = (plansRes?.data ?? []).filter(
+    (p) => p.category === "CANDIDATE"
+  );
+  const paidPlan =
+    candidatePlans.find(
+      (p) =>
+        Number(p.price) > 0 &&
+        (p.plan_type === "Premium" ||
+          p.plan_type === "Pro" ||
+          p.name?.toLowerCase() === "pro" ||
+          p.name?.toLowerCase() === "premium")
+    ) ?? candidatePlans.find((p) => Number(p.price) > 0);
+  const freePlan =
+    candidatePlans.find(
+      (p) =>
+        p.plan_type === "Free" ||
+        p.name?.toLowerCase() === "free" ||
+        Number(p.price) === 0
+    ) ?? candidatePlans.find((p) => Number(p.price) === 0);
+
+  const effectivePlanId =
+    selectedPlanId ??
+    paidPlan?.id ??
+    freePlan?.id ??
+    candidatePlans[0]?.id ??
+    null;
+
+  async function handleSubscribe() {
+    const planId = effectivePlanId;
+    if (!planId) {
+      toast.error("No subscription plan available");
+      return;
+    }
+    try {
+      const result = await createCheckoutSession({
+        plan_id: planId,
+        profile_id: id,
+      }).unwrap();
+      window.location.href = result.data.checkout_url;
+    } catch (err: any) {
+      toast.error(err?.data?.details ?? "Failed to start subscription");
+    }
+  }
 
   // ── Generic field updater ──
   function setField(key: string, value: string) {
@@ -331,6 +382,10 @@ export default function CandidateProfilePage() {
 
   // ── Set as default ──
   async function handleSetDefault() {
+    if (profile && profile.can_set_default === false) {
+      setIsSubscribeOpen(true);
+      return;
+    }
     try {
       await setDefaultProfile(id).unwrap();
       setIsDefault(true);
@@ -644,7 +699,7 @@ export default function CandidateProfilePage() {
             <>
               {/* CV / Resume */}
               {profile.cv && (
-                <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <div className="bg-card border border-border rounded-xl p-6 shadow-sm overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-[#4BC957]" />
@@ -1068,6 +1123,96 @@ export default function CandidateProfilePage() {
                 </button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Subscription Required Popup */}
+        <Dialog open={isSubscribeOpen} onOpenChange={setIsSubscribeOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-[#4BC957]" />
+                Subscription Required
+              </DialogTitle>
+              <DialogDescription>
+                To publish this profile and make it your default, you need an active subscription. Choose a plan below to continue.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                {candidatePlans.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Loading available plans...
+                  </p>
+                ) : (
+                  candidatePlans.map((plan) => {
+                    const active = effectivePlanId === plan.id;
+                    return (
+                      <label
+                        key={plan.id}
+                        className={`flex items-center gap-3 border rounded-xl px-4 py-3 cursor-pointer transition-all ${
+                          active
+                            ? "border-[#4BC957] bg-[#4BC957]/5"
+                            : "border-border hover:border-muted-foreground/30"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="subscribe-plan"
+                          value={plan.id}
+                          checked={active}
+                          onChange={() => setSelectedPlanId(plan.id)}
+                          className="accent-[#4BC957]"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">
+                            {plan.name}
+                            {Number(plan.price) > 0 && (
+                              <span className="ml-2 text-[10px] font-bold text-[#4BC957] bg-[#4BC957]/10 border border-[#4BC957]/20 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                                Recommended
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {plan.description || plan.renewal || "Candidate subscription"}
+                          </p>
+                        </div>
+                        <p className="text-lg font-extrabold text-foreground whitespace-nowrap">
+                          {plan.currency || "AED"} {Number(plan.price)}
+                          {plan.renewal && <span className="text-[10px] font-semibold text-muted-foreground"> {plan.renewal}</span>}
+                        </p>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                You are subscribing for profile{" "}
+                <span className="font-semibold text-foreground">{form.role_title || `Profile ${id}`}</span>.
+                Once subscribed, you can publish it to start receiving AI-matched applications.
+              </p>
+            </div>
+
+            <DialogFooter>
+              <button
+                onClick={() => setIsSubscribeOpen(false)}
+                disabled={isSubscribing}
+                className="text-sm font-semibold border border-border bg-card hover:bg-muted text-foreground px-4 py-2 rounded-lg transition-colors"
+              >
+                Not now
+              </button>
+              <button
+                onClick={handleSubscribe}
+                disabled={isSubscribing || candidatePlans.length === 0}
+                className="text-sm font-semibold bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSubscribing && <Loader2 className="h-4 w-4 animate-spin" />}
+                <CreditCard className="h-4 w-4" />
+                Subscribe & Pay
+              </button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

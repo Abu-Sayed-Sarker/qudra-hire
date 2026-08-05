@@ -91,7 +91,7 @@ export default function CandidateSubscriptionPage() {
   if (isLoading) {
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-2 sm:mx-auto px-12 py-8 flex items-center justify-center py-20">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex items-center justify-center py-20">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function CandidateSubscriptionPage() {
     const msg = get403Message(err);
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-2 sm:mx-auto px-12 py-8 flex flex-col items-center justify-center py-20 text-center">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex flex-col items-center justify-center py-20 text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
@@ -118,7 +118,7 @@ export default function CandidateSubscriptionPage() {
 
   return (
     <div className="min-h-full bg-background text-foreground">
-      <div className="max-w-full mx-2 sm:mx-auto px-12 py-8 space-y-8">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 space-y-8">
 
         {/* Header */}
         <div>
@@ -128,24 +128,24 @@ export default function CandidateSubscriptionPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-[#4BC957]" />
+              <ShieldCheck className="w-4 h-4 text-[#4BC957] shrink-0" />
               <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Active Subscriptions</span>
             </div>
             <p className="text-4xl font-extrabold text-foreground">{activeSub ? 1 : 0}</p>
           </div>
           <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-[#4BC957]" />
+              <ShieldCheck className="w-4 h-4 text-[#4BC957] shrink-0" />
               <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Total Subscriptions</span>
             </div>
             <p className="text-4xl font-extrabold text-foreground">{history.length}</p>
           </div>
           <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Lock className="w-4 h-4 text-slate-400" />
+              <Lock className="w-4 h-4 text-slate-400 shrink-0" />
               <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Expired</span>
             </div>
             <p className="text-4xl font-extrabold text-foreground">{history.filter((h) => h.sub_status !== "ACTIVE").length}</p>
@@ -182,7 +182,7 @@ export default function CandidateSubscriptionPage() {
         {/* Choose your plan */}
         {(freePlan || premiumPlan) && (
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-bold text-foreground">Choose your plan</h2>
               <div className="inline-flex items-center bg-muted border border-border rounded-xl p-1 gap-1">
                 <button
@@ -276,42 +276,79 @@ export default function CandidateSubscriptionPage() {
         {/* Billing History */}
         <div>
           <h2 className="text-lg font-bold text-foreground mb-3">Billing history</h2>
-          <div className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-            {history.length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-muted-foreground">No subscription history yet.</div>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-muted/50 border-b border-border text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    <th className="px-5 py-3 text-left">Plan</th>
-                    <th className="px-5 py-3 text-left">Started</th>
-                    <th className="px-5 py-3 text-left">Expires</th>
-                    <th className="px-5 py-3 text-left">Status</th>
-                    <th className="px-5 py-3 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((row) => (
-                    <tr key={row.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                      <td className="px-5 py-3.5 text-foreground font-medium">{row.plan_name}</td>
-                      <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
-                      <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
-                      <td className="px-5 py-3.5">
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                          row.sub_status === "ACTIVE"
-                            ? "bg-[#4BC957]/15 text-[#4BC957]"
-                            : "bg-muted text-muted-foreground"
-                        }`}>
-                          {row.sub_status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-right font-semibold text-foreground">{row.currency} {row.price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          {history.length === 0 ? (
+            <div className="border border-border rounded-xl bg-card px-5 py-8 text-center text-sm text-muted-foreground shadow-sm">No subscription history yet.</div>
+          ) : (
+            <>
+              {/* Mobile: stacked cards */}
+              <div className="sm:hidden space-y-3">
+                {history.map((row) => (
+                  <div key={row.id} className="border border-border rounded-xl bg-card px-4 py-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-semibold text-foreground text-sm leading-tight">{row.plan_name}</p>
+                      <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                        row.sub_status === "ACTIVE"
+                          ? "bg-[#4BC957]/15 text-[#4BC957]"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {row.sub_status}
+                      </span>
+                    </div>
+                    <dl className="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-y-2 text-xs">
+                      <div>
+                        <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Started</dt>
+                        <dd className="text-foreground font-medium">{new Date(row.started_at).toLocaleDateString()}</dd>
+                      </div>
+                      <div className="text-right">
+                        <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Expires</dt>
+                        <dd className="text-foreground font-medium">{new Date(row.expires_at).toLocaleDateString()}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Amount</dt>
+                        <dd className="text-foreground font-bold">{row.currency} {row.price}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden sm:block border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-muted/50 border-b border-border text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-5 py-3 text-left">Plan</th>
+                        <th className="px-5 py-3 text-left">Started</th>
+                        <th className="px-5 py-3 text-left">Expires</th>
+                        <th className="px-5 py-3 text-left">Status</th>
+                        <th className="px-5 py-3 text-right">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map((row) => (
+                        <tr key={row.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                          <td className="px-5 py-3.5 text-foreground font-medium">{row.plan_name}</td>
+                          <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
+                          <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
+                          <td className="px-5 py-3.5">
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                              row.sub_status === "ACTIVE"
+                                ? "bg-[#4BC957]/15 text-[#4BC957]"
+                                : "bg-muted text-muted-foreground"
+                            }`}>
+                              {row.sub_status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-right font-semibold text-foreground">{row.currency} {row.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
       </div>

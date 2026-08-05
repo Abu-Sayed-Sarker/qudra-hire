@@ -905,6 +905,7 @@ export interface CandidateProfile {
   gender: string | null;
   ai_status: string;
   is_default: boolean;
+  can_set_default: boolean;
   auto_apply: CandidateAutoApply;
   educations: ProfileEducation[];
   experiences: ProfileExperience[];
