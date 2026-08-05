@@ -65,8 +65,8 @@ export default function CandidateDashboard() {
     return (
       <div className="p-6 md:p-10 space-y-8 max-w-full mx-auto">
         <div className="space-y-3">
-          <div className="h-10 w-72 bg-gradient-to-r from-muted to-muted/50 rounded-2xl animate-pulse" />
-          <div className="h-5 w-96 bg-muted/50 rounded-xl animate-pulse" />
+          <div className="h-10 w-full max-w-[18rem] bg-gradient-to-r from-muted to-muted/50 rounded-2xl animate-pulse" />
+          <div className="h-5 w-full max-w-[24rem] bg-muted/50 rounded-xl animate-pulse" />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -172,7 +172,7 @@ export default function CandidateDashboard() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
         role="list"
         aria-label="Dashboard statistics"
       >
@@ -184,17 +184,17 @@ export default function CandidateDashboard() {
               variants={fadeIn}
               custom={i}
               role="listitem"
-              className={`group relative bg-card/80 backdrop-blur-sm border ${s.border} rounded-3xl p-6 ${cardHover} cursor-pointer`}
+              className={`group relative bg-card/80 backdrop-blur-sm border ${s.border} rounded-3xl p-4 sm:p-6 ${cardHover} cursor-pointer`}
               tabIndex={0}
               aria-label={`${s.label}: ${s.value}`}
             >
               <div className="absolute inset-0  rounded-3xl pointer-events-none" />
-              <div className="relative flex items-start justify-between">
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{s.label}</span>
-                  <p className="text-3xl font-extrabold text-foreground tracking-tight">{s.value}</p>
+              <div className="relative flex items-start justify-between gap-2 min-w-0">
+                <div className="space-y-1.5 min-w-0">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest truncate block">{s.label}</span>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight break-words">{s.value}</p>
                 </div>
-                <div className={`${s.bg} ${s.color} p-3 rounded-2xl border ${s.border} shadow-lg ${s.glow} group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`${s.bg} ${s.color} p-2.5 sm:p-3 rounded-2xl border ${s.border} shadow-lg ${s.glow} group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
                   <Icon className="h-5 w-5" />
                 </div>
               </div>
