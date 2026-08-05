@@ -111,14 +111,14 @@ export default function CompanyDashboard() {
             {companyName} <span className="text-[#4BC957] font-normal">•</span> Talent
           </h1>
         </div>
-        <Link
+        {/* <Link
           href="/company/jobs/create"
           className="inline-flex items-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-[#4BC957]/10 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#4BC957]/50 focus-visible:ring-offset-2"
           aria-label="Create a new job posting"
         >
           <Plus className="h-5 w-5" />
           Post a job
-        </Link>
+        </Link> */}
       </motion.div>
 
       {/* Stats Cards grid */}
