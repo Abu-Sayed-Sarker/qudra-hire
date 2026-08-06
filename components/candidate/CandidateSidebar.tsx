@@ -46,6 +46,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "@/components/layout/ThemeProvider";
+import ProfileCreationSuccess from "@/components/ui/profile-creation-success";
 
 const navItems = [
   { label: "Dashboard", href: "/candidate", icon: Briefcase },
@@ -71,6 +72,8 @@ export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successProfileId, setSuccessProfileId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const profiles = profilesData?.data ?? [];
@@ -96,10 +99,18 @@ export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any
       if (fileInputRef.current) fileInputRef.current.value = "";
       const newProfileId = result.data?.id;
       if (newProfileId) {
-        router.push(`/candidate/profile/${newProfileId}`);
+        setSuccessProfileId(newProfileId);
+        setShowSuccess(true);
       }
     } catch {
       toast.error("Failed to create profile");
+    }
+  };
+
+  const handleSuccessComplete = () => {
+    setShowSuccess(false);
+    if (successProfileId) {
+      router.push(`/candidate/profile/${successProfileId}`);
     }
   };
 
@@ -330,6 +341,13 @@ export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {showSuccess && successProfileId && (
+        <ProfileCreationSuccess
+          onComplete={handleSuccessComplete}
+          profileId={successProfileId}
+        />
+      )}
     </>
   );
 }
