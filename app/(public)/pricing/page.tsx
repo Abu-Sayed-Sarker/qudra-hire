@@ -235,34 +235,18 @@ export default function PricingPage() {
           >
             <button
               onClick={() => setYearly(false)}
-<<<<<<< HEAD
-              className={`px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all min-h-[44px]
-                ${
-                  !yearly
-                    ? "bg-surface-card dark:bg-white/10 text-on-surface dark:text-white shadow"
-                    : "text-on-surface-muted dark:text-slate-400 hover:text-on-surface dark:hover:text-white"
-=======
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${!yearly
                   ? "bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
->>>>>>> c6338afcfd4dda41b9d7ad5ddb200a5979843f61
                 }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setYearly(true)}
-<<<<<<< HEAD
-              className={`px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all min-h-[44px]
-                ${
-                  yearly
-                    ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
-                    : "text-on-surface-muted dark:text-slate-400 hover:text-on-surface dark:hover:text-white"
-=======
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${yearly
                   ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
->>>>>>> c6338afcfd4dda41b9d7ad5ddb200a5979843f61
                 }`}
             >
               Yearly.
