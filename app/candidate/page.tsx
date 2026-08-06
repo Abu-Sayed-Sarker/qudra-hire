@@ -172,7 +172,7 @@ export default function CandidateDashboard() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
+        className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4"
         role="list"
         aria-label="Dashboard statistics"
       >

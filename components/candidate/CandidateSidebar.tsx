@@ -204,6 +204,15 @@ export default function CandidateSidebar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Log Out */}
+          <button
+            onClick={() => { dispatch(logout()); router.push("/"); }}
+            className="group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all duration-200"
+          >
+            <LogOut className="h-5 w-5 transition-colors" />
+            <span>Log Out</span>
+          </button>
         </nav>
 
         {/* Profile */}

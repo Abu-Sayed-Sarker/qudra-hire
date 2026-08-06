@@ -195,15 +195,15 @@ export default function PricingPage() {
   const plans = tab === "candidates" ? candidatePlans : companyPlans;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#080C14] text-slate-900 dark:text-white">
+    <div className="min-h-screen flex flex-col bg-surface text-on-surface">
       {/* Hero */}
-      <section className="relative py-20 sm:py-28 text-center overflow-hidden">
+      <section className="relative py-14 sm:py-20 text-center overflow-hidden">
         {/* Glow */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 flex items-start justify-center"
         >
-          <div className="w-[700px] h-[320px] bg-[#4BC957]/5 dark:bg-[#4BC957]/6 rounded-full blur-[140px] mt-8" />
+          <div className="w-[500px] h-[250px] bg-[#4BC957]/5 dark:bg-[#4BC957]/6 rounded-full blur-[140px] mt-8" />
         </div>
         {/* Grid */}
         <div
@@ -218,14 +218,14 @@ export default function PricingPage() {
 
         <div className="relative max-w-3xl mx-auto px-4">
           <h1
-            className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight
+            className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight leading-tight
             animate-[fadeInUp_0.7s_ease_forwards]"
           >
             Simple plans.{" "}
             <span className="text-[#4BC957]">Serious hiring outcomes.</span>
           </h1>
           <p
-            className="mt-5 text-[16px] sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto
+            className="mt-4 text-sm sm:text-base text-on-surface-muted leading-relaxed max-w-2xl mx-auto
             animate-[fadeInUp_0.7s_0.2s_ease_forwards] opacity-0"
           >
             Start free. Upgrade to Premium when you want QudraHire&apos;s AI to apply, tailor and
@@ -234,26 +234,28 @@ export default function PricingPage() {
 
           {/* Billing toggle */}
           <div
-            className="mt-10 inline-flex items-center bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/8 rounded-xl p-1 gap-1
+            className="mt-8 inline-flex items-center bg-surface-deep border border-surface rounded-xl p-1 gap-1
             animate-[fadeInUp_0.7s_0.35s_ease_forwards] opacity-0"
           >
             <button
               onClick={() => setYearly(false)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                !yearly
-                  ? "bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
+              className={`px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all min-h-[44px]
+                ${
+                  !yearly
+                    ? "bg-surface-card dark:bg-white/10 text-on-surface dark:text-white shadow"
+                    : "text-on-surface-muted dark:text-slate-400 hover:text-on-surface dark:hover:text-white"
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setYearly(true)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                yearly
-                  ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
+              className={`px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all min-h-[44px]
+                ${
+                  yearly
+                    ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
+                    : "text-on-surface-muted dark:text-slate-400 hover:text-on-surface dark:hover:text-white"
+                }`}
             >
               Yearly.
             </button>
@@ -262,8 +264,8 @@ export default function PricingPage() {
       </section>
 
       {/* Cards */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-28 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+      <section className="max-w-4xl mx-auto px-4 sm:px-8 pb-20 md:pb-24 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {plans.map((plan, i) => (
             <Animate
               key={plan.id}
@@ -276,7 +278,7 @@ export default function PricingPage() {
         </div>
 
         <Animate className="animate-on-scroll" delay="anim-delay-300">
-          <p className="text-center text-xs text-slate-500 dark:text-slate-500 mt-10">
+          <p className="text-center text-xs sm:text-sm text-on-surface-muted mt-8">
             All prices in AED (United Arab Emirates Dirham).{" "}
             <Link
               href="/contact"
@@ -290,8 +292,8 @@ export default function PricingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-slate-200 dark:border-white/5 bg-white dark:bg-[#0A0F1D]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+      <section className="border-t border-surface bg-surface-deep">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 md:py-16 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
           {[
             {
               q: "Can I switch plans?",
@@ -312,8 +314,8 @@ export default function PricingPage() {
               delay={["", "anim-delay-100", "anim-delay-200"][i]}
             >
               <div className="space-y-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{q}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-500 leading-relaxed">{a}</p>
+                <h3 className="text-sm font-bold text-on-surface">{q}</h3>
+                <p className="text-xs sm:text-sm text-on-surface-muted leading-relaxed">{a}</p>
               </div>
             </Animate>
           ))}

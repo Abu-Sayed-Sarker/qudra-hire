@@ -225,7 +225,7 @@ function JobDetailContent() {
         {/* Left Column: Job Description */}
         <div className="lg:col-span-7 bg-surface-card border border-surface rounded-2xl p-6 space-y-6">
           {/* Header */}
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start flex-wrap justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-surface-item to-surface-deep border border-surface flex items-center justify-center font-bold text-on-surface-muted text-sm flex-shrink-0">
                 {companyInitials}

@@ -1,6 +1,7 @@
 import React from "react";
 import QudraHeader from "@/components/layout/QudraHeader";
 import QudraFooter from "@/components/layout/QudraFooter";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 export default function PublicLayout({
   children,
@@ -10,8 +11,9 @@ export default function PublicLayout({
   return (
     <>
       <QudraHeader />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">{children}</main>
       <QudraFooter />
+      <MobileBottomNav />
     </>
   );
 }

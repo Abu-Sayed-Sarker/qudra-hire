@@ -41,28 +41,28 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface">
 
-      {/* Hero */}
-      <section className="relative py-20 sm:py-28 text-center overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
-          <div className="w-[600px] h-[300px] bg-[#4BC957]/6 rounded-full blur-[120px] mt-10" />
-        </div>
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: "linear-gradient(currentColor 1px,transparent 1px),linear-gradient(90deg,currentColor 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
-        <div className="relative max-w-2xl mx-auto px-4">
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight
-            animate-[fadeInUp_0.7s_ease_forwards]">
-            Get in <span className="text-[#4BC957]">touch.</span>
-          </h1>
-          <p className="mt-5 text-[16px] sm:text-lg text-on-surface-muted leading-relaxed
-            animate-[fadeInUp_0.7s_0.2s_ease_forwards] opacity-0">
-            Have a question about hiring, partnerships, or your account? Reach out and our GCC team will respond within one business day.
-          </p>
-        </div>
-      </section>
+       {/* Hero */}
+       <section className="relative py-14 sm:py-20 text-center overflow-hidden">
+         <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
+           <div className="w-[500px] h-[250px] bg-[#4BC957]/6 rounded-full blur-[120px] mt-8" />
+         </div>
+         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.025]"
+           style={{ backgroundImage: "linear-gradient(currentColor 1px,transparent 1px),linear-gradient(90deg,currentColor 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+         <div className="relative max-w-2xl mx-auto px-4">
+           <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight leading-tight
+             animate-[fadeInUp_0.7s_ease_forwards]">
+             Get in <span className="text-[#4BC957]">touch.</span>
+           </h1>
+           <p className="mt-4 text-sm sm:text-base text-on-surface-muted leading-relaxed
+             animate-[fadeInUp_0.7s_0.2s_ease_forwards] opacity-0">
+             Have a question about hiring, partnerships, or your account? Reach out and our GCC team will respond within one business day.
+           </p>
+         </div>
+       </section>
 
-      {/* Content */}
-      <section className="flex-1 max-w-7xl mx-auto px-4 sm:px-8 pb-24 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+       {/* Content */}
+       <section className="flex-1 max-w-7xl mx-auto px-4 sm:px-8 pb-16 md:pb-20 w-full">
+         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
 
           {/* Form */}
           <Animate className="animate-from-left lg:col-span-3">

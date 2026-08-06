@@ -41,6 +41,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <Script
           id="theme-init"
           strategy="beforeInteractive"
@@ -50,8 +51,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-black text-foreground pb-16 md:pb-0">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold">
+          Skip to main content
+        </a>
         <StoreProvider>
-          <ThemeProvider defaultTheme="dark"  storageKey="careersprint-theme">
+          <ThemeProvider defaultTheme="dark" storageKey="careersprint-theme">
             {children}
             <Toaster />
           </ThemeProvider>
