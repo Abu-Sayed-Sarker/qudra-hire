@@ -69,9 +69,9 @@ export function Trusted() {
             "radial-gradient(60% 100% at 50% 0%, color-mix(in oklab, var(--secondary) 8%, transparent), transparent 70%)",
         }}
       />
-<p className="mb-10 text-center text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
-         Backed by the most ambitious enterprises across the GCC
-       </p>
+      <p className="mb-10 text-center text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
+        Backed by the most ambitious enterprises across the GCC
+      </p>
       <div className="relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
         <div className="flex w-max gap-16" style={{ animation: "marquee 38s linear infinite" }}>
           {[...logos, ...logos].map((l, i) => (
@@ -94,16 +94,16 @@ const features = [
   { icon: ScanText, title: "Resume Intelligence", body: "Deep parsing extracts skills, seniority and career trajectory from any document format." },
   { icon: Gauge, title: "ATS Optimization", body: "Live keyword and structure guidance tuned to the enterprise parsers you already use." },
   { icon: Send, title: "Smart Applications", body: "AI agents submit tailored applications on behalf of candidates with role-specific context." },
-  { icon: LayoutDashboard, title: "Hiring Command Center", body: "One dashboard for pipelines, team performance and hiring velocity across regions." },
-  { icon: BarChart3, title: "Recruitment Analytics", body: "Funnel, source and cost insight rendered in real time for smarter decisions." },
-  { icon: Sparkles, title: "AI Recommendations", body: "The system suggests the next best action for every open requisition and candidate." },
-  { icon: MessageSquareCode, title: "Interview Assistant", body: "Structured questions, scoring rubrics and live transcript analysis built in." },
-  { icon: ShieldCheck, title: "Secure & Compliant", body: "PCI-grade billing with regional gateways, enterprise invoicing and audit trails." },
-  { icon: Languages, title: "Arabic RTL Support", body: "Fully bidirectional interface and multilingual AI reasoning across English and Arabic." },
-  { icon: Globe2, title: "GCC-Native Tools", body: "Saudization, Emiratization and localisation targets built into every workflow." },
-  { icon: Network, title: "Global Talent Network", body: "Reach vetted professionals across 90+ markets with one platform." },
-  { icon: Plane, title: "Visa & Mobility", body: "Track eligibility, documents and relocation timelines end to end." },
-  { icon: FileCheck2, title: "Compliance Automation", body: "Labour law checks and audit trails on every hire, every time." },
+  // { icon: LayoutDashboard, title: "Hiring Command Center", body: "One dashboard for pipelines, team performance and hiring velocity across regions." },
+  // { icon: BarChart3, title: "Recruitment Analytics", body: "Funnel, source and cost insight rendered in real time for smarter decisions." },
+  // { icon: Sparkles, title: "AI Recommendations", body: "The system suggests the next best action for every open requisition and candidate." },
+  // { icon: MessageSquareCode, title: "Interview Assistant", body: "Structured questions, scoring rubrics and live transcript analysis built in." },
+  // { icon: ShieldCheck, title: "Secure & Compliant", body: "PCI-grade billing with regional gateways, enterprise invoicing and audit trails." },
+  // { icon: Languages, title: "Arabic RTL Support", body: "Fully bidirectional interface and multilingual AI reasoning across English and Arabic." },
+  // { icon: Globe2, title: "GCC-Native Tools", body: "Saudization, Emiratization and localisation targets built into every workflow." },
+  // { icon: Network, title: "Global Talent Network", body: "Reach vetted professionals across 90+ markets with one platform." },
+  // { icon: Plane, title: "Visa & Mobility", body: "Track eligibility, documents and relocation timelines end to end." },
+  // { icon: FileCheck2, title: "Compliance Automation", body: "Labour law checks and audit trails on every hire, every time." },
 ];
 
 export function Platform() {
@@ -353,19 +353,19 @@ export function Employers() {
 
             <div className="glass rounded-2xl p-6">
               <p className="text-sm text-ink">AI Hiring Insights</p>
-<ul className="mt-6 space-y-4 text-sm text-muted-foreground">
-                  {[
-                    "Senior backend roles close 41% faster with async screening.",
-                    "Dubai pipeline is under-supplied — widen to Riyadh and Cairo.",
-                    "5 offers predicted to lapse within 72 hours.",
-                    "Emiratisation target 89% complete for Q3.",
-                  ].map((t) => (
-                    <li key={t} className="flex gap-3">
-                      <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-secondary" />
-                      <span className="leading-relaxed">{t}</span>
-                    </li>
-                  ))}
-                </ul>
+              <ul className="mt-6 space-y-4 text-sm text-muted-foreground">
+                {[
+                  "Senior backend roles close 41% faster with async screening.",
+                  "Dubai pipeline is under-supplied — widen to Riyadh and Cairo.",
+                  "5 offers predicted to lapse within 72 hours.",
+                  "Emiratisation target 89% complete for Q3.",
+                ].map((t) => (
+                  <li key={t} className="flex gap-3">
+                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-secondary" />
+                    <span className="leading-relaxed">{t}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -458,7 +458,7 @@ export function GCC() {
 /* ============ Testimonials ============ */
 const quotes = [
   {
-    q: "QudraHire reduced our time-to-hire by 68%. The AI match scoring is the most accurate we've ever used.",
+    q: "Career-Sprint reduced our time-to-hire by 68%. The AI match scoring is the most accurate we've ever used.",
     n: "Noura Al-Faisal",
     r: "Group CHRO, Riyadh",
   },
@@ -559,15 +559,14 @@ export function Pricing() {
         {plans.map((p, i) => (
           <Reveal key={p.name} delay={i * 110}>
             <div
-              className={`relative h-full rounded-3xl p-8 transition-transform duration-500 ${
-                p.featured ? "glass-strong lg:scale-[1.07] float-slow" : "glass hover:-translate-y-1.5"
-              }`}
+              className={`relative h-full rounded-3xl p-8 transition-transform duration-500 ${p.featured ? "glass-strong lg:scale-[1.07] float-slow" : "glass hover:-translate-y-1.5"
+                }`}
               style={
                 p.featured
                   ? {
-                      boxShadow:
-                        "0 0 0 1px color-mix(in oklab, var(--glow) 45%, transparent), 0 60px 140px -50px color-mix(in oklab, var(--primary) 65%, transparent)",
-                    }
+                    boxShadow:
+                      "0 0 0 1px color-mix(in oklab, var(--glow) 45%, transparent), 0 60px 140px -50px color-mix(in oklab, var(--primary) 65%, transparent)",
+                  }
                   : undefined
               }
             >
@@ -611,7 +610,7 @@ export function Pricing() {
 const faqs = [
   {
     q: "How accurate is AI candidate matching?",
-    a: "QudraHire scores candidates against role signals, historic outcomes and skill graphs, reaching 97% precision on enterprise requisitions after the first hiring cycle.",
+    a: "Career-Sprint scores candidates against role signals, historic outcomes and skill graphs, reaching 97% precision on enterprise requisitions after the first hiring cycle.",
   },
   {
     q: "Does the platform support Arabic and RTL?",
@@ -647,9 +646,8 @@ export function FAQ() {
           return (
             <Reveal key={f.q} delay={i * 70}>
               <div
-                className={`glass overflow-hidden rounded-3xl transition-all duration-500 ${
-                  isOpen ? "glow-ring" : ""
-                }`}
+                className={`glass overflow-hidden rounded-3xl transition-all duration-500 ${isOpen ? "glow-ring" : ""
+                  }`}
               >
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
@@ -685,25 +683,25 @@ export function FinalCTA() {
     <CineSection id="cta" media={ctaBg} overlay={0.7} tone="highlight">
       <Particles count={30} />
       <div className="mx-auto max-w-3xl text-center">
-<Reveal>
-           <h2 className="text-balance text-4xl font-semibold leading-[1.03] md:text-6xl">
-             Ready to Transform Your
-             <span className="text-gradient"> Hiring Process</span>
-           </h2>
-         </Reveal>
-         <Reveal delay={120}>
-           <p className="mx-auto mt-8 max-w-xl text-pretty text-base text-muted-foreground md:text-lg">
-             Join the organisations building their workforce inside an AI operating system — starting today.
-           </p>
-         </Reveal>
-         <Reveal delay={200}>
-           <div className="mt-12 flex flex-wrap justify-center gap-4">
-             <MagneticButton href="#top">Get Started Free</MagneticButton>
-             <MagneticButton href="#platform" variant="ghost">
-               Watch Demo
-             </MagneticButton>
-           </div>
-         </Reveal>
+        <Reveal>
+          <h2 className="text-balance text-4xl font-semibold leading-[1.03] md:text-6xl">
+            Ready to Transform Your
+            <span className="text-gradient"> Hiring Process</span>
+          </h2>
+        </Reveal>
+        <Reveal delay={120}>
+          <p className="mx-auto mt-8 max-w-xl text-pretty text-base text-muted-foreground md:text-lg">
+            Join the organisations building their workforce inside an AI operating system — starting today.
+          </p>
+        </Reveal>
+        <Reveal delay={200}>
+          <div className="mt-12 flex flex-wrap justify-center gap-4">
+            <MagneticButton href="#top">Get Started Free</MagneticButton>
+            <MagneticButton href="#platform" variant="ghost">
+              Watch Demo
+            </MagneticButton>
+          </div>
+        </Reveal>
       </div>
     </CineSection>
   );
@@ -726,12 +724,12 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2fr_1.2fr]">
           <div>
             <span className="font-display text-xl font-semibold text-ink">
-              Qudra<span className="text-primary">Hire</span>
+              Career<span className="text-primary">Sprint</span>
             </span>
-<p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-               The AI recruitment ecosystem connecting employers with exceptional talent across the
-               GCC and global markets — powered by intelligence, not just listings.
-             </p>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+              The AI recruitment ecosystem connecting employers with exceptional talent across the
+              GCC and global markets — powered by intelligence, not just listings.
+            </p>
             <div className="mt-6 flex gap-3">
               {["in", "X", "IG", "YT"].map((s) => (
                 <a
@@ -796,8 +794,8 @@ export function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-<p>© {new Date().getFullYear()} QudraHire. All rights reserved.</p>
-           <p className="flex items-center gap-2">Riyadh · Dubai · Doha · Abu Dhabi <span className="mx-1 opacity-40">•</span> <a href="/contact" className="hover:text-primary transition-colors">Contact</a></p>
+          <p>© {new Date().getFullYear()} Career-Sprint. All rights reserved.</p>
+          <p className="flex items-center gap-2">Riyadh · Dubai · Doha · Abu Dhabi <span className="mx-1 opacity-40">•</span> <a href="/contact" className="hover:text-primary transition-colors">Contact</a></p>
         </div>
       </div>
     </footer>

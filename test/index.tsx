@@ -16,9 +16,9 @@ import {
   Footer,
 } from "./sections";
 
-const title = "QudraHire — AI Recruitment Ecosystem for the GCC";
+const title = "Career-Sprint — AI Recruitment Ecosystem for the GCC";
 const description =
-  "QudraHire is the AI recruitment platform for intelligent hiring: predictive candidate matching, resume intelligence, ATS optimization and GCC compliance.";
+  "Career-Sprint is the AI recruitment platform for intelligent hiring: predictive candidate matching, resume intelligence, ATS optimization and GCC compliance.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
