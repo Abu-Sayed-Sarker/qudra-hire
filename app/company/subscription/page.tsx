@@ -167,7 +167,7 @@ export default function CompanySubscriptionPage() {
         {/* Plans Grid */}
         {(freePlan || premiumPlan) && (
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center gap-5 justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-foreground tracking-tight">Available Plans</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">Select a plan that fits your hiring needs</p>
