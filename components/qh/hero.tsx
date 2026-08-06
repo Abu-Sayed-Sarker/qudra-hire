@@ -262,7 +262,7 @@ export function Hero() {
         style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
       />
 
-      <Nav />
+      {/* <Nav /> */}
 
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-[1.05fr_1fr]">
         <div>

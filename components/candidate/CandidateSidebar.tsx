@@ -15,6 +15,9 @@ import {
   Plus,
   Loader2,
   Upload,
+  Sun,
+  Moon,
+  Globe,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -42,6 +45,7 @@ import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from 
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from "@/components/layout/ThemeProvider";
 
 const navItems = [
   { label: "Dashboard", href: "/candidate", icon: Briefcase },
@@ -52,7 +56,7 @@ const navItems = [
   { label: "Subscription", href: "/candidate/subscription", icon: Star },
 ];
 
-export default function CandidateSidebar() {
+export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any}) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -60,6 +64,10 @@ export default function CandidateSidebar() {
   const user = useAppSelector((s) => s.auth.user);
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
+  const { resolvedTheme, setTheme } = useTheme();
+  const currentLang = typeof window !== "undefined" ? localStorage.getItem("careersprint-lang") || "en" : "en";
+
+
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -126,6 +134,7 @@ export default function CandidateSidebar() {
               <Link
                 key={href}
                 href={href}
+                onClick={() => { setSidebarOpen(false) }}
                 className={cn(
                   "group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200",
                   isActive
@@ -179,7 +188,8 @@ export default function CandidateSidebar() {
                 profiles.map((profile) => (
                   <DropdownMenuItem
                     key={profile.id}
-                    onClick={() => router.push(`/candidate/profile/${profile.id}`)}
+                    onClick={() => {router.push(`/candidate/profile/${profile.id}`); setSidebarOpen(false) }}
+                  
                     className="flex items-center justify-between text-foreground hover:bg-muted hover:text-foreground cursor-pointer focus:bg-muted focus:text-foreground rounded-md px-3 py-2.5"
                   >
                     <span className="font-semibold text-sm truncate max-w-[140px]">{profile.role_title || ""}</span>
@@ -227,6 +237,37 @@ export default function CandidateSidebar() {
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </div>
+        </div>
+
+        {/* Theme & Language */}
+        <div className="border-t border-border p-3 space-y-1">
+          <button
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            className="flex items-center gap-3 w-full rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-3 w-full rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <Globe className="h-4 w-4" />
+              {currentLang === "en" ? "English" : "العربية"}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="start" className="w-32">
+              <DropdownMenuItem
+                onClick={() => { localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
+                className={currentLang === "en" ? "bg-accent text-accent-foreground" : ""}
+              >
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => { localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
+                className={currentLang === "ar" ? "bg-accent text-accent-foreground" : ""}
+              >
+                العربية
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
 

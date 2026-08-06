@@ -28,6 +28,9 @@ import {
   useCarousel,
 } from "@/components/ui/carousel";
 import { Animate } from "@/components/ui/animate";
+import { CursorGlow } from "@/components/qh/atoms";
+import { Hero } from "@/components/qh/hero";
+import { Candidates, Employers, FAQ, FinalCTA, Footer, HowItWorks, Platform, Pricing, Technology, Testimonials, Trusted } from "@/components/qh/sections";
 
 /* ── Job data ── */
 const jobs = [
@@ -142,229 +145,247 @@ const delays = ["", "anim-delay-100", "anim-delay-200", "anim-delay-300", "anim-
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface">
 
-      {/* 1. Hero */}
-      <section className="relative pt-24 pb-16 text-center overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
-          <div className="w-[800px] h-[400px] bg-[#4BC957]/10 rounded-full blur-[150px] mt-10" />
-        </div>
-        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: "linear-gradient(currentColor 1px,transparent 1px),linear-gradient(90deg,currentColor 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+    <main className="relative qh-theme">
+      <CursorGlow />
+      <Hero />
+      <Trusted />
+      <Platform />
+      <HowItWorks />
+      <Technology />
+      <Employers />
+      <Candidates />
+      {/* <GCC /> */}
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <FinalCTA />
+      <Footer />
+    </main>
 
-        {/* Floating icons with bob animation */}
-        <div className="absolute top-20 left-[15%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "-15deg" } as React.CSSProperties}>
-          <Briefcase className="w-12 h-12" />
-        </div>
-        <div className="absolute top-40 right-[15%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "15deg", animationDelay: "0.8s" } as React.CSSProperties}>
-          <FileText className="w-10 h-10" />
-        </div>
-        <div className="absolute bottom-32 left-[20%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "-10deg", animationDelay: "1.4s" } as React.CSSProperties}>
-          <FileText className="w-8 h-8" />
-        </div>
-        <div className="absolute bottom-20 right-[20%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "20deg", animationDelay: "0.4s" } as React.CSSProperties}>
-          <Briefcase className="w-10 h-10" />
-        </div>
+    // <div className="min-h-screen flex flex-col bg-surface text-on-surface">
 
-        <div className="relative max-w-4xl mx-auto px-4 z-10">
-          {/* Hero title — fade up on mount (CSS only) */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-tight
-            animate-[fadeInUp_0.7s_ease_forwards]">
-            Stop searching.<br />
-            Start <span className="text-[#4BC957] [text-shadow:0_0_32px_#4BC957]">progressing.</span>
-          </h1>
-          <p className="mt-6 text-lg text-on-surface-muted leading-relaxed max-w-2xl mx-auto
-            animate-[fadeInUp_0.7s_0.2s_ease_forwards]">
-            CareerSprint matches candidates and companies with AI precision, visa sponsorship, Emiratization and Saudization filters included. Bilingual. Mobile-first. Built for momentum.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4
-            animate-[fadeInUp_0.7s_0.35s_ease_forwards]">
-            <Link href="/jobs" className="w-full sm:w-auto bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-8 py-3.5 rounded-xl transition-all active:scale-[0.98]">
-              Find your next role
-            </Link>
-            <Link href="/pricing" className="w-full sm:w-auto bg-transparent border border-[#4BC957]/30 hover:border-[#4BC957]/50 text-on-surface font-bold px-8 py-3.5 rounded-xl transition-all">
-              Find your next candidate
-            </Link>
-          </div>
 
-          {/* Hero Stats */}
-          <div className="mt-16 flex flex-wrap justify-center gap-12 text-center pt-10
-            animate-[fadeInUp_0.7s_0.5s_ease_forwards]">
-            {[["12K+", "Active roles"], ["94%", "Match accuracy"], ["3.2d", "Avg. time-to-shortlist"]].map(([val, label]) => (
-              <div key={label}>
-                <h3 className="text-3xl font-bold text-[#4BC957] mb-1">{val}</h3>
-                <p className="text-sm text-on-surface-muted font-medium">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+    //   <section className="relative pt-24 pb-16 text-center overflow-hidden">
+    //     <div aria-hidden className="pointer-events-none absolute inset-0 flex items-start justify-center">
+    //       <div className="w-[800px] h-[400px] bg-[#4BC957]/10 rounded-full blur-[150px] mt-10" />
+    //     </div>
+    //     <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.025]"
+    //       style={{ backgroundImage: "linear-gradient(currentColor 1px,transparent 1px),linear-gradient(90deg,currentColor 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
 
-      {/* 2. Logo Ticker */}
-      <section className="border-y border-surface bg-ticker py-6 overflow-hidden">
-        <div className="flex ticker-track whitespace-nowrap opacity-50 text-[10px] sm:text-xs font-bold tracking-widest uppercase gap-16 w-max text-on-surface-muted">
-          {["Emirates NBD", "Careem", "STC Pay", "ADNOC", "Talabat", "Mubadala",
-            "Emirates NBD", "Careem", "STC Pay", "ADNOC", "Talabat", "Mubadala"].map((name, i) => (
-            <span key={i}>{name}</span>
-          ))}
-        </div>
-      </section>
+    //     {/* Floating icons with bob animation */}
+    //     <div className="absolute top-20 left-[15%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "-15deg" } as React.CSSProperties}>
+    //       <Briefcase className="w-12 h-12" />
+    //     </div>
+    //     <div className="absolute top-40 right-[15%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "15deg", animationDelay: "0.8s" } as React.CSSProperties}>
+    //       <FileText className="w-10 h-10" />
+    //     </div>
+    //     <div className="absolute bottom-32 left-[20%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "-10deg", animationDelay: "1.4s" } as React.CSSProperties}>
+    //       <FileText className="w-8 h-8" />
+    //     </div>
+    //     <div className="absolute bottom-20 right-[20%] text-[#4BC957]/40 hidden md:block icon-bob" style={{ "--rot": "20deg", animationDelay: "0.4s" } as React.CSSProperties}>
+    //       <Briefcase className="w-10 h-10" />
+    //     </div>
 
-      {/* 3. Features */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-8 w-full text-center">
-        <Animate className="animate-on-scroll">
-          <h2 className="text-3xl font-bold text-on-surface mb-3">Built for the way the GCC hires.</h2>
-          <p className="text-on-surface-muted mb-12">Every feature is designed around outcomes &mdash; not vanity activity.</p>
-        </Animate>
-        <div className="mt-8">
-          <Carousel opts={{ loop: true }} className="relative">
-            <CarouselContent>
-              {features.map((f, i) => {
-                const Icon = f.Icon;
-                return (
-                  <CarouselItem key={f.title} className="basis-full md:basis-1/4">
-                    <Animate className="animate-on-scroll" delay={delays[i % 5]}>
-                      <div className="w-64 bg-surface-card border hover:bg-[#4BC957]/10 transition-colors border-surface rounded-3xl p-6 flex flex-col items-center justify-center text-center scale-95 shrink-0">
-                        <div className="h-10 w-10 rounded-full bg-accent-tint border border-accent flex items-center justify-center mb-4 text-[#4BC957]">
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <h4 className="font-bold text-on-surface mb-2">{f.title}</h4>
-                        <p className="text-xs text-on-surface-muted">{f.description}</p>
-                      </div>
-                    </Animate>
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <CarouselPrevious className="absolute touch-manipulation rounded-full hover:text-[#4BC957] text-on-surface-muted top-1/2 -left-6 -translate-y-1/2 h-10 w-10 bg-transparent border border-surface hover:bg-surface-card transition-colors" variant="outline" size="icon-sm" />
-            <CarouselNext className="absolute touch-manipulation rounded-full hover:text-[#4BC957] text-on-surface top-1/2 -right-6 -translate-y-1/2 h-10 w-10 bg-transparent border border-[#4BC957]/40 hover:bg-[#4BC957]/10 transition-colors" variant="outline" size="icon-sm" />
-          </Carousel>
-        </div>
-      </section>
+    //     <div className="relative max-w-4xl mx-auto px-4 z-10">
+    //       {/* Hero title — fade up on mount (CSS only) */}
+    //       <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-tight
+    //         animate-[fadeInUp_0.7s_ease_forwards]">
+    //         Stop searching.<br />
+    //         Start <span className="text-[#4BC957] [text-shadow:0_0_32px_#4BC957]">progressing.</span>
+    //       </h1>
+    //       <p className="mt-6 text-lg text-on-surface-muted leading-relaxed max-w-2xl mx-auto
+    //         animate-[fadeInUp_0.7s_0.2s_ease_forwards]">
+    //         CareerSprint matches candidates and companies with AI precision, visa sponsorship, Emiratization and Saudization filters included. Bilingual. Mobile-first. Built for momentum.
+    //       </p>
+    //       <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4
+    //         animate-[fadeInUp_0.7s_0.35s_ease_forwards]">
+    //         <Link href="/jobs" className="w-full sm:w-auto bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-8 py-3.5 rounded-xl transition-all active:scale-[0.98]">
+    //           Find your next role
+    //         </Link>
+    //         <Link href="/pricing" className="w-full sm:w-auto bg-transparent border border-[#4BC957]/30 hover:border-[#4BC957]/50 text-on-surface font-bold px-8 py-3.5 rounded-xl transition-all">
+    //           Find your next candidate
+    //         </Link>
+    //       </div>
 
-      {/* 4. Two Large Cards */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-8 pb-24 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Animate className="animate-from-left">
-            <div className="relative bg-surface-card border border-surface rounded-3xl p-8 sm:p-10 overflow-hidden group h-full hover:border-[#4BC957]/30 transition-colors">
-              <div className="relative z-10 h-full flex flex-col">
-                <div className="h-12 w-12 rounded-xl bg-accent-tint flex items-center justify-center mb-6 border border-accent text-[#4BC957]">
-                  <Briefcase className="h-6 w-6" />
-                </div>
-                <h3 className="text-2xl font-bold text-on-surface mb-3">For Candidates</h3>
-                <p className="text-on-surface-muted mb-8 text-sm leading-relaxed">Land roles faster with AI-tailored CVs, cover letters, and daily matches.</p>
-                <ul className="space-y-4 mb-10 flex-1">
-                  {["AI Auto-apply", "ATS tracking", "Application tracking", "Company direct messaging", "Ai resume builder"].map(item => (
-                    <li key={item} className="flex items-center gap-3 text-sm text-on-surface-muted font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-[#4BC957]" />{item}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/candidate" className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all w-max">
-                  Get candidate workspace <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </Animate>
+    //       {/* Hero Stats */}
+    //       <div className="mt-16 flex flex-wrap justify-center gap-12 text-center pt-10
+    //         animate-[fadeInUp_0.7s_0.5s_ease_forwards]">
+    //         {[["12K+", "Active roles"], ["94%", "Match accuracy"], ["3.2d", "Avg. time-to-shortlist"]].map(([val, label]) => (
+    //           <div key={label}>
+    //             <h3 className="text-3xl font-bold text-[#4BC957] mb-1">{val}</h3>
+    //             <p className="text-sm text-on-surface-muted font-medium">{label}</p>
+    //           </div>
+    //         ))}
+    //       </div>
+    //     </div>
+    //   </section>
 
-          <Animate className="animate-from-right" delay="anim-delay-200">
-            <div className="relative bg-surface-card border border-surface rounded-3xl p-8 sm:p-10 overflow-hidden group h-full hover:border-[#4BC957]/30 transition-colors">
-              <div className="relative z-10 h-full flex flex-col">
-                <div className="h-12 w-12 rounded-xl bg-accent-tint flex items-center justify-center mb-6 border border-accent text-[#4BC957]">
-                  <FileText className="h-6 w-6" />
-                </div>
-                <h3 className="text-2xl font-bold text-on-surface mb-3">For Companies</h3>
-                <p className="text-on-surface-muted mb-8 text-sm leading-relaxed">Instantly shortlisted candidates, ranked by fit. Hire in days, not months.</p>
-                <ul className="space-y-4 mb-10 flex-1">
-                  {["AI candidate ranking", "Instant shortlists","3 Job posts per subscription",  "Pipeline overview", "AI Candidate Interview"].map(item => (
-                    <li key={item} className="flex items-center gap-3 text-sm text-on-surface-muted font-medium">
-                      <CheckCircle2 className="h-4 w-4 text-[#4BC957]" />{item}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/company" className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all w-max">
-                  Get company workspace <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </Animate>
-        </div>
-      </section>
 
-      {/* 5. Job Cards Carousel */}
-      <JobCardsCarousel />
+    //   <section className="border-y border-surface bg-ticker py-6 overflow-hidden">
+    //     <div className="flex ticker-track whitespace-nowrap opacity-50 text-[10px] sm:text-xs font-bold tracking-widest uppercase gap-16 w-max text-on-surface-muted">
+    //       {["Emirates NBD", "Careem", "STC Pay", "ADNOC", "Talabat", "Mubadala",
+    //         "Emirates NBD", "Careem", "STC Pay", "ADNOC", "Talabat", "Mubadala"].map((name, i) => (
+    //         <span key={i}>{name}</span>
+    //       ))}
+    //     </div>
+    //   </section>
 
-      {/* 6. Contact */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-8 py-24 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <Animate className="animate-from-left">
-            <h2 className="text-3xl font-bold text-on-surface mb-4">Contact us</h2>
-            <p className="text-on-surface-muted mb-10 leading-relaxed max-w-sm">
-              Have a question about hiring, partnerships, or your account? Our GCC team is ready to help.
-            </p>
-            <ul className="space-y-4 mb-10">
-              {[
-                [Mail, "hello@CareerSprint.com"],
-                [Phone, "+971 4 555 0199"],
-                [MapPin, "Business Bay, Dubai, UAE"],
-                [Clock, "Sun-Thu, 9:00 - 18:00 GST"],
-              ].map(([Icon, text], i) => {
-                const I = Icon as React.ElementType;
-                return (
-                  <li key={i} className="flex items-center gap-3 text-sm text-on-surface-muted">
-                    <span className="h-8 w-8 rounded-lg bg-accent-tint border border-accent flex items-center justify-center text-[#4BC957]">
-                      <I className="h-4 w-4" />
-                    </span>
-                    {text as string}
-                  </li>
-                );
-              })}
-            </ul>
-            <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all">
-              Go to contact page <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Animate>
 
-          <Animate className="animate-from-right" delay="anim-delay-200">
-            <div className="bg-surface-card border border-surface rounded-3xl p-8">
-              <h3 className="text-lg font-bold text-on-surface mb-1">Quick message</h3>
-              <p className="text-xs text-on-surface-subtle mb-6">We usually reply within a few hours.</p>
-              <form className="space-y-4">
-                <input type="email" placeholder="Your email"
-                  className="w-full bg-surface-deep border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957]/50 transition-colors" />
-                <textarea placeholder="How can we help?" rows={4}
-                  className="w-full bg-surface-deep border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957]/50 transition-colors resize-none" />
-                <button type="button" className="w-full bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all">
-                  Send message
-                </button>
-              </form>
-            </div>
-          </Animate>
-        </div>
-      </section>
+    //   <section className="py-24 max-w-7xl mx-auto px-4 sm:px-8 w-full text-center">
+    //     <Animate className="animate-on-scroll">
+    //       <h2 className="text-3xl font-bold text-on-surface mb-3">Built for the way the GCC hires.</h2>
+    //       <p className="text-on-surface-muted mb-12">Every feature is designed around outcomes &mdash; not vanity activity.</p>
+    //     </Animate>
+    //     <div className="mt-8">
+    //       <Carousel opts={{ loop: true }} className="relative">
+    //         <CarouselContent>
+    //           {features.map((f, i) => {
+    //             const Icon = f.Icon;
+    //             return (
+    //               <CarouselItem key={f.title} className="basis-full md:basis-1/4">
+    //                 <Animate className="animate-on-scroll" delay={delays[i % 5]}>
+    //                   <div className="w-64 bg-surface-card border hover:bg-[#4BC957]/10 transition-colors border-surface rounded-3xl p-6 flex flex-col items-center justify-center text-center scale-95 shrink-0">
+    //                     <div className="h-10 w-10 rounded-full bg-accent-tint border border-accent flex items-center justify-center mb-4 text-[#4BC957]">
+    //                       <Icon className="h-4 w-4" />
+    //                     </div>
+    //                     <h4 className="font-bold text-on-surface mb-2">{f.title}</h4>
+    //                     <p className="text-xs text-on-surface-muted">{f.description}</p>
+    //                   </div>
+    //                 </Animate>
+    //               </CarouselItem>
+    //             );
+    //           })}
+    //         </CarouselContent>
+    //         <CarouselPrevious className="absolute touch-manipulation rounded-full hover:text-[#4BC957] text-on-surface-muted top-1/2 -left-6 -translate-y-1/2 h-10 w-10 bg-transparent border border-surface hover:bg-surface-card transition-colors" variant="outline" size="icon-sm" />
+    //         <CarouselNext className="absolute touch-manipulation rounded-full hover:text-[#4BC957] text-on-surface top-1/2 -right-6 -translate-y-1/2 h-10 w-10 bg-transparent border border-[#4BC957]/40 hover:bg-[#4BC957]/10 transition-colors" variant="outline" size="icon-sm" />
+    //       </Carousel>
+    //     </div>
+    //   </section>
 
-      {/* 7. Bottom CTA */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-8 pb-24 w-full">
-        <Animate className="animate-scale">
-          <div className="bg-surface-card border border-surface rounded-3xl p-12 text-center relative overflow-hidden shadow-2xl shadow-[#4BC957]/5">
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-[300px] h-[300px] bg-[#4BC957]/10 rounded-full blur-[100px]" />
-            </div>
-            <h2 className="relative text-3xl sm:text-5xl font-extrabold text-on-surface mb-4">Your next move starts here.</h2>
-            <p className="relative text-on-surface-muted mb-8 max-w-lg mx-auto">
-              Join thousands of professionals and companies hiring smarter across the region.
-            </p>
-            <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/signup" className="w-full sm:w-auto bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-8 py-3 rounded-xl transition-all">
-                Create free account
-              </Link>
-              <Link href="/pricing" className="w-full sm:w-auto bg-transparent border border-surface hover:border-inner text-on-surface font-medium px-8 py-3 rounded-xl transition-all">
-                See pricing
-              </Link>
-            </div>
-          </div>
-        </Animate>
-      </section>
-    </div>
+
+    //   <section className="max-w-6xl mx-auto px-4 sm:px-8 pb-24 w-full">
+    //     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    //       <Animate className="animate-from-left">
+    //         <div className="relative bg-surface-card border border-surface rounded-3xl p-8 sm:p-10 overflow-hidden group h-full hover:border-[#4BC957]/30 transition-colors">
+    //           <div className="relative z-10 h-full flex flex-col">
+    //             <div className="h-12 w-12 rounded-xl bg-accent-tint flex items-center justify-center mb-6 border border-accent text-[#4BC957]">
+    //               <Briefcase className="h-6 w-6" />
+    //             </div>
+    //             <h3 className="text-2xl font-bold text-on-surface mb-3">For Candidates</h3>
+    //             <p className="text-on-surface-muted mb-8 text-sm leading-relaxed">Land roles faster with AI-tailored CVs, cover letters, and daily matches.</p>
+    //             <ul className="space-y-4 mb-10 flex-1">
+    //               {["AI Auto-apply", "ATS tracking", "Application tracking", "Company direct messaging", "Ai resume builder"].map(item => (
+    //                 <li key={item} className="flex items-center gap-3 text-sm text-on-surface-muted font-medium">
+    //                   <CheckCircle2 className="h-4 w-4 text-[#4BC957]" />{item}
+    //                 </li>
+    //               ))}
+    //             </ul>
+    //             <Link href="/candidate" className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all w-max">
+    //               Get candidate workspace <ArrowRight className="h-4 w-4" />
+    //             </Link>
+    //           </div>
+    //         </div>
+    //       </Animate>
+
+    //       <Animate className="animate-from-right" delay="anim-delay-200">
+    //         <div className="relative bg-surface-card border border-surface rounded-3xl p-8 sm:p-10 overflow-hidden group h-full hover:border-[#4BC957]/30 transition-colors">
+    //           <div className="relative z-10 h-full flex flex-col">
+    //             <div className="h-12 w-12 rounded-xl bg-accent-tint flex items-center justify-center mb-6 border border-accent text-[#4BC957]">
+    //               <FileText className="h-6 w-6" />
+    //             </div>
+    //             <h3 className="text-2xl font-bold text-on-surface mb-3">For Companies</h3>
+    //             <p className="text-on-surface-muted mb-8 text-sm leading-relaxed">Instantly shortlisted candidates, ranked by fit. Hire in days, not months.</p>
+    //             <ul className="space-y-4 mb-10 flex-1">
+    //               {["AI candidate ranking", "Instant shortlists","3 Job posts per subscription",  "Pipeline overview", "AI Candidate Interview"].map(item => (
+    //                 <li key={item} className="flex items-center gap-3 text-sm text-on-surface-muted font-medium">
+    //                   <CheckCircle2 className="h-4 w-4 text-[#4BC957]" />{item}
+    //                 </li>
+    //               ))}
+    //             </ul>
+    //             <Link href="/company" className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all w-max">
+    //               Get company workspace <ArrowRight className="h-4 w-4" />
+    //             </Link>
+    //           </div>
+    //         </div>
+    //       </Animate>
+    //     </div>
+    //   </section>
+
+
+    //   <JobCardsCarousel />
+
+
+    //   <section className="max-w-6xl mx-auto px-4 sm:px-8 py-24 w-full">
+    //     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    //       <Animate className="animate-from-left">
+    //         <h2 className="text-3xl font-bold text-on-surface mb-4">Contact us</h2>
+    //         <p className="text-on-surface-muted mb-10 leading-relaxed max-w-sm">
+    //           Have a question about hiring, partnerships, or your account? Our GCC team is ready to help.
+    //         </p>
+    //         <ul className="space-y-4 mb-10">
+    //           {[
+    //             [Mail, "hello@CareerSprint.com"],
+    //             [Phone, "+971 4 555 0199"],
+    //             [MapPin, "Business Bay, Dubai, UAE"],
+    //             [Clock, "Sun-Thu, 9:00 - 18:00 GST"],
+    //           ].map(([Icon, text], i) => {
+    //             const I = Icon as React.ElementType;
+    //             return (
+    //               <li key={i} className="flex items-center gap-3 text-sm text-on-surface-muted">
+    //                 <span className="h-8 w-8 rounded-lg bg-accent-tint border border-accent flex items-center justify-center text-[#4BC957]">
+    //                   <I className="h-4 w-4" />
+    //                 </span>
+    //                 {text as string}
+    //               </li>
+    //             );
+    //           })}
+    //         </ul>
+    //         <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all">
+    //           Go to contact page <ArrowRight className="h-4 w-4" />
+    //         </Link>
+    //       </Animate>
+
+    //       <Animate className="animate-from-right" delay="anim-delay-200">
+    //         <div className="bg-surface-card border border-surface rounded-3xl p-8">
+    //           <h3 className="text-lg font-bold text-on-surface mb-1">Quick message</h3>
+    //           <p className="text-xs text-on-surface-subtle mb-6">We usually reply within a few hours.</p>
+    //           <form className="space-y-4">
+    //             <input type="email" placeholder="Your email"
+    //               className="w-full bg-surface-deep border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957]/50 transition-colors" />
+    //             <textarea placeholder="How can we help?" rows={4}
+    //               className="w-full bg-surface-deep border border-surface rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-subtle focus:outline-none focus:border-[#4BC957]/50 transition-colors resize-none" />
+    //             <button type="button" className="w-full bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-3 rounded-xl transition-all">
+    //               Send message
+    //             </button>
+    //           </form>
+    //         </div>
+    //       </Animate>
+    //     </div>
+    //   </section>
+
+
+    //   <section className="max-w-5xl mx-auto px-4 sm:px-8 pb-24 w-full">
+    //     <Animate className="animate-scale">
+    //       <div className="bg-surface-card border border-surface rounded-3xl p-12 text-center relative overflow-hidden shadow-2xl shadow-[#4BC957]/5">
+    //         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+    //           <div className="w-[300px] h-[300px] bg-[#4BC957]/10 rounded-full blur-[100px]" />
+    //         </div>
+    //         <h2 className="relative text-3xl sm:text-5xl font-extrabold text-on-surface mb-4">Your next move starts here.</h2>
+    //         <p className="relative text-on-surface-muted mb-8 max-w-lg mx-auto">
+    //           Join thousands of professionals and companies hiring smarter across the region.
+    //         </p>
+    //         <div className="relative flex flex-col sm:flex-row items-center justify-center gap-4">
+    //           <Link href="/signup" className="w-full sm:w-auto bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-8 py-3 rounded-xl transition-all">
+    //             Create free account
+    //           </Link>
+    //           <Link href="/pricing" className="w-full sm:w-auto bg-transparent border border-surface hover:border-inner text-on-surface font-medium px-8 py-3 rounded-xl transition-all">
+    //             See pricing
+    //           </Link>
+    //         </div>
+    //       </div>
+    //     </Animate>
+    //   </section>
+    // </div>
   );
 }

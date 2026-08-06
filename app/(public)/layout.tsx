@@ -12,8 +12,8 @@ export default function PublicLayout({
     <>
       <QudraHeader />
       <main id="main-content" className="flex-1">{children}</main>
-      <QudraFooter />
-      <MobileBottomNav />
+      {/* <QudraFooter /> */}
+      {/* <MobileBottomNav /> */}
     </>
   );
 }
