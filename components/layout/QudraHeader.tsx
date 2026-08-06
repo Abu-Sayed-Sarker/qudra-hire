@@ -100,10 +100,10 @@ export default function QudraHeader() {
         <div className=" w-full px-2  h-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="hidden dark:block">
-              <Image src="/logo.png" height={700} width={700} className="w-48 h-auto" alt="CareerSprint logo" />
+              <Image src="/logo.png" height={200} width={700} className="w-48 h-auto" alt="CareerSprint logo" />
             </div>
             <div className="block dark:hidden">
-              <Image src="/light-logo.png" height={700} width={700} className="w-48 h-auto" alt="CareerSprint logo" />
+              <Image src="/light-logo.png" height={200} width={700} className="w-48 h-auto" alt="CareerSprint logo" />
             </div>
           </Link>
 

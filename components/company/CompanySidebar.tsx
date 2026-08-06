@@ -81,10 +81,10 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen: any
         <div className="flex items-center gap-1.5 font-sans text-xl font-bold tracking-tight">  {/* Logo */}
           <Link href="/" className="text-2xl font-bold tracking-tight">
             <div className="hidden dark:block">
-              <Image src='/logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+              <Image src='/logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
             </div>
             <div className="block dark:hidden">
-              <Image src='/light-logo.png' height={700} width={700} className="w-48 h-auto" alt="logo" />
+              <Image src='/light-logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
             </div>
           </Link>
         </div>
