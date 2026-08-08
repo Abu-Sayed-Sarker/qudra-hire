@@ -14,7 +14,6 @@ import {
   Bot,
   Sun,
   Moon,
-  Globe,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -72,10 +71,9 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
   const email = user?.email || "";
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
   const { resolvedTheme, setTheme } = useTheme();
-  const currentLang = typeof window !== "undefined" ? localStorage.getItem("careersprint-lang") || "en" : "en";
 
   return (
-    <aside className="flex h-screen w-64 flex-shrink-0 flex-col border-r border-border bg-card text-foreground">
+    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card text-foreground">
       {/* Brand logo */}
       <div className="flex items-center gap-2 border-b border-border px-6 py-5">
         <div className="flex items-center gap-1.5 font-sans text-xl font-bold tracking-tight">  {/* Logo */}
@@ -125,7 +123,7 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
       {/* Bottom Profile / Settings */}
       <div className="border-t border-border p-4 bg-muted/30 space-y-2">
         <Link href="/company/settings" className="flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-emerald-500 flex items-center justify-center font-bold text-primary-foreground text-sm shadow-md">
+          <div className="h-9 w-9 rounded-full bg-linear-to-tr from-primary to-emerald-500 flex items-center justify-center font-bold text-primary-foreground text-sm shadow-md">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
@@ -141,26 +139,7 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
           {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
         </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
-            <Globe className="w-4 h-4" />
-            {currentLang === "en" ? "English" : "العربية"}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="start" className="w-32">
-            <DropdownMenuItem
-              onClick={() => { setSidebarOpen?.(false); localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
-              className={currentLang === "en" ? "bg-accent text-accent-foreground" : ""}
-            >
-              English
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => { setSidebarOpen?.(false); localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
-              className={currentLang === "ar" ? "bg-accent text-accent-foreground" : ""}
-            >
-              العربية
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
         <button
           onClick={() => { dispatch(logout()); router.push("/"); }}
           className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
