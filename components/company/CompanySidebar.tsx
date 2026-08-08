@@ -20,7 +20,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useTheme } from "@/components/layout/ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
