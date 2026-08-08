@@ -65,7 +65,7 @@ export default function CandidateDashboard() {
     return (
       <div className="p-6 md:p-10 space-y-8 max-w-full mx-auto">
         <div className="space-y-3">
-          <div className="h-10 w-full max-w-[18rem] bg-gradient-to-r from-muted to-muted/50 rounded-2xl animate-pulse" />
+          <div className="h-10 w-full max-w-[18rem] bg-linear-to-r from-muted to-muted/50 rounded-2xl animate-pulse" />
           <div className="h-5 w-full max-w-[24rem] bg-muted/50 rounded-xl animate-pulse" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -155,7 +155,7 @@ export default function CandidateDashboard() {
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="relative"
       >
-        <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute -top-4 -left-4 w-24 h-24 bg-linear-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl" />
         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight relative">
           {d.candidate_name}
         </h1>
@@ -192,13 +192,13 @@ export default function CandidateDashboard() {
               <div className="relative flex items-start justify-between gap-2 min-w-0">
                 <div className="space-y-1.5 min-w-0">
                   <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest truncate block">{s.label}</span>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight break-words">{s.value}</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight wrap-break-word">{s.value}</p>
                 </div>
-                <div className={`${s.bg} ${s.color} p-2.5 sm:p-3 rounded-2xl border ${s.border} shadow-lg ${s.glow} group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                <div className={`${s.bg} ${s.color} p-2.5 sm:p-3 rounded-2xl border ${s.border} shadow-lg ${s.glow} group-hover:scale-110 transition-transform duration-300 shrink-0`}>
                   <Icon className="h-5 w-5" />
                 </div>
               </div>
-              <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-border to-transparent opacity-50" />
+              <div className="absolute bottom-0 left-6 right-6 h-px bg-linear-to-r from-transparent via-border to-transparent opacity-50" />
             </motion.div>
           );
         })}
@@ -226,9 +226,9 @@ export default function CandidateDashboard() {
               transition={{ delay: 0.1 + idx * 0.08, duration: 0.4 }}
               className={`relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 ${cardHover}`}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-3xl pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent rounded-3xl pointer-events-none" />
               <div className="flex items-center gap-4 min-w-0 relative">
-                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-600 flex-shrink-0 shadow-lg shadow-emerald-500/10">
+                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-600 shrink-0 shadow-lg shadow-emerald-500/10">
                   <Bot className="h-6 w-6" />
                 </div>
                 <div className="min-w-0">
@@ -239,13 +239,13 @@ export default function CandidateDashboard() {
                       <Clock className="h-3.5 w-3.5" />
                       {invite.duration_minutes} min
                     </span>
-                    <span className="text-xs text-muted-foreground/80 truncate font-medium max-w-[200px]">{invite.message}</span>
+                    <span className="text-xs text-muted-foreground/80 truncate font-medium max-w-50">{invite.message}</span>
                   </div>
                 </div>
               </div>
               <Link
                 href={`/candidate/interview?invite=${invite.id}`}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.97] text-sm flex-shrink-0 relative"
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.97] text-sm shrink-0 relative"
                 aria-label={`Start interview with ${invite.company_name}`}
               >
                 <Play className="h-4 w-4" />
@@ -268,7 +268,7 @@ export default function CandidateDashboard() {
             transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 space-y-5 shadow-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/2 to-transparent rounded-3xl pointer-events-none" />
             <div className="relative flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -276,7 +276,7 @@ export default function CandidateDashboard() {
                 </div>
                 <h2 className="text-lg font-bold text-foreground">Daily AI Recommendations</h2>
               </div>
-              <Link href="/candidate/applications" className="text-emerald-600 font-semibold hover:text-emerald-500 text-sm flex items-center gap-1 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded-lg px-2 py-1">
+              <Link href="/candidate/jobs" className="text-emerald-600 font-semibold hover:text-emerald-500 text-sm flex items-center gap-1 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded-lg px-2 py-1">
                 View all
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
@@ -292,10 +292,10 @@ export default function CandidateDashboard() {
                 >
                   <Link href={`/candidate/jobs/detail?id=${job.id}`} className="block min-w-0">
                     <div className={`group relative bg-background/60 border border-border/80 rounded-2xl p-5 ${cardHover} h-full`}>
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] to-transparent rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/3 to-transparent rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="relative flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground flex-shrink-0">
+                          <div className="h-11 w-11 rounded-xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0">
                             {job.company_name.slice(0, 2).toUpperCase()}
                           </div>
                           <div className="min-w-0">
@@ -303,7 +303,7 @@ export default function CandidateDashboard() {
                             <p className="font-bold text-foreground leading-tight group-hover:text-emerald-600 transition-colors line-clamp-1">{job.title}</p>
                           </div>
                         </div>
-                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border flex-shrink-0 ${matchColor(job.match_score)}`}>
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border shrink-0 ${matchColor(job.match_score)}`}>
                           {job.match_score}%
                         </span>
                       </div>
@@ -342,7 +342,7 @@ export default function CandidateDashboard() {
             transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 space-y-5 shadow-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-500/2 to-transparent rounded-3xl pointer-events-none" />
             <h2 className="text-lg font-bold text-foreground relative">Recent Applications</h2>
             {d.recent_applications.length === 0 ? (
               <p className="text-sm text-muted-foreground py-8 text-center font-medium relative">No applications yet. Start exploring jobs to begin your journey.</p>
@@ -361,7 +361,7 @@ export default function CandidateDashboard() {
                       <h3 className="text-sm font-bold text-foreground group-hover:text-emerald-600 transition-colors">{app.job_title}</h3>
                       <p className="text-muted-foreground text-sm font-medium">{app.company_name} • {app.applied_date}</p>
                     </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className="text-xs font-bold text-muted-foreground">ATS <span className="text-foreground font-extrabold">{app.ats_score}</span></span>
                       <span className={`text-[11px] font-bold border px-3 py-1.5 rounded-full ${statusColor(app.status)}`}>{app.status}</span>
                     </div>
@@ -381,7 +381,7 @@ export default function CandidateDashboard() {
             transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="relative bg-card/80 backdrop-blur-sm border border-emerald-500/20 rounded-3xl p-6 space-y-5 shadow-lg shadow-emerald-500/5"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.04] to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/4 to-transparent rounded-3xl pointer-events-none" />
             <div className="relative flex items-center gap-3">
               <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                 <Sparkles className="h-5 w-5 text-emerald-600" />
@@ -400,7 +400,7 @@ export default function CandidateDashboard() {
                 <span className={`text-sm font-bold ${aa.enabled ? "text-emerald-600" : "text-muted-foreground"}`}>{aa.enabled ? "Enabled" : "Disabled"}</span>
               </div>
               <div className="w-full bg-muted/50 h-2.5 rounded-full overflow-hidden border border-border/50">
-                <div className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-full rounded-full transition-all duration-700 shadow-lg shadow-emerald-500/20" style={{ width: `${aa.daily_cap > 0 ? (aa.sent_today / aa.daily_cap) * 100 : 0}%` }} />
+                <div className="bg-linear-to-r from-emerald-500 to-emerald-400 h-full rounded-full transition-all duration-700 shadow-lg shadow-emerald-500/20" style={{ width: `${aa.daily_cap > 0 ? (aa.sent_today / aa.daily_cap) * 100 : 0}%` }} />
               </div>
               <p className="text-xs text-muted-foreground font-semibold text-right">{aa.sent_today}/{aa.daily_cap} sent</p>
             </div>
@@ -413,7 +413,7 @@ export default function CandidateDashboard() {
             transition={{ duration: 0.5, delay: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 space-y-5 shadow-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-500/2 to-transparent rounded-3xl pointer-events-none" />
             <div className="relative">
               <h3 className="text-base font-bold text-foreground mb-4">CV Strength</h3>
               <div className="space-y-3">
@@ -422,18 +422,18 @@ export default function CandidateDashboard() {
                   <span className="text-2xl font-extrabold text-foreground">{cv.percentage}%</span>
                 </div>
                 <div className="w-full bg-muted/50 h-3 rounded-full overflow-hidden border border-border/50">
-                  <div className="bg-gradient-to-r from-blue-500 to-blue-400 h-full rounded-full transition-all duration-700 shadow-lg shadow-blue-500/20" style={{ width: `${cv.percentage}%` }} />
+                  <div className="bg-linear-to-r from-blue-500 to-blue-400 h-full rounded-full transition-all duration-700 shadow-lg shadow-blue-500/20" style={{ width: `${cv.percentage}%` }} />
                 </div>
               </div>
               <div className="space-y-3 mt-5">
                 {cv.checklist.map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     {item.completed ? (
-                      <div className="h-5 w-5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <div className="h-5 w-5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                       </div>
                     ) : (
-                      <div className="h-5 w-5 rounded-lg border-2 border-border flex items-center justify-center flex-shrink-0">
+                      <div className="h-5 w-5 rounded-lg border-2 border-border flex items-center justify-center shrink-0">
                         <Circle className="h-3 w-3 text-muted-foreground/40" />
                       </div>
                     )}
@@ -454,7 +454,7 @@ export default function CandidateDashboard() {
             transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 space-y-4 shadow-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/[0.02] to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-violet-500/2 to-transparent rounded-3xl pointer-events-none" />
             <div className="relative flex justify-between items-center">
               <h3 className="text-base font-bold text-foreground">Preferences</h3>
               <Link href={profileId ? `/candidate/profile/${profileId}` : "/candidate/profile"} className="text-xs text-emerald-600 hover:text-emerald-500 font-bold flex items-center gap-1 transition-colors">
