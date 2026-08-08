@@ -37,7 +37,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
 import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
@@ -80,17 +79,14 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
 
   const handleCreateProfile = async () => {
-    // if (!selectedFile) {
-    //   toast.error("Please select a CV file");
-    //   return;
-    // }
-    const formData = new FormData();
+    let payload: FormData | undefined = undefined;
     if (selectedFile) {
-      formData.append("cv", selectedFile);
+      payload = new FormData();
+      payload.append("cv", selectedFile);
     }
 
     try {
-      const result = await createProfile(formData).unwrap();
+      const result = await createProfile(payload).unwrap();
       toast.success(result.details || "Profile created successfully");
       setIsDialogOpen(false);
       setSelectedFile(null);
@@ -298,7 +294,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
             </Button>
             <Button
               onClick={handleCreateProfile}
-              // disabled={!selectedFile || isCreating}
+              disabled={isCreating}
               className="bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white"
             >
               {isCreating ? (
