@@ -63,7 +63,7 @@ const navItems = [
   },
 ];
 
-export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen: any }) {
+export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (open: boolean) => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -102,7 +102,7 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen: any
             <Link
               key={href}
               href={href}
-              onClick={() => { setSidebarOpen(false) }}
+              onClick={() => setSidebarOpen?.(false)}
               className={cn(
                 "group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200",
                 isActive
@@ -148,13 +148,13 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen: any
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start" className="w-32">
             <DropdownMenuItem
-              onClick={() => { setSidebarOpen(false); localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
+              onClick={() => { setSidebarOpen?.(false); localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
               className={currentLang === "en" ? "bg-accent text-accent-foreground" : ""}
             >
               English
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => {setSidebarOpen(false); localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
+              onClick={() => { setSidebarOpen?.(false); localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
               className={currentLang === "ar" ? "bg-accent text-accent-foreground" : ""}
             >
               العربية

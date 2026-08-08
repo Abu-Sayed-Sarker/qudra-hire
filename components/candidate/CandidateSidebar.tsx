@@ -57,7 +57,7 @@ const navItems = [
   { label: "Subscription", href: "/candidate/subscription", icon: Star },
 ];
 
-export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any}) {
+export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: any }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -99,7 +99,7 @@ export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any
       if (fileInputRef.current) fileInputRef.current.value = "";
       const newProfileId = result.data?.id;
       if (newProfileId) {
-        setSuccessProfileId(newProfileId);
+        setSuccessProfileId(String(newProfileId));
         setShowSuccess(true);
       }
     } catch {
@@ -199,8 +199,8 @@ export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any
                 profiles.map((profile) => (
                   <DropdownMenuItem
                     key={profile.id}
-                    onClick={() => {router.push(`/candidate/profile/${profile.id}`); setSidebarOpen(false) }}
-                  
+                    onClick={() => { router.push(`/candidate/profile/${profile.id}`); setSidebarOpen?.(false); }}
+
                     className="flex items-center justify-between text-foreground hover:bg-muted hover:text-foreground cursor-pointer focus:bg-muted focus:text-foreground rounded-md px-3 py-2.5"
                   >
                     <span className="font-semibold text-sm truncate max-w-[140px]">{profile.role_title || ""}</span>
@@ -217,65 +217,57 @@ export default function CandidateSidebar({ setSidebarOpen }:{setSidebarOpen?:any
                 <Plus className="h-4 w-4 text-muted-foreground" />
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border my-1" />
-              <DropdownMenuItem
-                onClick={() => { dispatch(logout()); router.push("/"); }}
-                className="text-red-600 hover:bg-red-500/10 hover:text-red-500 cursor-pointer focus:bg-red-500/10 focus:text-red-500 rounded-md px-3 py-2.5"
-              >
-                <span className="text-sm">Log Out</span>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Log Out */}
-          <button
-            onClick={() => { dispatch(logout()); router.push("/"); }}
-            className="group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-all duration-200"
-          >
-            <LogOut className="h-5 w-5 transition-colors" />
-            <span>Log Out</span>
-          </button>
         </nav>
 
         {/* Profile */}
         <div className="border-t border-border p-4">
-          <div className="flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer">
-            <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
-              {initials}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground truncate">{fullName}</p>
-              <p className="text-[13px] text-muted-foreground truncate">{email}</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          </div>
-        </div>
-
-        {/* Theme & Language */}
-        <div className="border-t border-border p-3 space-y-1">
-          <button
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="flex items-center gap-3 w-full rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          >
-            {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
-          </button>
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-3 w-full rounded-xl px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-              <Globe className="h-4 w-4" />
-              {currentLang === "en" ? "English" : "العربية"}
+            <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted transition-colors cursor-pointer outline-none">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
+                {initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground truncate">{fullName}</p>
+                <p className="text-[13px] text-muted-foreground truncate">{email}</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start" className="w-32">
+            <DropdownMenuContent side={isMobile ? "top" : "right"} align="start" className="w-56 bg-card border border-border p-2 shadow-xl">
+              <DropdownMenuItem
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer focus:bg-muted focus:text-foreground"
+              >
+                {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => { localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
-                className={currentLang === "en" ? "bg-accent text-accent-foreground" : ""}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer focus:bg-muted focus:text-foreground",
+                  currentLang === "en" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
               >
+                <Globe className="h-4 w-4" />
                 English
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => { localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
-                className={currentLang === "ar" ? "bg-accent text-accent-foreground" : ""}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer focus:bg-muted focus:text-foreground",
+                  currentLang === "ar" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
               >
+                <Globe className="h-4 w-4" />
                 العربية
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => { dispatch(logout()); router.push("/"); }}
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 hover:text-red-500 cursor-pointer focus:bg-red-500/10 focus:text-red-500"
+              >
+                <LogOut className="h-4 w-4" />
+                Log Out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
