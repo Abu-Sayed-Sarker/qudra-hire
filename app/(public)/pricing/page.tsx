@@ -102,8 +102,8 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
   return (
     <div
       className={`relative flex flex-col h-full rounded-2xl transition-all duration-300 ${plan.popular
-          ? "bg-green-50 dark:bg-[#0D1117] border-2 border-[#4BC957]/60 shadow-2xl shadow-[#4BC957]/10"
-          : "bg-white dark:bg-[#0F172A]/60 border border-slate-200 dark:border-white/8 hover:border-slate-300 dark:hover:border-white/14 shadow-sm"
+        ? "bg-green-50 dark:bg-[#0D1117] border-2 border-[#4BC957]/60 shadow-2xl shadow-[#4BC957]/10"
+        : "bg-white dark:bg-[#0F172A]/60 border border-slate-200 dark:border-white/8 hover:border-slate-300 dark:hover:border-white/14 shadow-sm"
         }`}
     >
       {plan.popular && (
@@ -159,8 +159,8 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
           href={plan.ctaHref}
           id={plan.id}
           className={`w-full h-12 rounded-xl font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center mb-6 ${plan.popular
-              ? "bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/25"
-              : "bg-slate-100 hover:bg-slate-200 dark:bg-white/8 dark:hover:bg-white/12 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10"
+            ? "bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/25"
+            : "bg-slate-100 hover:bg-slate-200 dark:bg-white/8 dark:hover:bg-white/12 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10"
             }`}
         >
           {plan.cta}
@@ -173,7 +173,7 @@ function PricingCard({ plan, yearly }: { plan: Plan; yearly: boolean }) {
         <ul className="space-y-3 flex-1">
           {plan.features.map((f) => (
             <li key={f} className={`flex items-start gap-2.5 text-sm ${plan.popular ? "text-slate-700 dark:text-slate-300" : "text-slate-600 dark:text-slate-300"}`}>
-              <span className={`mt-0.5 flex-shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${plan.popular ? "bg-[#4BC957]/20 text-[#4BC957]" : "bg-slate-100 dark:bg-slate-700/60 text-slate-400"}`}>
+              <span className={`mt-0.5 shrink-0 h-4 w-4 rounded-full flex items-center justify-center ${plan.popular ? "bg-[#4BC957]/20 text-[#4BC957]" : "bg-slate-100 dark:bg-slate-700/60 text-slate-400"}`}>
                 <Check className="h-2.5 w-2.5" />
               </span>
               {f}
@@ -199,7 +199,7 @@ export default function PricingPage() {
           aria-hidden
           className="pointer-events-none absolute inset-0 flex items-start justify-center"
         >
-          <div className="w-[500px] h-[250px] bg-[#4BC957]/5 dark:bg-[#4BC957]/6 rounded-full blur-[140px] mt-8" />
+          <div className="w-125 h-62.5 bg-[#4BC957]/5 dark:bg-[#4BC957]/6 rounded-full blur-[140px] mt-8" />
         </div>
         {/* Grid */}
         <div
@@ -236,8 +236,8 @@ export default function PricingPage() {
             <button
               onClick={() => setYearly(false)}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${!yearly
-                  ? "bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
             >
               Monthly
@@ -245,8 +245,8 @@ export default function PricingPage() {
             <button
               onClick={() => setYearly(true)}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${yearly
-                  ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                ? "bg-[#4BC957] text-white shadow-md shadow-[#4BC957]/20"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
             >
               Yearly.

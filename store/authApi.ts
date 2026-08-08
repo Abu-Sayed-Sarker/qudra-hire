@@ -1951,14 +1951,23 @@ export const authApi = createApi({
       providesTags: ["CandidateProfiles"],
     }),
 
-    // POST /auth/candidate/profiles/  (multipart/form-data)
-    createCandidateProfile: builder.mutation<ApiResponse<CandidateProfile>, FormData>({
-      query: (formData) => ({
-        url: "auth/candidate/profiles/",
-        method: "POST",
-        body: formData,
-        formData: true,
-      }),
+    // POST /auth/candidate/profiles/  (multipart/form-data or json)
+    createCandidateProfile: builder.mutation<ApiResponse<CandidateProfile>, FormData | void>({
+      query: (formData) => {
+        if (formData) {
+          return {
+            url: "auth/candidate/profiles/",
+            method: "POST",
+            body: formData,
+            formData: true,
+          };
+        }
+        return {
+          url: "auth/candidate/profiles/",
+          method: "POST",
+          body: {},
+        };
+      },
       invalidatesTags: ["CandidateProfiles"],
     }),
 

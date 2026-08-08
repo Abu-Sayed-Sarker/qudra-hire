@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import {
   Brain,
   ScanText,
@@ -30,6 +31,7 @@ import {
   LineChart,
   Quote,
 } from "lucide-react";
+import { FaLinkedin, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 import techBg from "@/assets/tech-bg.jpg";
 import gccBg from "@/assets/gcc-bg.jpg";
 import ctaBg from "@/assets/cta-bg.jpg";
@@ -72,7 +74,7 @@ export function Trusted() {
       <p className="mb-10 text-center text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
         Backed by the most ambitious enterprises across the GCC
       </p>
-      <div className="relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+      <div className="relative overflow-hidden mask-[linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
         <div className="flex w-max gap-16" style={{ animation: "marquee 38s linear infinite" }}>
           {[...logos, ...logos].map((l, i) => (
             <span
@@ -240,7 +242,7 @@ export function Technology() {
         </div>
 
         <Reveal delay={140}>
-          <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+          <div className="relative mx-auto aspect-square w-full max-w-130">
             <div
               aria-hidden
               className="absolute inset-[18%] rounded-full blur-3xl"
@@ -709,10 +711,27 @@ export function FinalCTA() {
 
 /* ============ Footer ============ */
 const footerCols = [
-  { title: "Company", links: ["About", "Careers", "Newsroom", "Contact"] },
-  { title: "Product", links: ["Platform", "AI Technology", "For Employers", "For Candidates"] },
-  { title: "Solutions", links: ["Enterprise", "Government", "Startups", "Agencies"] },
-  { title: "Resources", links: ["Documentation", "API", "Guides", "Status"] },
+  {
+    title: "Company",
+    links: [
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+  },
+  {
+    title: "Product",
+    links: [
+      { label: "Jobs", href: "/jobs" },
+      { label: "Pricing", href: "/pricing" },
+    ],
+  },
+  {
+    title: "Platform",
+    links: [
+      { label: "For Employers", href: "/company" },
+      { label: "For Candidates", href: "/candidate" },
+    ],
+  },
 ];
 
 export function Footer() {
@@ -731,13 +750,20 @@ export function Footer() {
               GCC and global markets — powered by intelligence, not just listings.
             </p>
             <div className="mt-6 flex gap-3">
-              {["in", "X", "IG", "YT"].map((s) => (
+              {[
+                { id: "linkedin", href: "https://linkedin.com", icon: FaLinkedin },
+                { id: "twitter", href: "https://twitter.com", icon: FaTwitter },
+                { id: "instagram", href: "https://instagram.com", icon: FaInstagram },
+                { id: "youtube", href: "https://youtube.com", icon: FaYoutube },
+              ].map(({ id, href, icon: Icon }) => (
                 <a
-                  key={s}
-                  href="#top"
-                  className="glass grid h-10 w-10 place-items-center rounded-full text-xs text-muted-foreground transition-colors hover:text-ink"
+                  key={id}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="glass grid h-10 w-10 place-items-center rounded-full text-xs text-muted-foreground transition-colors hover:text-primary"
                 >
-                  {s}
+                  <Icon className="w-4 h-4" />
                 </a>
               ))}
             </div>
@@ -749,13 +775,13 @@ export function Footer() {
                 <p className="text-xs uppercase tracking-[0.2em] text-ink">{c.title}</p>
                 <ul className="mt-4 space-y-3">
                   {c.links.map((l) => (
-                    <li key={l}>
-                      <a
-                        href="#top"
+                    <li key={l.label}>
+                      <Link
+                        href={l.href}
                         className="text-sm text-muted-foreground transition-colors hover:text-primary"
                       >
-                        {l}
-                      </a>
+                        {l.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -784,12 +810,12 @@ export function Footer() {
                 Join
               </button>
             </form>
-            <div className="mt-6 flex gap-2 text-xs text-muted-foreground">
+            {/* <div className="mt-6 flex gap-2 text-xs text-muted-foreground">
               <button className="glass rounded-full px-3 py-1.5 text-ink">English</button>
               <button className="rounded-full px-3 py-1.5 transition-colors hover:text-ink">
                 العربية
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 

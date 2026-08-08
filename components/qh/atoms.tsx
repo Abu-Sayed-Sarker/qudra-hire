@@ -206,10 +206,10 @@ export function MagneticButton({
       style={
         variant === "primary"
           ? ({
-              background: "linear-gradient(120deg, var(--primary), var(--glow) 55%, var(--secondary))",
-              backgroundSize: "180% 100%",
-              animation: "sheen 7s ease-in-out infinite",
-            } as CSSProperties)
+            background: "linear-gradient(120deg, var(--primary), var(--glow) 55%, var(--secondary))",
+            backgroundSize: "180% 100%",
+            animation: "sheen 7s ease-in-out infinite",
+          } as CSSProperties)
           : undefined
       }
     >
@@ -275,7 +275,7 @@ export function CursorGlow() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-50 hidden h-[640px] w-[640px] rounded-full opacity-60 mix-blend-screen md:block"
+      className="pointer-events-none fixed left-0 top-0 z-50 hidden h-160 w-160 rounded-full opacity-60 mix-blend-screen md:block"
       style={{
         background:
           "radial-gradient(circle, color-mix(in oklab, var(--primary) 16%, transparent), transparent 62%)",
@@ -343,7 +343,7 @@ export function TiltCard({
         if (ref.current) ref.current.style.transform = "perspective(1000px)";
       }}
       className={cn(
-        "group glass relative overflow-hidden rounded-3xl transition-[transform,box-shadow] duration-500 will-change-transform hover:shadow-[0_50px_120px_-40px_oklch(0.76_0.19_148_/_45%)]",
+        "group glass relative overflow-hidden rounded-3xl transition-[transform,box-shadow] duration-500 will-change-transform hover:shadow-[0_50px_120px_-40px_oklch(0.76_0.19_148/45%)]",
         className,
       )}
     >

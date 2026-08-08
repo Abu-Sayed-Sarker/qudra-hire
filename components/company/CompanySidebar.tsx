@@ -14,20 +14,18 @@ import {
   Bot,
   Sun,
   Moon,
-  Globe,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useTheme } from "@/components/layout/ThemeProvider";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useGetCompanyProfileQuery } from "@/store/authApi";
 
 const navItems = [
   {
@@ -67,15 +65,17 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((s) => s.auth.user);
-  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "Company User";
-  const email = user?.email || "";
+  const { data: user } = useGetCompanyProfileQuery();
+  const fullName = [user?.data?.first_name, user?.data?.last_name].filter(Boolean).join(" ").trim() || "Company User";
+  const email = user?.data?.email || "";
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
+  const image = user?.data?.logo || "";
+  const isVerified = user?.data?.is_licence_verified ?? false;
   const { resolvedTheme, setTheme } = useTheme();
-  const currentLang = typeof window !== "undefined" ? localStorage.getItem("careersprint-lang") || "en" : "en";
 
+  const isMobile = useIsMobile();
   return (
-    <aside className="flex h-screen w-64 flex-shrink-0 flex-col border-r border-border bg-card text-foreground">
+    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card text-foreground">
       {/* Brand logo */}
       <div className="flex items-center gap-2 border-b border-border px-6 py-5">
         <div className="flex items-center gap-1.5 font-sans text-xl font-bold tracking-tight">  {/* Logo */}
@@ -123,51 +123,52 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
       </nav>
 
       {/* Bottom Profile / Settings */}
-      <div className="border-t border-border p-4 bg-muted/30 space-y-2">
-        <Link href="/company/settings" className="flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer">
-          <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-emerald-500 flex items-center justify-center font-bold text-primary-foreground text-sm shadow-md">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className=" font-semibold text-foreground truncate">{fullName}</p>
-            <p className="text-[13px] text-muted-foreground truncate">{email}</p>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </Link>
-        <button
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors"
-        >
-          {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
-        </button>
+      {/* Profile */}
+      <div className="border-t border-border p-4">
         <DropdownMenu>
-          <DropdownMenuTrigger className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted rounded-lg transition-colors">
-            <Globe className="w-4 h-4" />
-            {currentLang === "en" ? "English" : "العربية"}
+          <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted transition-colors cursor-pointer outline-none">
+            <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
+              {image ? (
+                <img src={image} alt={fullName} className="rounded-full w-full h-full object-cover object-top" />
+              ) : (
+                initials
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="font-semibold text-foreground truncate">{fullName}</p>
+                {isVerified ? (
+                  <div title="Verified Company" className="bg-[#4BC957]/10 text-[#4BC957] px-1.5 py-0.5 rounded-full flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-3 h-3" strokeWidth={3} />
+                  </div>
+                ) : (
+                  <div title="Unverified Company" className="bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded-full flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-3 h-3" strokeWidth={3} />
+                  </div>
+                )}
+              </div>
+              <p className="text-[13px] text-muted-foreground truncate">{email}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="start" className="w-32">
+          <DropdownMenuContent side={isMobile ? "top" : "right"} align="start" className="w-56 bg-card border border-border p-2 shadow-xl">
             <DropdownMenuItem
-              onClick={() => { setSidebarOpen?.(false); localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
-              className={currentLang === "en" ? "bg-accent text-accent-foreground" : ""}
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer focus:bg-muted focus:text-foreground"
             >
-              English
+              {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
             </DropdownMenuItem>
+
             <DropdownMenuItem
-              onClick={() => { setSidebarOpen?.(false); localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
-              className={currentLang === "ar" ? "bg-accent text-accent-foreground" : ""}
+              onClick={() => { dispatch(logout()); router.push("/"); }}
+              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 hover:text-red-500 cursor-pointer focus:bg-red-500/10 focus:text-red-500"
             >
-              العربية
+              <LogOut className="h-4 w-4" />
+              Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <button
-          onClick={() => { dispatch(logout()); router.push("/"); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Log Out
-        </button>
       </div>
     </aside>
   );

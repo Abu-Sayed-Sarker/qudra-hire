@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Check, Star, Zap, ShieldCheck, Building2, Loader2, CreditCard } from "lucide-react";
-import { useCreateStripeCheckoutSessionMutation, useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
+import { useCreateStripeCheckoutSessionMutation, useGetCompanyProfileQuery, useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
 import { useAppSelector } from "@/store/hooks";
 import { toast } from "sonner";
 import {
@@ -21,8 +21,7 @@ export default function CompanySubscriptionPage() {
   const { data: historyData, isLoading: historyLoading, isError: isHistoryError, error: historyError } = useGetSubscriptionHistoryQuery();
   const { data: plansData, isLoading: plansLoading, isError: isPlansError, error: plansError } = useGetSubscriptionPlansQuery();
   const [createCheckoutSession, { isLoading: isCheckingOut }] = useCreateStripeCheckoutSessionMutation();
-  const user = useAppSelector((s) => s.auth.user);
-
+  const { data: user } = useGetCompanyProfileQuery()
   const [yearly, setYearly] = useState(true);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{ id: string; name: string; price: string } | null>(null);
@@ -31,17 +30,15 @@ export default function CompanySubscriptionPage() {
 
     if (!user) return null;
 
-    const profile = user.company_profile;
-    const directId = typeof profile === "number" ? profile : profile?.id ?? user?.id ?? null;
-    if (directId) return directId;
-
-    return user.company_profiles?.[0]?.id ?? user.id ?? null;
+    const profile = user.data;
+    const directId = typeof profile === "number" ? profile : profile?.id;
+    return directId;
   };
 
   const companyProfileId = resolveCompanyProfileId();
 
   const openCheckout = (plan: { id: string; name: string; price: string }) => {
-   
+
     if (!companyProfileId) {
       toast.error("Company profile not found in session. Please log in again.");
       return;
@@ -92,11 +89,11 @@ export default function CompanySubscriptionPage() {
     premiumPlan?.features && premiumPlan.features.length > 0
       ? premiumPlan.features
       : [
-          "Unlimited active job postings",
-          "Advanced AI recruiter & automated screening",
-          "Priority candidate matching & outreach",
-          "Dedicated account manager & 24/7 support",
-        ];
+        "Unlimited active job postings",
+        "Advanced AI recruiter & automated screening",
+        "Priority candidate matching & outreach",
+        "Dedicated account manager & 24/7 support",
+      ];
 
   const isLoading = historyLoading || plansLoading;
 
@@ -287,8 +284,8 @@ export default function CompanySubscriptionPage() {
                       <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${row.sub_status === "ACTIVE"
-                            ? "bg-[#4BC957]/10 text-[#4BC957]"
-                            : "bg-muted text-muted-foreground"
+                          ? "bg-[#4BC957]/10 text-[#4BC957]"
+                          : "bg-muted text-muted-foreground"
                           }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${row.sub_status === "ACTIVE" ? "bg-[#4BC957]" : "bg-muted-foreground"}`} />
                           {row.sub_status}

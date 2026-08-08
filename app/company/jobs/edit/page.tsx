@@ -20,7 +20,6 @@ import {
 } from "@/store/authApi";
 import type { CompanyJob, CompanyJobPayload } from "@/store/authApi";
 import { SkeletonForm } from "@/components/ui/skeleton-cards";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { motion } from "framer-motion";
 import { get403Message } from "@/lib/utils";
@@ -142,6 +141,20 @@ function EditJobInner() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
+
+    // Validation
+    if (!form.title?.trim()) return setError("Job title is required.");
+    if (!form.skills || form.skills.length === 0) return setError("At least one skill is required.");
+    if (!form.location?.trim()) return setError("Location is required.");
+    if (!form.employment_type) return setError("Employment type is required.");
+    if (!form.currency) return setError("Currency is required.");
+    if (!form.salary_min || form.salary_min <= 0) return setError("Minimum salary is required.");
+    if (!form.salary_max || form.salary_max <= 0) return setError("Maximum salary is required.");
+    if (form.salary_max < form.salary_min) return setError("Maximum salary must be greater than or equal to minimum salary.");
+    if (!form.description?.trim()) return setError("Job description is required.");
+    if (!form.requirements?.trim()) return setError("Job requirements are required.");
+    if (!form.custome?.trim()) return setError("Custom name is required.");
+
     const diff = getDiff();
     if (Object.keys(diff).length === 0) {
       setError("No changes detected. Please modify at least one field.");

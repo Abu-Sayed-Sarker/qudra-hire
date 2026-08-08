@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   /* config options here */
-  allowedDevOrigins: ["10.10.29.153"],
+  allowedDevOrigins: ["10.10.29.153", "10.10.29.156"],
   images: {
     remotePatterns: [
       {
@@ -14,11 +14,16 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
-       {
+      {
         protocol: "https",
         hostname: "img.icons8.com",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "10.10.29.169",
+        pathname: "/**",
+      }
     ],
   },
 };

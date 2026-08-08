@@ -17,7 +17,6 @@ import {
   Upload,
   Sun,
   Moon,
-  Globe,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,7 +37,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
 import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
@@ -66,7 +64,6 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
   const { resolvedTheme, setTheme } = useTheme();
-  const currentLang = typeof window !== "undefined" ? localStorage.getItem("careersprint-lang") || "en" : "en";
 
 
 
@@ -82,17 +79,14 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
 
   const handleCreateProfile = async () => {
-    // if (!selectedFile) {
-    //   toast.error("Please select a CV file");
-    //   return;
-    // }
-    const formData = new FormData();
+    let payload: FormData | undefined = undefined;
     if (selectedFile) {
-      formData.append("cv", selectedFile);
+      payload = new FormData();
+      payload.append("cv", selectedFile);
     }
 
     try {
-      const result = await createProfile(formData).unwrap();
+      const result = await createProfile(payload).unwrap();
       toast.success(result.details || "Profile created successfully");
       setIsDialogOpen(false);
       setSelectedFile(null);
@@ -121,7 +115,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
 
   return (
     <>
-      <aside className="flex h-screen w-64 flex-shrink-0 flex-col border-r border-border bg-card text-foreground">
+      <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card text-foreground">
         {/* Brand */}
         <div className="flex items-center gap-1.5 border-b border-border px-6 py-5 font-sans text-xl font-bold tracking-tight">
           <Link href="/" className="text-2xl font-bold tracking-tight">
@@ -203,7 +197,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
 
                     className="flex items-center justify-between text-foreground hover:bg-muted hover:text-foreground cursor-pointer focus:bg-muted focus:text-foreground rounded-md px-3 py-2.5"
                   >
-                    <span className="font-semibold text-sm truncate max-w-[140px]">{profile.role_title || ""}</span>
+                    <span className="font-semibold text-sm truncate max-w-35">{profile.role_title || ""}</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </DropdownMenuItem>
                 ))
@@ -225,7 +219,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
         <div className="border-t border-border p-4">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted transition-colors cursor-pointer outline-none">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
+              <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
@@ -242,26 +236,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
                 {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 {resolvedTheme === "dark" ? "Light mode" : "Dark mode"}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => { localStorage.setItem("careersprint-lang", "en"); window.location.reload(); }}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer focus:bg-muted focus:text-foreground",
-                  currentLang === "en" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <Globe className="h-4 w-4" />
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => { localStorage.setItem("careersprint-lang", "ar"); window.location.reload(); }}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm cursor-pointer focus:bg-muted focus:text-foreground",
-                  currentLang === "ar" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <Globe className="h-4 w-4" />
-                العربية
-              </DropdownMenuItem>
+
               <DropdownMenuItem
                 onClick={() => { dispatch(logout()); router.push("/"); }}
                 className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-red-500 hover:bg-red-500/10 hover:text-red-500 cursor-pointer focus:bg-red-500/10 focus:text-red-500"
@@ -319,7 +294,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
             </Button>
             <Button
               onClick={handleCreateProfile}
-              // disabled={!selectedFile || isCreating}
+              disabled={isCreating}
               className="bg-green-600 hover:bg-green-500 dark:bg-[#4BC957] dark:hover:bg-[#00B96E] text-white"
             >
               {isCreating ? (

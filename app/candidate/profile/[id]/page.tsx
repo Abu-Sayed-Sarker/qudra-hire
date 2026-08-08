@@ -126,7 +126,7 @@ export default function CandidateProfilePage() {
   const [projects, setProjects] = useState<ProfileProject[]>([]);
   const [certifications, setCertifications] = useState<ProfileCertification[]>([]);
   const [skillInput, setSkillInput] = useState("");
-  const [isEditing, setIsEditing] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const profileSteps = [
     { key: "basic", label: "Basic Info" },
@@ -141,6 +141,8 @@ export default function CandidateProfilePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const cvFileInputRef = useRef<HTMLInputElement>(null);
 
   // Snapshot to revert on cancel
   const snapshotRef = React.useRef<{
@@ -152,6 +154,7 @@ export default function CandidateProfilePage() {
     certifications: ProfileCertification[];
     imagePreview: string | null;
     imageFile: File | null;
+    cvFile: File | null;
   } | null>(null);
 
   // ── Hydrate form from API data ──
@@ -179,6 +182,7 @@ export default function CandidateProfilePage() {
     setAutoApplyEnabled(profile.is_ai_auto_apply ?? false);
     setImagePreview(profile.image ?? null);
     setImageFile(null);
+    setCvFile(null);
 
   }, [profile]);
 
@@ -321,6 +325,9 @@ export default function CandidateProfilePage() {
       if (imageFile) {
         formData.append("image", imageFile);
       }
+      if (cvFile) {
+        formData.append("cv", cvFile);
+      }
 
       formData.append("educations", JSON.stringify(educations.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
       formData.append("experiences", JSON.stringify(experiences.map(({ id, ...rest }) => id ? { id, ...rest } : rest)));
@@ -332,6 +339,7 @@ export default function CandidateProfilePage() {
       toast.success("Profile updated successfully");
       setIsEditing(false);
       setImageFile(null);
+      setCvFile(null);
       setImagePreview(profile?.image ?? null);
     } catch (err: any) {
       toast.error(err?.data?.details ?? "Failed to update profile");
@@ -349,6 +357,7 @@ export default function CandidateProfilePage() {
       certifications: certifications.map((c) => ({ ...c })),
       imagePreview,
       imageFile,
+      cvFile,
     };
     setIsEditing(true);
   }
@@ -363,6 +372,7 @@ export default function CandidateProfilePage() {
       setCertifications(snapshotRef.current.certifications);
       setImagePreview(snapshotRef.current.imagePreview);
       setImageFile(snapshotRef.current.imageFile);
+      setCvFile(snapshotRef.current.cvFile);
       snapshotRef.current = null;
     }
     setIsEditing(false);
@@ -643,7 +653,7 @@ export default function CandidateProfilePage() {
               {/* About me */}
               <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">★</span>
+                  <span className="text-[#4BC957] text-lg leading-none -mt-0.5">★</span>
                   <h2 className="text-base font-bold text-foreground">About me</h2>
                 </div>
                 <p className="text-xs text-muted-foreground mb-3">Brief summary of your skills and experience.</p>
@@ -697,40 +707,70 @@ export default function CandidateProfilePage() {
           {currentStep === 7 && (
             <>
               {/* CV / Resume */}
-              {profile.cv && (
-                <div className="bg-card border border-border rounded-xl p-6 shadow-sm overflow-hidden">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-[#4BC957]" />
-                      <h2 className="text-base font-bold text-foreground">CV / Resume</h2>
-                    </div>
-                    <button className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors">
-                      <UploadCloud className="w-3.5 h-3.5" /> Upload CV
-                    </button>
+              {/* CV / Resume */}
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#4BC957]" />
+                    <h2 className="text-base font-bold text-foreground">CV / Resume</h2>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-4">PDF or DOCX, max 10MB.</p>
+                  {isEditing && (
+                    <>
+                      <input
+                        type="file"
+                        accept="application/pdf,.doc,.docx"
+                        className="hidden"
+                        ref={cvFileInputRef}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setCvFile(file);
+                        }}
+                      />
+                      <button 
+                        onClick={() => cvFileInputRef.current?.click()}
+                        className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors"
+                      >
+                        <UploadCloud className="w-3.5 h-3.5" /> Upload CV
+                      </button>
+                    </>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">PDF or DOCX, max 10MB.</p>
 
+                {(profile.cv || cvFile) ? (
                   <div className="bg-background border border-border rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-[#4BC957]/10 rounded flex items-center justify-center shrink-0">
                         <FileText className="w-5 h-5 text-[#4BC957]" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">Current CV</p>
-                        <p className="text-[11px] text-muted-foreground truncate max-w-[300px]">{profile.cv}</p>
+                        <p className="text-sm font-semibold text-foreground">
+                          {cvFile ? "New CV Selected" : "Current CV"}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground truncate max-w-75">
+                          {cvFile ? cvFile.name : profile.cv}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <a href={profile.cv} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold bg-[#4BC957]/10 hover:bg-[#4BC957]/20 text-[#4BC957] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
-                        <Eye className="w-3.5 h-3.5" /> View CV
-                      </a>
-                      <a href={profile.cv} download className="text-xs font-semibold border border-border hover:bg-muted text-foreground px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
-                        <Download className="w-3.5 h-3.5" /> Download
-                      </a>
-                    </div>
+                    {!cvFile && profile.cv && (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <a href={profile.cv} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold bg-[#4BC957]/10 hover:bg-[#4BC957]/20 text-[#4BC957] px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
+                          <Eye className="w-3.5 h-3.5" /> View CV
+                        </a>
+                        <a href={profile.cv} download className="text-xs font-semibold border border-border hover:bg-muted text-foreground px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
+                          <Download className="w-3.5 h-3.5" /> Download
+                        </a>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="bg-background border border-border border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                    <FileText className="w-8 h-8 text-muted-foreground mb-2 opacity-50" />
+                    <p className="text-sm font-semibold text-foreground">No CV Uploaded</p>
+                    <p className="text-xs text-muted-foreground mt-1">Upload your CV to improve your profile match rate.</p>
+                  </div>
+                )}
+              </div>
 
 
 
@@ -743,7 +783,7 @@ export default function CandidateProfilePage() {
               <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◇</span>
+                    <span className="text-[#4BC957] text-lg leading-none -mt-0.5">◇</span>
                     <h2 className="text-base font-bold text-foreground">Education</h2>
                   </div>
                   {isEditing && (
@@ -803,7 +843,7 @@ export default function CandidateProfilePage() {
               <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">▤</span>
+                    <span className="text-[#4BC957] text-lg leading-none -mt-0.5">▤</span>
                     <h2 className="text-base font-bold text-foreground">Experience</h2>
                   </div>
                   {isEditing && (
@@ -905,7 +945,7 @@ export default function CandidateProfilePage() {
               <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◆</span>
+                    <span className="text-[#4BC957] text-lg leading-none -mt-0.5">◆</span>
                     <h2 className="text-base font-bold text-foreground">Projects</h2>
                   </div>
                   {isEditing && (
@@ -971,7 +1011,7 @@ export default function CandidateProfilePage() {
               <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#4BC957] text-lg leading-none mt-[-2px]">◈</span>
+                    <span className="text-[#4BC957] text-lg leading-none -mt-0.5">◈</span>
                     <h2 className="text-base font-bold text-foreground">Certifications</h2>
                   </div>
                   {isEditing && (
@@ -1150,11 +1190,10 @@ export default function CandidateProfilePage() {
                     return (
                       <label
                         key={plan.id}
-                        className={`flex items-center gap-3 border rounded-xl px-4 py-3 cursor-pointer transition-all ${
-                          active
-                            ? "border-[#4BC957] bg-[#4BC957]/5"
-                            : "border-border hover:border-muted-foreground/30"
-                        }`}
+                        className={`flex items-center gap-3 border rounded-xl px-4 py-3 cursor-pointer transition-all ${active
+                          ? "border-[#4BC957] bg-[#4BC957]/5"
+                          : "border-border hover:border-muted-foreground/30"
+                          }`}
                       >
                         <input
                           type="radio"

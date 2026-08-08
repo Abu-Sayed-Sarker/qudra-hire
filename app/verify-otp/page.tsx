@@ -107,7 +107,7 @@ export default function VerifyOtpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface px-4 py-12 text-on-surface">
-      <div className="w-full max-w-[400px] bg-surface-card border border-surface rounded-3xl p-6 sm:p-10 shadow-2xl">
+      <div className="w-full max-w-100 bg-surface-card border border-surface rounded-3xl p-6 sm:p-10 shadow-2xl">
 
         {/* Logo */}
         <div className="flex justify-center mb-8">

@@ -2,110 +2,96 @@
 
 import { useEffect, useState } from "react";
 
-declare global {
-  interface Window {
-    googleTranslateElementInit?: () => void;
-    google: any;
-  }
+type Language = "en" | "ar";
+
+function readActiveLanguage(): Language {
+  if (typeof document === "undefined") return "en";
+  const match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
+  if (!match) return "en";
+  return decodeURIComponent(match[1]).endsWith("/ar") ? "ar" : "en";
 }
 
 export default function GoogleTranslate() {
-  const [activeLanguage, setActiveLanguage] = useState("en");
-
-  function readActiveLanguage() {
-    const match = document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
-    if (!match) return "en";
-
-    return decodeURIComponent(match[1]).endsWith("/ar") ? "ar" : "en";
-  }
-
-  function clearTranslateCookie() {
-    document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  }
-
-  function setTranslateLanguage(language: "en" | "ar") {
-    if (language === "en") {
-      clearTranslateCookie();
-    } else {
-      document.cookie = "googtrans=/en/ar; path=/";
-    }
-
-    setActiveLanguage(language);
-    window.location.reload();
-  }
+  const [activeLanguage, setActiveLanguage] = useState<Language>("en");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setActiveLanguage(readActiveLanguage());
-
-    window.googleTranslateElementInit = () => {
-      const element = document.getElementById("google_translate_element");
-      if (!element || element.childElementCount > 0) {
-        return;
-      }
-
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "en",
-          includedLanguages: "en,ar",
-          layout:
-            window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-        },
-        "google_translate_element"
-      );
-    };
-
-    if (window.google?.translate?.TranslateElement) {
-      window.googleTranslateElementInit?.();
-      return;
-    }
-
-    if (!document.getElementById("google-translate-script")) {
-      const script = document.createElement("script");
-      script.id = "google-translate-script";
-      script.src =
-        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-
-    const style = document.createElement("style");
-    style.textContent = `
-      .goog-te-banner-frame, .goog-te-gadget-icon, .skiptranslate, .goog-te-ftab, #google_translate_element { display: none !important; }
-      body { top: 0 !important; }
-    `;
-    document.head.appendChild(style);
+    setMounted(true);
   }, []);
 
-  return (
-    <div className="flex items-center gap-2">
-      <div id="google_translate_element" className="hidden" aria-hidden="true" />
+  function setLanguage(lang: Language) {
+    if (lang === activeLanguage) return;
 
+    if (lang === "en") {
+      document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie =
+        "googtrans=; path=/; domain=" +
+        window.location.hostname +
+        "; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    } else {
+      document.cookie = "googtrans=/en/" + lang + "; path=/";
+      document.cookie =
+        "googtrans=/en/" + lang + "; path=/; domain=" + window.location.hostname;
+    }
+
+    setActiveLanguage(lang);
+    // Google Translate requires a full reload to apply translation
+    window.location.reload();
+  }
+
+  return (
+    <div className="flex items-center gap-2" role="group" aria-label="Language selector">
+      {/* English button */}
       <button
         type="button"
-        onClick={() => setTranslateLanguage("en")}
+        id="lang-btn-en"
+        onClick={() => setLanguage("en")}
+        disabled={!mounted}
         className={[
-          "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+          "relative rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4BC957]/60",
           activeLanguage === "en"
-            ? "border-[#4BC957] bg-[#4BC957] text-white"
-            : "border-surface bg-transparent text-on-surface-muted hover:text-on-surface",
+            ? "border-[#4BC957] bg-[#4BC957] text-white shadow-sm shadow-[#4BC957]/30"
+            : "border-surface bg-transparent text-on-surface-muted hover:text-on-surface hover:border-[#4BC957]/50",
         ].join(" ")}
         aria-pressed={activeLanguage === "en"}
+        aria-label="Switch to English"
+        title="English"
       >
-        EN
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true">🇬🇧</span>
+          <span>EN</span>
+        </span>
+        {activeLanguage === "en" && mounted && (
+          <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-white ring-1 ring-[#4BC957]" />
+        )}
       </button>
 
+      {/* Arabic button */}
       <button
         type="button"
-        onClick={() => setTranslateLanguage("ar")}
+        id="lang-btn-ar"
+        onClick={() => setLanguage("ar")}
+        disabled={!mounted}
         className={[
-          "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+          "relative rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4BC957]/60",
           activeLanguage === "ar"
-            ? "border-[#4BC957] bg-[#4BC957] text-white"
-            : "border-surface bg-transparent text-on-surface-muted hover:text-on-surface",
+            ? "border-[#4BC957] bg-[#4BC957] text-white shadow-sm shadow-[#4BC957]/30"
+            : "border-surface bg-transparent text-on-surface-muted hover:text-on-surface hover:border-[#4BC957]/50",
         ].join(" ")}
         aria-pressed={activeLanguage === "ar"}
+        aria-label="Switch to Arabic"
+        title="العربية"
       >
-        AR
+        <span className="flex items-center gap-1">
+          <span aria-hidden="true">🇸🇦</span>
+          <span>{activeLanguage === "ar" ? "ع" : "AR"}</span>
+        </span>
+        {activeLanguage === "ar" && mounted && (
+          <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-white ring-1 ring-[#4BC957]" />
+        )}
       </button>
     </div>
   );
