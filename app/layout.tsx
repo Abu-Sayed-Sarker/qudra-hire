@@ -37,11 +37,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      dir="ltr"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        {/* Theme initialisation – runs before React hydrates to prevent flash */}
         <Script
           id="theme-init"
           strategy="beforeInteractive"
@@ -49,9 +51,24 @@ export default function RootLayout({
             __html: `try{var t=localStorage.getItem("careersprint-theme"),r=t==="dark"||(!t&&matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";document.documentElement.classList.add(r);document.documentElement.style.colorScheme=r}catch(e){}`,
           }}
         />
+        {/* Language / RTL initialisation – runs before React hydrates to prevent layout flicker */}
+        <Script
+          id="lang-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `try{
+  var _lang="en",_dir="ltr";
+  var _cookie=document.cookie.match(/(?:^|; )googtrans=([^;]+)/);
+  if(_cookie&&decodeURIComponent(_cookie[1]).endsWith("/ar")){_lang="ar";_dir="rtl";}
+  else{var _ls=localStorage.getItem("qh-lang");if(_ls==="ar"){_lang="ar";_dir="rtl";}}
+  document.documentElement.setAttribute("lang",_lang);
+  document.documentElement.setAttribute("dir",_dir);
+}catch(e){}`,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-black text-foreground pb-16 md:pb-0">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-9999] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold">
           Skip to main content
         </a>
         <StoreProvider>
