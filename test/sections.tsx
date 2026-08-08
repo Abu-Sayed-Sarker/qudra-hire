@@ -72,7 +72,7 @@ export function Trusted() {
       <p className="mb-10 text-center text-[11px] uppercase tracking-[0.32em] text-muted-foreground">
         Trusted by enterprise hiring teams across the GCC
       </p>
-      <div className="relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
+      <div className="relative overflow-hidden mask-[linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
         <div className="flex w-max gap-16" style={{ animation: "marquee 38s linear infinite" }}>
           {[...logos, ...logos].map((l, i) => (
             <span
@@ -237,7 +237,7 @@ export function Technology() {
         </div>
 
         <Reveal delay={140}>
-          <div className="relative mx-auto aspect-square w-full max-w-[520px]">
+          <div className="relative mx-auto aspect-square w-full max-w-130">
             <div
               aria-hidden
               className="absolute inset-[18%] rounded-full blur-3xl"
