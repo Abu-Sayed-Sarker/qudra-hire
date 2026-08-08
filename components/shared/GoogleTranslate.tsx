@@ -28,7 +28,7 @@ function applyDirection(lang: Language) {
   document.documentElement.setAttribute("lang", lang);
   try {
     localStorage.setItem("qh-lang", lang);
-  } catch (_) {}
+  } catch (_) { }
 }
 
 /** Fully suppress every Google Translate UI element (banner, toolbar, etc.). */
@@ -83,7 +83,7 @@ export default function GoogleTranslate() {
   useEffect(() => {
     const lang = readActiveLanguage();
     setActiveLanguage(lang);
-    applyDirection(lang);
+    // applyDirection(lang);
     setMounted(true);
 
     injectSuppressStyles();
@@ -133,7 +133,7 @@ export default function GoogleTranslate() {
         window.location.hostname;
     }
 
-    applyDirection(lang);
+    // applyDirection(lang);
     setActiveLanguage(lang);
 
     // Google Translate requires a full reload to re-translate the page
