@@ -6,6 +6,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import StoreProvider from "@/components/layout/StoreProvider";
 import { Toaster } from "@/components/ui/sonner";
+import TranslationEngine from "@/components/shared/TranslationEngine";
 
 const geistSans = Geist({
 
@@ -73,11 +74,13 @@ export default function RootLayout({
         </a>
         <StoreProvider>
           <ThemeProvider defaultTheme="dark" storageKey="careersprint-theme">
+            {/* TranslationEngine: invisible, global — re-triggers Google Translate on every route change, including /login and /signup */}
+            <TranslationEngine />
             {children}
             <Toaster />
           </ThemeProvider>
         </StoreProvider>
-      </body>
-    </html>
+      </body >
+    </html >
   );
 }

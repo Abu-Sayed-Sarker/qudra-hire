@@ -529,10 +529,28 @@ html {
 }
 
 /* ── Google Translate Overrides ── */
+
+/* Hide toolbar iframe, banner, balloon, tooltip, loading spinner, progress bar */
 .goog-te-banner-frame,
-.goog-te-banner-frame * {
-  display: none !important;
-}
+.goog-te-banner-frame *,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-te-ftab,
+.goog-te-gadget-icon,
+.skiptranslate,
+#google_translate_element,
+#google_translate_element_global,
+/* Loading spinner shown while translation is processing */
+.goog-te-spinner,
+.goog-te-spinner-pos,
+/* Google's top progress/loading bar (obfuscated class names) */
+.VIpgJd-ZVi9od-l4eHX-hSRGPd,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+/* Page dimming overlay shown during translation */
+.VIpgJd-ZVi9od-vH1Gmf,
+/* All injected Google iframes */
+iframe.goog-te-menu-frame,
+iframe.skiptranslate { display: none !important; }
 
 body {
   top: 0 !important;
