@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, ShieldCheck, Sparkles, Loader2, AlertTriangle, CreditCard, RefreshCw } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Sparkles, Loader2, AlertTriangle, CreditCard, RefreshCw, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -70,6 +70,7 @@ export default function PostJobPage() {
   const [form, setForm] = useState<CompanyJobPayload>(EMPTY_PAYLOAD);
   const [skillsText, setSkillsText] = useState(form.skills.join(", "));
   const [error, setError] = useState<string | null>(null);
+  const [notVerifiedMessage, setNotVerifiedMessage] = useState<string | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [quotaData, setQuotaData] = useState<JobQuota | null>(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -86,6 +87,7 @@ export default function PostJobPage() {
     e.preventDefault();
     setError(null);
     setQuotaExceeded(false);
+    setNotVerifiedMessage(null);
 
     try {
       await createJob({
@@ -101,7 +103,8 @@ export default function PostJobPage() {
       if (apiError.data?.code === "JOB_QUOTA_EXCEEDED") {
         setQuotaExceeded(true);
         setQuotaData(quotaRes?.data ?? null);
-        setError(null);
+      } else if (apiError.data?.code === "COMPANY_NOT_VERIFIED") {
+        setNotVerifiedMessage(apiError.data.details || "Your company must be verified before posting jobs.");
       } else if (apiError.data?.status === 403) {
         setError(apiError.data.details || "You do not have permission to perform this action.");
       } else {
@@ -230,6 +233,37 @@ export default function PostJobPage() {
           </div>
         </div>
       )}
+
+      {notVerifiedMessage && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 space-y-4" role="alert">
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0" />
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Company Verification Required</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {notVerifiedMessage}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Link
+              href="/company/settings"
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all active:scale-[0.98]"
+            >
+              Verify Company
+            </Link>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setNotVerifiedMessage(null)}
+              className="text-sm font-medium"
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
 
       {isLoading && (
         <SkeletonForm fields={6} />
@@ -461,7 +495,7 @@ export default function PostJobPage() {
               </div>
 
               {/* Cost breakdown */}
-              <div className="bg-card border border-border rounded-2xl p-6 space-y-5 shadow-sm">
+              {/* <div className="bg-card border border-border rounded-2xl p-6 space-y-5 shadow-sm">
                 <h3 className="text-sm font-bold text-foreground">Cost</h3>
 
                 <div className="space-y-3.5 font-semibold">
@@ -474,7 +508,7 @@ export default function PostJobPage() {
                     <span className="text-foreground">2 credits</span>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
             </div>
           </div>
