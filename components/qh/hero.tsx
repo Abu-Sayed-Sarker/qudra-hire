@@ -33,9 +33,8 @@ function Nav() {
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-4 pt-4">
       <nav
-        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-700 ${
-          solid ? "glass-strong" : "border border-transparent"
-        }`}
+        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-700 ${solid ? "glass-strong" : "border border-transparent"
+          }`}
       >
         <a href="#top" className="flex items-center gap-3">
           <span
@@ -97,7 +96,7 @@ function FloatingCard({
 
 function DashboardCluster() {
   return (
-    <div className="relative mx-auto aspect-[4/5] w-full max-w-[560px] sm:aspect-[5/4]">
+    <div className="relative mx-auto aspect-4/5 w-full max-w-140 sm:aspect-5/4">
       {/* neural connection lines */}
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 500 480" fill="none" aria-hidden>
         <defs>
@@ -219,7 +218,7 @@ function DashboardCluster() {
       </FloatingCard>
 
       <FloatingCard
-        className="left-[31%] top-[44%] w-[38%]"
+        className="left-[31%] top-[40%] w-[38%]"
         style={{ animationDelay: "-6s", animationDuration: "7s" }}
       >
         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -307,7 +306,7 @@ export function Hero() {
           </Reveal>
         </div>
 
-        <Reveal delay={200} className="[perspective:1200px]">
+        <Reveal delay={200} className="perspective-distant">
           <div style={{ transform: "rotateY(-9deg) rotateX(4deg)" }}>
             <div
               aria-hidden

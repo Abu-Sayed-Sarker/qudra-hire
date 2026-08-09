@@ -253,7 +253,7 @@ export default function CandidateCVPage() {
                 </div>
               </div>
               {hasCv && (
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${isAnalyzing ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20" : "bg-green-50 dark:bg-[#23C65F]/10 text-green-600 dark:text-[#23C65F] border-green-200 dark:border-[#23C65F]/20"}`}>
+                <span className={`text-[11px] font-bold px-2.5 py-1 -mt-24 -ml-20 md:m-0 rounded-full border ${isAnalyzing ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20" : "bg-green-50 dark:bg-[#23C65F]/10 text-green-600 dark:text-[#23C65F] border-green-200 dark:border-[#23C65F]/20"}`}>
                   {isAnalyzing ? "ANALYZING" : "COMPLETED"}
                 </span>
               )}
@@ -376,7 +376,7 @@ export default function CandidateCVPage() {
                   <ul className="space-y-2">
                     {suggestions.map((suggestion: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-sm">
-                        <Check className="h-4 w-4 text-green-600 dark:text-[#4BC957] flex-shrink-0 mt-0.5" />
+                        <Check className="h-4 w-4 text-green-600 dark:text-[#4BC957] shrink-0 mt-0.5" />
                         <span>{suggestion}</span>
                       </li>
                     ))}

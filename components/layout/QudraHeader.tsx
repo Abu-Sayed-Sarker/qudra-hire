@@ -11,12 +11,12 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 
 const navLinks = [
-  { label: "Platform", href: "#platform" },
-  { label: "Technology", href: "#technology" },
-  { label: "Employers", href: "#employers" },
-  { label: "GCC", href: "#gcc" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Contact", href: "#cta" },
+  { label: "Platform", href: "/#platform" },
+  { label: "Technology", href: "/#technology" },
+  { label: "Employers", href: "/#employers" },
+  { label: "GCC", href: "/#gcc" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Contact", href: "/contact" },
 
 ];
 
@@ -92,10 +92,11 @@ export default function QudraHeader() {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 px-4 pt-4">
+    <header className="fixed inset-x-0 top-0 z-40 px-4 py-4 bg-gray-900/70">
       <div
-        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-700 ${solid ? "glass-strong" : "border border-transparent"
-          }`}
+        className="mx-auto max-w-7xl"
+      // className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-700 ${solid ? "glass-strong" : "border border-transparent"
+      //   }`}
       >
         <div className=" w-full px-2  h-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
