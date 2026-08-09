@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
-  Users,
-  Search,
   SlidersHorizontal,
   Sparkles,
   Lock,
@@ -15,7 +13,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -23,13 +20,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useGetCompanyCandidatesQuery,
@@ -143,7 +133,7 @@ export default function CandidatesPage() {
             }
           />
 
-          <DialogContent className="max-w-md w-full bg-card border border-border p-6 rounded-2xl text-foreground shadow-2xl! ring-0! outline-hidden">
+          <DialogContent className="max-w-xl sm:max-w-xl w-full bg-card border border-border p-6 rounded-2xl text-foreground shadow-2xl! ring-0! outline-hidden">
             <DialogHeader className="flex flex-row items-center justify-between border-b border-border pb-4">
               <DialogTitle className="text-xl font-bold text-foreground tracking-tight">
                 Filters
@@ -258,7 +248,7 @@ export default function CandidatesPage() {
                     {/* Top row: Avatar, Name, Role, Match score */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center font-bold text-foreground text-sm shadow-inner flex-shrink-0">
+                        <div className="h-11 w-11 rounded-xl bg-muted border border-border flex items-center justify-center font-bold text-foreground text-sm shadow-inner shrink-0">
                           {initials}
                         </div>
                         <div>

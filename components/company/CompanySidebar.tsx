@@ -33,7 +33,11 @@ const navItems = [
     href: "/company",
     icon: Briefcase,
   },
-
+  {
+    label: "Candidates",
+    href: "/company/candidates",
+    icon: Users,
+  },
   {
     label: "Manage Jobs",
     href: "/company/jobs",

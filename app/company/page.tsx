@@ -108,7 +108,7 @@ export default function CompanyDashboard() {
         <div>
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">{workspaceLabel}</p>
           <h1 className="text-3xl font-extrabold text-foreground mt-1 tracking-tight">
-            {companyName} <span className="text-[#4BC957] font-normal">•</span> Talent
+            {companyName}
           </h1>
         </div>
         {/* <Link
@@ -178,7 +178,7 @@ export default function CompanyDashboard() {
           {isLoading ? (
             <div className="flex md:grid md:grid-cols-5 gap-3 overflow-x-auto pb-2 md:pb-0">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="bg-muted/50 rounded-xl p-3 space-y-2 min-w-[140px]">
+                <div key={i} className="bg-muted/50 rounded-xl p-3 space-y-2 min-w-35">
                   <div className="flex items-center justify-between border-b border-border pb-2">
                     <Skeleton className="h-3 w-16 rounded" />
                     <Skeleton className="h-5 w-6 rounded-full" />
@@ -194,9 +194,9 @@ export default function CompanyDashboard() {
               description="Your recruitment pipeline will appear here once candidates start moving through stages."
             />
           ) : (
-            <div className="flex md:grid md:grid-cols-5 gap-3 h-full min-h-[220px] overflow-x-auto pb-2 md:pb-0">
+            <div className="flex md:grid md:grid-cols-5 gap-3 h-full min-h-55 overflow-x-auto pb-2 md:pb-0">
               {pipeline.map((stage) => (
-                <div key={stage.key} className="bg-muted/50 rounded-xl p-3 flex flex-col space-y-3 min-w-[140px] md:min-w-0">
+                <div key={stage.key} className="bg-muted/50 rounded-xl p-3 flex flex-col space-y-3 min-w-35 md:min-w-0">
                   <div className="flex items-center justify-between border-b border-border pb-2">
                     <span className="text-sm font-semibold text-muted-foreground">{stage.label}</span>
                     <span className="text-[13px] font-bold text-muted-foreground bg-card px-2 py-0.5 rounded-full border border-border">{stage.count}</span>
@@ -259,7 +259,7 @@ export default function CompanyDashboard() {
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-foreground group-hover:text-[#4BC957] transition-colors">{match.name}</p>
-                        <p className="text-sm text-muted-foreground text-xs">{match.role_title}</p>
+                        <p className="text-muted-foreground text-xs">{match.role_title}</p>
                       </div>
                     </div>
                     <span className="text-sm font-bold text-[#4BC957] bg-[#4BC957]/10 px-2.5 py-1 rounded-lg">

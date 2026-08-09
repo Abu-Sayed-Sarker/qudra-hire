@@ -29,6 +29,9 @@ const EMPLOYMENT_TYPES = [
   { value: "FULL_TIME", label: "Full Time" },
   { value: "REMOTE", label: "Remote" },
   { value: "HYBRID", label: "Hybrid" },
+  { value: "CONTRACT", label: "Contract" },
+  { value: "INTERNSHIP", label: "Internship" },
+  { value: "TEMPORARY", label: "Temporary" },
 ] as const;
 
 const CURRENCIES = [
