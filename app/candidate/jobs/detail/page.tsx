@@ -227,7 +227,7 @@ function JobDetailContent() {
           {/* Header */}
           <div className="flex items-start flex-wrap justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-surface-item to-surface-deep border border-surface flex items-center justify-center font-bold text-on-surface-muted text-sm flex-shrink-0">
+              <div className="h-14 w-14 rounded-xl bg-linear-to-br from-surface-item to-surface-deep border border-surface flex items-center justify-center font-bold text-on-surface-muted text-sm shrink-0">
                 {companyInitials}
               </div>
               <div>
@@ -241,7 +241,7 @@ function JobDetailContent() {
                 </div>
               </div>
             </div>
-            <span className="text-[13px] font-bold px-2.5 py-1 rounded-full bg-[#23C65F]/15 border border-[#23C65F]/30 text-[#23C65F] flex-shrink-0">
+            <span className="text-[13px] font-bold px-2.5 py-1 rounded-full bg-[#23C65F]/15 border border-[#23C65F]/30 text-[#23C65F] shrink-0">
               {matchScore}% match
             </span>
           </div>
@@ -381,11 +381,11 @@ function JobDetailContent() {
                 {tailoringSteps.map((step) => (
                   <div key={step.id} className="flex items-center gap-3 font-semibold">
                     {step.done ? (
-                      <span className="h-5 w-5 rounded-full bg-[#23C65F]/10 border border-[#23C65F]/20 text-[#23C65F] flex items-center justify-center flex-shrink-0">
+                      <span className="h-5 w-5 rounded-full bg-[#23C65F]/10 border border-[#23C65F]/20 text-[#23C65F] flex items-center justify-center shrink-0">
                         <Check className="h-3.5 w-3.5" />
                       </span>
                     ) : (
-                      <span className="h-5 w-5 rounded-full border border-surface text-on-surface-muted flex items-center justify-center flex-shrink-0 text-[13px]">{step.id}</span>
+                      <span className="h-5 w-5 rounded-full border border-surface text-on-surface-muted flex items-center justify-center shrink-0 text-[13px]">{step.id}</span>
                     )}
                     <span className={step.done ? "text-on-surface" : "text-on-surface-muted"}>{step.text}</span>
                   </div>
@@ -421,7 +421,7 @@ function JobDetailContent() {
                   <Eye className="h-3 w-3" /> Compare
                 </button>
                 <button onClick={() => { setApplyModalOpen(true); setApplyStep("review"); }} className="bg-[#23C65F] hover:bg-[#1DA852] text-white py-2.5 rounded-xl text-[13px] font-bold flex items-center justify-center gap-1">
-                  Use tailored CV <ArrowRight className="h-3.5 w-3.5" />
+                  <span className="hidden md:block">Use</span> Tailored CV<ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
               {(tailoredCvData.html_url || tailoredCvData.pdf_url) && (

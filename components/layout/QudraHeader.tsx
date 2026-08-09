@@ -128,14 +128,14 @@ export default function QudraHeader() {
               <>
                 <Link
                   href={getDashboardHref()}
-                  className="hidden md:flex items-center gap-1.5 text-sm font-medium text-on-surface-muted hover:text-on-surface transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-medium text-on-surface-muted hover:text-on-surface transition-colors"
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
+                  <span className="hidden md:block">Dashboard</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1.5 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 font-semibold px-4 py-2 rounded-lg border border-red-500/20 transition-all active:scale-[0.97]"
+                  className="hidden md:flex items-center gap-1.5 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 font-semibold px-4 py-2 rounded-lg border border-red-500/20 transition-all active:scale-[0.97]"
                 >
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">Logout</span>
@@ -151,7 +151,7 @@ export default function QudraHeader() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-sm bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-4 py-2 rounded-lg transition-all active:scale-[0.97]"
+                  className="text-sm bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-4 py-2 rounded-lg transition-all active:scale-[0.97] hidden md:block"
                 >
                   Get started
                 </Link>

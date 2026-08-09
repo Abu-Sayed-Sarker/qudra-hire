@@ -207,7 +207,7 @@ export default function BrowseJobsPage() {
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="relative"
       >
-        <div className="absolute -top-4 -left-4 w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute -top-4 -left-4 w-32 h-32 bg-linear-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl" />
         <div className="relative flex items-center gap-3 mb-2">
           <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
             <Briefcase className="h-6 w-6 text-emerald-600" />
@@ -228,12 +228,17 @@ export default function BrowseJobsPage() {
         className="flex flex-col sm:flex-row gap-3"
       >
         <div className="relative flex-1 group">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-linear-to-r from-emerald-500/10 to-blue-500/10 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60 group-focus-within:text-emerald-600 transition-colors" />
           <Input
             placeholder="Search by title, company, or location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.currentTarget.blur();
+              }
+            }}
             className="pl-11 h-13 rounded-2xl border-border bg-background/80 backdrop-blur-sm focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/30 text-sm font-medium shadow-sm transition-all"
           />
         </div>
@@ -260,7 +265,7 @@ export default function BrowseJobsPage() {
           transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 space-y-6 shadow-sm overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-br from-emerald-500/2 to-transparent pointer-events-none" />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -343,17 +348,15 @@ export default function BrowseJobsPage() {
               <button
                 key={filter.label}
                 onClick={() => filter.setter(!filter.checked)}
-                className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${
-                  filter.checked
+                className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${filter.checked
                     ? `bg-${filter.color}-500/10 border-${filter.color}-500/30 text-${filter.color}-600 shadow-sm`
                     : "border-border bg-background/40 text-muted-foreground hover:border-border/80"
-                }`}
+                  }`}
               >
-                <div className={`h-4 w-4 rounded-md border-2 flex items-center justify-center transition-all ${
-                  filter.checked
+                <div className={`h-4 w-4 rounded-md border-2 flex items-center justify-center transition-all ${filter.checked
                     ? `bg-${filter.color}-600 border-${filter.color}-600`
                     : "border-border"
-                }`}>
+                  }`}>
                   {filter.checked && (
                     <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -411,7 +414,7 @@ export default function BrowseJobsPage() {
               animate={{ opacity: 1, y: 0 }}
               className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-12 md:p-16 text-center overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-muted/20 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-muted/20 to-transparent pointer-events-none" />
               <div className="relative">
                 <div className="w-16 h-16 rounded-3xl bg-muted/50 border border-border flex items-center justify-center mx-auto mb-5">
                   <Briefcase className="h-7 w-7 text-muted-foreground/60" />
@@ -449,10 +452,10 @@ export default function BrowseJobsPage() {
                     className="block h-full"
                   >
                     <div className={`group relative bg-card/80 backdrop-blur-sm border border-border/80 rounded-3xl p-6 ${cardHover} h-full overflow-hidden`}>
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] via-transparent to-blue-500/[0.02] rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/3 via-transparent to-blue-500/2 rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       <div className="relative flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground flex-shrink-0 shadow-sm">
+                          <div className="h-12 w-12 rounded-2xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0 shadow-sm">
                             {job.company_name?.slice(0, 2).toUpperCase() || "CO"}
                           </div>
                           <div className="min-w-0">
@@ -461,7 +464,7 @@ export default function BrowseJobsPage() {
                           </div>
                         </div>
                         {job.match_score !== null && (
-                          <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 flex-shrink-0 shadow-sm shadow-emerald-500/5">
+                          <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 shrink-0 shadow-sm shadow-emerald-500/5">
                             {job.match_score}% match
                           </span>
                         )}

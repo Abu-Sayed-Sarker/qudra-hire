@@ -274,9 +274,9 @@ export default function CandidateDashboard() {
                 <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                   <Sparkles className="h-5 w-5 text-emerald-600" />
                 </div>
-                <h2 className="text-lg font-bold text-foreground">Daily AI Recommendations</h2>
+                <h2 className="text-base md:text-lg font-semibold md:font-bold text-foreground">Daily AI Recommendations</h2>
               </div>
-              <Link href="/candidate/jobs" className="text-emerald-600 font-semibold hover:text-emerald-500 text-sm flex items-center gap-1 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded-lg px-2 py-1">
+              <Link href="/candidate/jobs" className="min-w-20 text-emerald-600 font-semibold hover:text-emerald-500 text-xs md:text-sm flex items-center gap-1 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded-lg px-2 py-1">
                 View all
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
@@ -463,15 +463,15 @@ export default function CandidateDashboard() {
               </Link>
             </div>
             <div className="space-y-3 relative">
-              <div className="flex items-center justify-between py-2 border-b border-border/50">
+              <div className="flex items-center justify-between py-2 gap-2 border-b border-border/50">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</span>
                 <span className="text-sm font-bold text-foreground">{pref.role}</span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-border/50">
+              <div className="flex items-center justify-between py-2 gap-2 border-b border-border/50">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Salary</span>
                 <span className="text-sm font-bold text-foreground">{pref.salary}</span>
               </div>
-              <div className="flex items-center justify-between py-2">
+              <div className="flex items-center justify-between py-2 gap-2">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</span>
                 <span className="text-sm font-bold text-foreground">{pref.location}</span>
               </div>
