@@ -119,7 +119,7 @@ export default function CandidateFilters({
               setFilter("experience_level", val && val !== "ALL" ? val : undefined)
             }
           >
-            <SelectTrigger className="bg-background border-border focus:border-[#4BC957]">
+            <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
               <SelectValue placeholder="Select level" />
             </SelectTrigger>
             <SelectContent>
@@ -143,7 +143,7 @@ export default function CandidateFilters({
               setFilter("gender", val && val !== "ALL" ? val : undefined)
             }
           >
-            <SelectTrigger className="bg-background border-border focus:border-[#4BC957]">
+            <SelectTrigger className="w-full bg-background border-border focus:border-[#4BC957]">
               <SelectValue placeholder="Select gender" />
             </SelectTrigger>
             <SelectContent>
@@ -199,7 +199,7 @@ export default function CandidateFilters({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
         <Button
           variant="outline"
           onClick={onReset}

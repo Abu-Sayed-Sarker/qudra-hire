@@ -49,10 +49,13 @@ const EMPTY_PAYLOAD: CompanyJobPayload = {
 };
 
 const EMPLOYMENT_TYPES = [
-  { value: "FULL_TIME", label: "Full Time" },
-  { value: "REMOTE", label: "Remote" },
-  { value: "HYBRID", label: "Hybrid" },
+  { value: "FULL_TIME", label: "Full-time" },
+  { value: "PART_TIME", label: "Part-time" },
+  { value: "CONTRACT", label: "Contract" },
+  { value: "INTERNSHIP", label: "Internship" },
+  { value: "TEMPORARY", label: "Temporary" },
 ] as const;
+
 
 const CURRENCIES = [
   { value: "AED", label: "AED" },

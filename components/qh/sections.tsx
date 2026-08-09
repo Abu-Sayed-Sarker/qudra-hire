@@ -732,6 +732,13 @@ const footerCols = [
       { label: "For Candidates", href: "/candidate" },
     ],
   },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms & Conditions", href: "/terms-and-conditions" },
+    ],
+  },
 ];
 
 export function Footer() {
