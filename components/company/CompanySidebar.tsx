@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { useState } from "react";import { cn } from "@/lib/utils";
 import {
   Briefcase,
   Users,
@@ -16,6 +16,8 @@ import {
   Moon,
   ShieldCheck,
   AlertTriangle,
+  PanelLeftOpen,
+  PanelLeftClose,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -78,11 +80,13 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
   const { resolvedTheme, setTheme } = useTheme();
 
   const isMobile = useIsMobile();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card text-foreground">
+    <aside className={cn("flex h-screen shrink-0 flex-col border-r border-border bg-card text-foreground transition-all duration-300", isCollapsed ? "w-20" : "w-64")}>
       {/* Brand logo */}
-      <div className="flex items-center gap-2 border-b border-border px-6 py-5">
-        <div className="flex items-center gap-1.5 font-sans text-xl font-bold tracking-tight">  {/* Logo */}
+      <div className={cn("flex items-center border-b border-border py-5 font-sans text-xl font-bold tracking-tight", isCollapsed ? "justify-center px-4" : "gap-1.5 px-6 justify-between")}>
+        {!isCollapsed && (
           <Link href="/" className="text-2xl font-bold tracking-tight">
             <div className="hidden dark:block">
               <Image src='/logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
@@ -91,7 +95,14 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
               <Image src='/light-logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
             </div>
           </Link>
-        </div>
+        )}
+        <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 hover:bg-muted rounded-xl transition-colors">
+          {isCollapsed ? (
+            <PanelLeftOpen className="h-5 w-5 text-muted-foreground" />
+          ) : (
+            <PanelLeftClose className="h-5 w-5 text-muted-foreground" />
+          )}
+        </button>
       </div>
 
       {/* Navigation */}
@@ -108,7 +119,8 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
               href={href}
               onClick={() => setSidebarOpen?.(false)}
               className={cn(
-                "group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200",
+                "group flex items-center rounded-xl py-3.5 text-sm font-medium transition-all duration-200",
+                isCollapsed ? "justify-center px-0" : "gap-3.5 px-4",
                 isActive
                   ? "bg-muted text-foreground border border-border shadow-sm"
                   : "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
@@ -116,11 +128,11 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
             >
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-colors",
+                  "h-5 w-5 transition-colors shrink-0",
                   isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                 )}
               />
-              <span>{label}</span>
+              {!isCollapsed && <span>{label}</span>}
             </Link>
           );
         })}
@@ -131,29 +143,33 @@ export default function CompanySidebar({ setSidebarOpen }: { setSidebarOpen?: (o
       <div className="border-t border-border p-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted transition-colors cursor-pointer outline-none">
-            <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
+            <div className="h-9 w-9 shrink-0 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
               {image ? (
                 <img src={image} alt={fullName} className="rounded-full w-full h-full object-cover object-top" />
               ) : (
                 initials
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="font-semibold text-foreground truncate">{fullName}</p>
-                {isVerified ? (
-                  <div title="Verified Company" className="bg-[#4BC957]/10 text-[#4BC957] px-1.5 py-0.5 rounded-full flex items-center justify-center shrink-0">
-                    <ShieldCheck className="w-3 h-3" strokeWidth={3} />
+            {!isCollapsed && (
+              <>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-foreground truncate">{fullName}</p>
+                    {isVerified ? (
+                      <div title="Verified Company" className="bg-[#4BC957]/10 text-[#4BC957] px-1.5 py-0.5 rounded-full flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-3 h-3" strokeWidth={3} />
+                      </div>
+                    ) : (
+                      <div title="Unverified Company" className="bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded-full flex items-center justify-center shrink-0">
+                        <AlertTriangle className="w-3 h-3" strokeWidth={3} />
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div title="Unverified Company" className="bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded-full flex items-center justify-center shrink-0">
-                    <AlertTriangle className="w-3 h-3" strokeWidth={3} />
-                  </div>
-                )}
-              </div>
-              <p className="text-[13px] text-muted-foreground truncate">{email}</p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-[13px] text-muted-foreground truncate">{email}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </>
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent side={isMobile ? "top" : "right"} align="start" className="w-56 bg-card border border-border p-2 shadow-xl">
             <DropdownMenuItem

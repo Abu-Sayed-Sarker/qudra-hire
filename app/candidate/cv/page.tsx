@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { motion, type Variants } from "framer-motion";
 import {
   Upload,
   FileText,
@@ -9,6 +10,7 @@ import {
   Loader2,
   AlertTriangle,
   Check,
+  Bot,
 } from "lucide-react";
 import { AnalysisPopup } from "@/components/cv/analysis-popup";
 import { toast } from "sonner";
@@ -237,23 +239,37 @@ export default function CandidateCVPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B]/60 rounded-2xl p-6 flex flex-col justify-between space-y-6 shadow-sm dark:shadow-none">
-          <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="lg:col-span-2 group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-emerald-500/20 rounded-xl p-6 md:p-8 flex flex-col justify-between space-y-6 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30"
+        >
+          {/* Premium Background Gradient Reveal */}
+          <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-xl" />
+          <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+          <div className="space-y-6 relative z-10">
             {/* File info header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-green-50 dark:bg-[#4BC957]/10 border border-green-200 dark:border-[#4BC957]/20 rounded-xl text-green-600 dark:text-[#4BC957]">
-                  <FileText className="h-5 w-5" />
-                </div>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <motion.div
+                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                  className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-600 dark:text-[#4BC957] shadow-lg shadow-emerald-500/10 relative group-hover:border-emerald-500/40 transition-colors"
+                >
+                  <FileText className="h-6 w-6 relative z-10" />
+                  <div className="absolute inset-0 bg-emerald-500/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
+                </motion.div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">{cvData?.data?.cv_name || "No CV uploaded"}</h3>
-                  <p className="text-[13px] text-slate-500 mt-0.5">
+                  <h3 className="text-base font-bold text-foreground group-hover:text-emerald-500 transition-colors">{cvData?.data?.cv_name || "No CV uploaded"}</h3>
+                  <p className="text-[13px] text-muted-foreground mt-0.5 font-medium">
                     {hasCv ? `Updated ${formatDate(cvData!.data!.updated_at)}` : "Upload a CV to get started"}
                   </p>
                 </div>
               </div>
               {hasCv && (
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${isAnalyzing ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20" : "bg-green-50 dark:bg-[#23C65F]/10 text-green-600 dark:text-[#23C65F] border-green-200 dark:border-[#23C65F]/20"}`}>
+                <span className={`text-[11px] font-bold px-3 py-1.5 rounded-full border shadow-sm self-start md:self-auto ${isAnalyzing ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" : "bg-emerald-500/10 text-emerald-600 dark:text-[#4BC957] border-emerald-500/20"}`}>
                   {isAnalyzing ? "ANALYZING" : "COMPLETED"}
                 </span>
               )}
@@ -261,37 +277,45 @@ export default function CandidateCVPage() {
 
             {/* ATS Score */}
             {(atsScore > 0 || isAnalyzing) && (
-              <div className="space-y-2">
-                <div className="flex justify-between font-bold">
-                  <span className="text-slate-600 dark:text-slate-400">ATS readiness</span>
-                  <span className="text-green-600 dark:text-[#4BC957]">{atsScore}%</span>
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-baseline font-bold">
+                  <span className="text-sm text-muted-foreground uppercase tracking-wider">ATS readiness</span>
+                  <span className="text-xl text-emerald-600 dark:text-[#4BC957]">{atsScore}%</span>
                 </div>
-                <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-green-500 dark:bg-[#4BC957] h-full rounded-full transition-all duration-500" style={{ width: `${atsScore}%` }} />
+                <div className="w-full bg-muted/50 h-3 rounded-full overflow-hidden border border-border/50">
+                  <div className="bg-linear-to-r from-emerald-500 to-emerald-400 h-full rounded-full transition-all duration-700 shadow-lg shadow-emerald-500/20" style={{ width: `${atsScore}%` }} />
                 </div>
               </div>
             )}
 
             {/* Upload Dropzone */}
             <div
-              className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center space-y-4 transition-all cursor-pointer ${dragOver ? "border-green-500 dark:border-[#4BC957]/70 bg-green-50 dark:bg-[#4BC957]/5" : "border-green-200 dark:border-[#4BC957]/30 bg-slate-50 dark:bg-[#0F172A]/30 hover:border-green-400 dark:hover:border-[#4BC957]/50"}`}
+              className={`relative overflow-hidden border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center text-center space-y-5 transition-all duration-300 cursor-pointer ${dragOver ? "border-emerald-500 dark:border-[#4BC957] bg-emerald-500/10 shadow-lg shadow-emerald-500/20 scale-[1.02]" : "border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10"}`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
+              {dragOver && <div className="absolute inset-0 bg-emerald-500/10 animate-pulse pointer-events-none" />}
 
               {selectedFile ? (
-                <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-xs">
-                  Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                </p>
-              ) : (
-                <>   <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957]">
-                  <Upload className="h-6 w-6" />
+                <div className="flex flex-col items-center gap-2">
+                  <div className="p-3 bg-emerald-500/20 rounded-full text-emerald-500">
+                    <Check className="h-6 w-6" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">Ready to upload</p>
+                  <p className="text-xs text-muted-foreground font-medium truncate max-w-xs">
+                    {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  </p>
                 </div>
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Drop your CV here</h3>
-                    <p className="text-slate-600 dark:text-slate-400">PDF or DOCX, max 10MB. We will parse skills, projects and experience.</p>
+              ) : (
+                <>
+                  <div className={`h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-[#4BC957] transition-transform duration-300 ${dragOver ? "scale-110" : ""}`}>
+                    <Upload className="h-7 w-7" />
+                  </div>
+                  <div className="space-y-1.5 z-10 relative">
+                    <h3 className="text-lg font-bold text-foreground">Drop your CV here</h3>
+                    <p className="text-sm text-muted-foreground font-medium max-w-sm mx-auto">PDF or DOCX, max 10MB. We will parse skills, projects and experience.</p>
                   </div>
                   <input
                     ref={fileInputRef}
@@ -337,55 +361,81 @@ export default function CandidateCVPage() {
               Download
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Column - Parsed Skills & Suggestions */}
-        <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B]/60 rounded-2xl p-6 space-y-4 shadow-sm dark:shadow-none">
-          {!hasCv ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Upload a CV to see parsed skills and suggestions.</p>
-          ) : isAnalyzing ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-green-600 dark:text-[#4BC957]" />
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Analyzing your CV...</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-blue-500/20 rounded-xl p-6 md:p-8 space-y-6 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-500/30"
+        >
+          <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-xl" />
+          <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+          <div className="relative z-10">
+            {!hasCv ? (
+              <div className="flex flex-col items-center justify-center text-center h-full space-y-3 py-10">
+                <div className="p-3 bg-blue-500/10 rounded-full text-blue-500">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <p className="text-sm text-muted-foreground font-medium">Upload a CV to see parsed skills and AI suggestions.</p>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">This may take a few seconds.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <h3 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider">Parsed skills</h3>
-
-              {parsedSkills.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {parsedSkills.map((skill: string) => (
-                    <span
-                      key={skill}
-                      className="bg-slate-100 dark:bg-[#1E293B]/50 border border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-xl font-medium"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+            ) : isAnalyzing ? (
+              <div className="space-y-4 py-8 flex flex-col items-center text-center">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full" />
+                  <Loader2 className="h-10 w-10 animate-spin text-blue-500 relative z-10" />
                 </div>
-              ) : (
-                <p className="text-sm text-slate-500 dark:text-slate-400">No skills parsed yet.</p>
-              )}
-
-              {suggestions.length > 0 && (
-                <div className="space-y-2 pt-2">
-                  <h4 className="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-wider">Suggestions</h4>
-                  <ul className="space-y-2">
-                    {suggestions.map((suggestion: string, idx: number) => (
-                      <li key={idx} className="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-sm">
-                        <Check className="h-4 w-4 text-green-600 dark:text-[#4BC957] flex-shrink-0 mt-0.5" />
-                        <span>{suggestion}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div>
+                  <p className="text-base font-bold text-foreground">Analyzing your CV...</p>
+                  <p className="text-sm text-muted-foreground mt-1">This may take a few seconds.</p>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Sparkles className="h-5 w-5 text-blue-500" />
+                    <h3 className="font-bold text-foreground uppercase tracking-wider text-sm">Parsed skills</h3>
+                  </div>
+
+                  {parsedSkills.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {parsedSkills.map((skill: string) => (
+                        <span
+                          key={skill}
+                          className="bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-xl text-[13px] font-bold shadow-sm transition-transform hover:scale-105 cursor-default"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground font-medium">No skills parsed yet.</p>
+                  )}
+                </div>
+
+                {suggestions.length > 0 && (
+                  <div className="space-y-4 pt-4 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Bot className="h-5 w-5 text-emerald-500" />
+                      <h4 className="font-bold text-foreground text-sm uppercase tracking-wider">AI Suggestions</h4>
+                    </div>
+                    <ul className="space-y-3">
+                      {suggestions.map((suggestion: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-3 bg-muted/30 p-4 rounded-2xl border border-border/50 hover:bg-muted/50 transition-colors">
+                          <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]" />
+                          <span className="text-sm text-foreground/80 font-medium leading-relaxed">{suggestion}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </motion.div>
       </div>
 
       <AnalysisPopup

@@ -17,6 +17,8 @@ import {
   Upload,
   Sun,
   Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,7 +41,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
-import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
+import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation, authApi } from "@/store/authApi";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -61,11 +63,11 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
   const user = useAppSelector((s) => s.auth.user);
-  const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
+  const { data: profilesData, isLoading: profilesLoading, refetch } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
   const { resolvedTheme, setTheme } = useTheme();
 
-
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -73,7 +75,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const [successProfileId, setSuccessProfileId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const profiles = profilesData?.data ?? [];
+  const profiles = (profilesData?.data as any)?.profiles || [];
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "Candidate";
   const email = user?.email || "";
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
@@ -91,13 +93,14 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
       setIsDialogOpen(false);
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      refetch(); // Automatically reload profile list
       const newProfileId = result.data?.id;
       if (newProfileId) {
         setSuccessProfileId(String(newProfileId));
         setShowSuccess(true);
       }
-    } catch {
-      toast.error("Failed to create profile");
+    } catch (error: any) {
+      toast.error(error?.data?.details || "Failed to create profile");
     }
   };
 
@@ -105,6 +108,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
     setShowSuccess(false);
     if (successProfileId) {
       router.push(`/candidate/profile/${successProfileId}`);
+      refetch();
     }
   };
 
@@ -115,17 +119,26 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
 
   return (
     <>
-      <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card text-foreground">
+      <aside className={cn("flex h-screen shrink-0 flex-col border-r border-border bg-card text-foreground transition-all duration-300", isCollapsed ? "w-20" : "w-64")}>
         {/* Brand */}
-        <div className="flex items-center gap-1.5 border-b border-border px-6 py-5 font-sans text-xl font-bold tracking-tight">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            <div className="hidden dark:block">
-              <Image src='/logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
-            </div>
-            <div className="block dark:hidden">
-              <Image src='/light-logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
-            </div>
-          </Link>
+        <div className={cn("flex items-center border-b border-border py-5 font-sans text-xl font-bold tracking-tight", isCollapsed ? "justify-center px-4" : "gap-1.5 px-6 justify-between")}>
+          {!isCollapsed && (
+            <Link href="/" className="text-2xl font-bold tracking-tight">
+              <div className="hidden dark:block">
+                <Image src='/logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
+              </div>
+              <div className="block dark:hidden">
+                <Image src='/light-logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
+              </div>
+            </Link>
+          )}
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 hover:bg-muted rounded-xl transition-colors">
+            {isCollapsed ? (
+              <PanelLeftOpen className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5 text-muted-foreground" />
+            )}
+          </button>
         </div>
 
         {/* Nav */}
@@ -139,13 +152,15 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
               <Link
                 key={href}
                 href={href}
-                onClick={() => { setSidebarOpen(false) }}
+                onClick={() => { setSidebarOpen?.(false) }}
                 className={cn(
-                  "group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200",
+                  "group flex items-center rounded-xl py-3.5 text-sm font-medium transition-all duration-200",
+                  isCollapsed ? "justify-center px-0" : "gap-3.5 px-4",
                   isActive
                     ? "bg-muted text-foreground border border-border shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
+                title={isCollapsed ? label : undefined}
               >
                 <Icon
                   className={cn(
@@ -153,7 +168,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
                     isActive ? "text-[#4BC957]" : "text-muted-foreground group-hover:text-foreground"
                   )}
                 />
-                <span>{label}</span>
+                {!isCollapsed && <span>{label}</span>}
               </Link>
             );
           })}
@@ -161,21 +176,24 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-              "w-full group flex items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200 outline-none",
+              "w-full group flex items-center rounded-xl py-3.5 text-sm font-medium transition-all duration-200 outline-none",
+              isCollapsed ? "justify-center px-0" : "justify-between px-4",
               pathname.startsWith("/candidate/profile")
                 ? "bg-muted text-foreground border border-border shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}>
-              <div className="flex items-center gap-3.5">
+            )}
+              title={isCollapsed ? "My profile" : undefined}
+            >
+              <div className={cn("flex items-center", isCollapsed ? "" : "gap-3.5")}>
                 <User
                   className={cn(
                     "h-5 w-5 transition-colors",
                     pathname.startsWith("/candidate/profile") ? "text-[#4BC957]" : "text-muted-foreground group-hover:text-foreground"
                   )}
                 />
-                <span>My profile</span>
+                {!isCollapsed && <span>My profile</span>}
               </div>
-              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              {!isCollapsed && <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-56 bg-card border border-border p-2 shadow-xl"
@@ -190,7 +208,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
               ) : profiles.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-muted-foreground">No profiles yet</div>
               ) : (
-                profiles.map((profile) => (
+                profiles.map((profile: any) => (
                   <DropdownMenuItem
                     key={profile.id}
                     onClick={() => { router.push(`/candidate/profile/${profile.id}`); setSidebarOpen?.(false); }}
@@ -216,17 +234,21 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
         </nav>
 
         {/* Profile */}
-        <div className="border-t border-border p-4">
+        <div className={cn("border-t border-border p-4 flex", isCollapsed ? "justify-center px-2" : "")}>
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted transition-colors cursor-pointer outline-none">
-              <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
+            <DropdownMenuTrigger className={cn("flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer outline-none", isCollapsed ? "justify-center" : "w-full text-left")} title={isCollapsed ? fullName : undefined}>
+              <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md shrink-0">
                 {initials}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground truncate">{fullName}</p>
-                <p className="text-[13px] text-muted-foreground truncate">{email}</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              {!isCollapsed && (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{fullName}</p>
+                    <p className="text-[13px] text-muted-foreground truncate">{email}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </>
+              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent side={isMobile ? "top" : "right"} align="start" className="w-56 bg-card border border-border p-2 shadow-xl">
               <DropdownMenuItem
@@ -260,13 +282,13 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
           </DialogHeader>
           <div className="space-y-4">
             <div
-              className="border-2 border-dashed border-green-300 dark:border-[#4BC957]/40 bg-slate-50 dark:bg-[#0F172A]/30 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 cursor-pointer hover:border-green-500 dark:hover:border-[#4BC957]/70 transition-all"
+              className="border-2 border-dashed border-green-300 dark:border-[#4BC957]/40 bg-slate-50 dark:bg-[#0F172A]/30 rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-4 cursor-pointer hover:border-green-500 dark:hover:border-[#4BC957]/70 transition-all overflow-hidden w-full max-w-full"
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957]">
+              <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957] shrink-0">
                 <Upload className="h-5 w-5" />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col items-center gap-1 w-full">
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">Upload CV</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">PDF or DOCX, max 10MB</p>
               </div>
@@ -278,9 +300,11 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
                 className="hidden"
               />
               {selectedFile && (
-                <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-xs">
-                  {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                </p>
+                <div className="w-full flex justify-center">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-50 sm:max-w-65">
+                    {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  </p>
+                </div>
               )}
             </div>
           </div>

@@ -11,12 +11,12 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 
 const navLinks = [
-  { label: "Platform", href: "#platform" },
-  { label: "Technology", href: "#technology" },
-  { label: "Employers", href: "#employers" },
-  { label: "GCC", href: "#gcc" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Contact", href: "#cta" },
+  { label: "Platform", href: "/#platform" },
+  { label: "Technology", href: "/#technology" },
+  { label: "Employers", href: "/#employers" },
+  { label: "GCC", href: "/#gcc" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Contact", href: "/contact" },
 
 ];
 
@@ -92,10 +92,11 @@ export default function QudraHeader() {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 px-4 pt-4">
+    <header className="fixed inset-x-0 top-0 z-40 px-4 py-4 bg-gray-900/70">
       <div
-        className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-700 ${solid ? "glass-strong" : "border border-transparent"
-          }`}
+        className="mx-auto max-w-7xl"
+      // className={`mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-700 ${solid ? "glass-strong" : "border border-transparent"
+      //   }`}
       >
         <div className=" w-full px-2  h-12 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -128,14 +129,14 @@ export default function QudraHeader() {
               <>
                 <Link
                   href={getDashboardHref()}
-                  className="hidden md:flex items-center gap-1.5 text-sm font-medium text-on-surface-muted hover:text-on-surface transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-medium text-on-surface-muted hover:text-on-surface transition-colors"
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
+                  <span className="hidden md:block">Dashboard</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1.5 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 font-semibold px-4 py-2 rounded-lg border border-red-500/20 transition-all active:scale-[0.97]"
+                  className="hidden md:flex items-center gap-1.5 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 font-semibold px-4 py-2 rounded-lg border border-red-500/20 transition-all active:scale-[0.97]"
                 >
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">Logout</span>
@@ -151,7 +152,7 @@ export default function QudraHeader() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-sm bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-4 py-2 rounded-lg transition-all active:scale-[0.97]"
+                  className="text-sm bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-4 py-2 rounded-lg transition-all active:scale-[0.97] hidden md:block"
                 >
                   Get started
                 </Link>
@@ -159,7 +160,7 @@ export default function QudraHeader() {
             )}
 
             <div className="hidden md:block">
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
             </div>
 
             <div className="hidden md:block">
@@ -255,10 +256,10 @@ export default function QudraHeader() {
                   )}
                 </div>
 
-                <div className="pt-3 border-t border-surface mt-2 flex items-center justify-between">
+                {/* <div className="pt-3 border-t border-surface mt-2 flex items-center justify-between">
                   <span className="text-sm text-on-surface-muted">Theme</span>
                   <ThemeToggle />
-                </div>
+                </div> */}
 
                 <div className="pt-2 border-t border-surface">
                   <GoogleTranslate />

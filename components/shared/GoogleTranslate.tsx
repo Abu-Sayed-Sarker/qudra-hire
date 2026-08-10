@@ -59,7 +59,7 @@ export default function GoogleTranslate() {
         aria-label="Switch to English"
         title="English"
       >
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 notranslate" translate="no">
           <span aria-hidden="true">🇬🇧</span>
           <span>EN</span>
         </span>
@@ -85,7 +85,7 @@ export default function GoogleTranslate() {
         aria-label="Switch to Arabic"
         title="العربية"
       >
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 notranslate" translate="no">
           <span aria-hidden="true">🇸🇦</span>
           <span>{activeLanguage === "ar" ? "ع" : "AR"}</span>
         </span>
