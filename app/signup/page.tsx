@@ -149,7 +149,7 @@ export default function SignupPage() {
         setCredentials({
           access: result.data.access,
           refresh: result.data.refresh,
-          user: result.data.user,
+          user: { ...result.data.user, role: accountType.toUpperCase() },
         })
       );
 
