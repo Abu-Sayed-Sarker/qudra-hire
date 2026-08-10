@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Zap, Star, ShieldCheck, Lock, Loader2, CreditCard, AlertTriangle } from "lucide-react";
 import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useCreateStripeCheckoutSessionMutation } from "@/store/authApi";
@@ -33,7 +33,7 @@ export default function CandidateSubscriptionPage() {
   const history = historyData?.data ?? [];
   const allPlans = plansData?.data ?? [];
   const plans = allPlans.filter((p) => p.category === "CANDIDATE");
-  const profiles = (profilesData?.data as any).profiles ?? [];
+  const profiles = (profilesData?.data as any)?.profiles ?? [];
 
   const activeSub = history.find((h) => h.sub_status === "ACTIVE");
   const freePlan = plans.find(

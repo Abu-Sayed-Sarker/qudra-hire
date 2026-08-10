@@ -39,7 +39,7 @@ function PaymentSuccessContent() {
         <div className="pt-2 space-y-3">
 
           {/* //// button show according to user role  */}
-          {role === "company" ? (
+          {role === "CANDIDATE" ? (
             <Link
               href="/candidate/subscription"
               className="w-full inline-flex items-center justify-center gap-2 bg-[#4BC957] hover:bg-[#3DAF49] text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md shadow-[#4BC957]/20 text-sm"
