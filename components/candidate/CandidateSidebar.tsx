@@ -63,7 +63,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const dispatch = useAppDispatch();
   const isMobile = useIsMobile();
   const user = useAppSelector((s) => s.auth.user);
-  const { data: profilesData, isLoading: profilesLoading } = useGetCandidateProfilesQuery();
+  const { data: profilesData, isLoading: profilesLoading, refetch } = useGetCandidateProfilesQuery();
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -93,13 +93,14 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
       setIsDialogOpen(false);
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+      refetch(); // Automatically reload profile list
       const newProfileId = result.data?.id;
       if (newProfileId) {
         setSuccessProfileId(String(newProfileId));
         setShowSuccess(true);
       }
-    } catch {
-      toast.error("Failed to create profile");
+    } catch (error: any) {
+      toast.error(error?.data?.details || "Failed to create profile");
     }
   };
 
@@ -107,7 +108,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
     setShowSuccess(false);
     if (successProfileId) {
       router.push(`/candidate/profile/${successProfileId}`);
-      dispatch(authApi.util.invalidateTags(["CandidateProfiles"]))
+      refetch();
     }
   };
 
@@ -281,13 +282,13 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
           </DialogHeader>
           <div className="space-y-4">
             <div
-              className="border-2 border-dashed border-green-300 dark:border-[#4BC957]/40 bg-slate-50 dark:bg-[#0F172A]/30 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4 cursor-pointer hover:border-green-500 dark:hover:border-[#4BC957]/70 transition-all"
+              className="border-2 border-dashed border-green-300 dark:border-[#4BC957]/40 bg-slate-50 dark:bg-[#0F172A]/30 rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-4 cursor-pointer hover:border-green-500 dark:hover:border-[#4BC957]/70 transition-all overflow-hidden w-full max-w-full"
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957]">
+              <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-[#4BC957]/10 flex items-center justify-center text-green-600 dark:text-[#4BC957] shrink-0">
                 <Upload className="h-5 w-5" />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col items-center gap-1 w-full">
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">Upload CV</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">PDF or DOCX, max 10MB</p>
               </div>
@@ -299,9 +300,11 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
                 className="hidden"
               />
               {selectedFile && (
-                <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-xs">
-                  {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                </p>
+                <div className="w-full flex justify-center">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400 font-medium truncate max-w-50 sm:max-w-65">
+                    {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                  </p>
+                </div>
               )}
             </div>
           </div>

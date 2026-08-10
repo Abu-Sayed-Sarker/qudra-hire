@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import {
   ArrowLeft,
   Check,
-  Sparkles,
   RotateCcw,
   Eye,
   ArrowRight,
