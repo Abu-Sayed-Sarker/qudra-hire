@@ -68,8 +68,7 @@ export function AnalysisPopup({
           setProgress(1)
           setStepIndex(STEPS.length - 1)
           setDone(true)
-          const timer = setTimeout(() => onOpenChange(false), 1200)
-          return () => clearTimeout(timer)
+          setTimeout(() => onOpenChange(false), 1200)
         } else {
           // Hold at 98% if API takes longer than 10s
           setProgress(0.98)
@@ -127,7 +126,7 @@ export function AnalysisPopup({
                       strokeDasharray={226.2}
                       strokeDashoffset={226.2 * (1 - progress)}
                       strokeLinecap="round"
-                      className="text-green-500 dark:text-[#4BC957] transition-all duration-100 ease-linear" />
+                      className="text-green-500 dark:text-[#4BC957]" />
                   </svg>
                 </div>
 
@@ -140,7 +139,7 @@ export function AnalysisPopup({
                   </div>
 
                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-green-400 to-green-600 dark:from-[#4BC957] dark:to-[#00B96E] rounded-full transition-all duration-150 ease-linear"
+                    <div className="h-full bg-linear-to-r from-green-400 to-green-600 dark:from-[#4BC957] dark:to-[#00B96E] rounded-full"
                       style={{ width: `${progress * 100}%` }} />
                   </div>
 
