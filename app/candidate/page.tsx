@@ -80,7 +80,7 @@ export default function CandidateDashboard() {
           </div>
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-card/50 border border-border/50 rounded-3xl p-6 space-y-4">
+              <div key={i} className="bg-card/50 border border-border/50 rounded-xl p-6 space-y-4">
                 <Skeleton className="h-6 w-32" />
                 <SkeletonText lines={3} />
                 <Skeleton className="h-12 w-full rounded-2xl" />
@@ -121,10 +121,10 @@ export default function CandidateDashboard() {
   const pref = d.preferences;
 
   const stats = [
-    { label: "Profile match", value: m.profile_match_strength, icon: Target, color: "text-emerald-600", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-emerald-500/10" },
-    { label: "Active applications", value: String(m.active_applications), icon: Briefcase, color: "text-blue-600", bg: "bg-blue-500/10", border: "border-blue-500/20", glow: "shadow-blue-500/10" },
-    { label: "New matches", value: String(m.new_matches_today), icon: Bell, color: "text-violet-600", bg: "bg-violet-500/10", border: "border-violet-500/20", glow: "shadow-violet-500/10" },
-    { label: "Plan", value: m.plan_badge, icon: Shield, color: "text-amber-600", bg: "bg-amber-500/10", border: "border-amber-500/20", glow: "shadow-amber-500/10" },
+    { label: "Profile match", value: m.profile_match_strength, icon: Target, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-emerald-500/10", hoverShadow: "hover:shadow-emerald-500/20", gradientReveal: "from-emerald-500/10", lineGlow: "via-emerald-500" },
+    { label: "Active applications", value: String(m.active_applications), icon: Briefcase, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", glow: "shadow-blue-500/10", hoverShadow: "hover:shadow-blue-500/20", gradientReveal: "from-blue-500/10", lineGlow: "via-blue-500" },
+    { label: "New matches", value: String(m.new_matches_today), icon: Bell, color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", glow: "shadow-violet-500/10", hoverShadow: "hover:shadow-violet-500/20", gradientReveal: "from-violet-500/10", lineGlow: "via-violet-500" },
+    { label: "Plan", value: m.plan_badge, icon: Shield, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", glow: "shadow-amber-500/10", hoverShadow: "hover:shadow-amber-500/20", gradientReveal: "from-amber-500/10", lineGlow: "via-amber-500" },
   ];
 
   const matchColor = (score: string) => {
@@ -184,21 +184,36 @@ export default function CandidateDashboard() {
               variants={fadeIn}
               custom={i}
               role="listitem"
-              className={`group relative bg-card/80 backdrop-blur-sm border ${s.border} rounded-3xl p-4 sm:p-6 ${cardHover} cursor-pointer`}
+              // whileHover={{ y: -8, scale: 1.02 }}
+              className={`group relative overflow-hidden bg-card/60 backdrop-blur-2xl border ${s.border} rounded-xl p-5 sm:p-6 transition-all duration-500 hover:shadow-2xl ${s.hoverShadow} cursor-pointer`}
               tabIndex={0}
               aria-label={`${s.label}: ${s.value}`}
             >
-              <div className="absolute inset-0  rounded-3xl pointer-events-none" />
-              <div className="relative flex items-start justify-between gap-2 min-w-0">
+              {/* Premium Background Gradient Reveal */}
+              <div className={`absolute inset-0 bg-linear-to-br ${s.gradientReveal} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
+
+              {/* Shine effect */}
+              <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+              <div className="relative flex items-start justify-between gap-2 min-w-0 z-10">
                 <div className="space-y-1.5 min-w-0">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest truncate block">{s.label}</span>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight wrap-break-word">{s.value}</p>
+                  <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest truncate block group-hover:text-foreground/80 transition-colors">{s.label}</span>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight wrap-break-word group-hover:scale-105 origin-left transition-transform duration-500">{s.value}</p>
                 </div>
-                <div className={`${s.bg} ${s.color} p-2.5 sm:p-3 rounded-2xl border ${s.border} shadow-lg ${s.glow} group-hover:scale-110 transition-transform duration-300 shrink-0`}>
-                  <Icon className="h-5 w-5" />
-                </div>
+
+                {/* Floating Icon Container */}
+                <motion.div
+                  className={`${s.bg} ${s.color} p-3 rounded-2xl border ${s.border} shadow-lg ${s.glow} relative shrink-0`}
+                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.15 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Icon className="h-5 w-5 relative z-10" />
+                  <div className={`absolute inset-0 rounded-2xl ${s.bg} blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                </motion.div>
               </div>
-              <div className="absolute bottom-0 left-6 right-6 h-px bg-linear-to-r from-transparent via-border to-transparent opacity-50" />
+
+              {/* Glowing Bottom Line */}
+              <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-linear-to-r from-transparent ${s.lineGlow} to-transparent transition-all duration-700 ease-out opacity-0 group-hover:opacity-100`} />
             </motion.div>
           );
         })}
@@ -224,15 +239,23 @@ export default function CandidateDashboard() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + idx * 0.08, duration: 0.4 }}
-              className={`relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 ${cardHover}`}
+              className={`group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 cursor-default`}
             >
-              <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent rounded-3xl pointer-events-none" />
-              <div className="flex items-center gap-4 min-w-0 relative">
-                <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-600 shrink-0 shadow-lg shadow-emerald-500/10">
-                  <Bot className="h-6 w-6" />
-                </div>
+              {/* Premium Background Gradient Reveal */}
+              <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-xl" />
+              <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+              <div className="flex items-center gap-4 min-w-0 relative z-10">
+                <motion.div
+                  className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-600 shrink-0 shadow-lg shadow-emerald-500/10 relative group-hover:border-emerald-500/40 transition-colors duration-300"
+                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Bot className="h-6 w-6 relative z-10" />
+                  <div className="absolute inset-0 bg-emerald-500/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                </motion.div>
                 <div className="min-w-0">
-                  <p className="text-base font-bold text-foreground">{invite.company_name}</p>
+                  <p className="text-base font-bold text-foreground transition-colors group-hover:text-emerald-500">{invite.company_name}</p>
                   <p className="text-muted-foreground mt-1 text-sm font-medium">{invite.role_context}</p>
                   <div className="flex items-center gap-4 mt-2">
                     <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
@@ -245,13 +268,16 @@ export default function CandidateDashboard() {
               </div>
               <Link
                 href={`/candidate/interview?invite=${invite.id}`}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.97] text-sm shrink-0 relative"
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-2xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/40 active:scale-[0.97] hover:scale-105 text-sm shrink-0 relative z-10"
                 aria-label={`Start interview with ${invite.company_name}`}
               >
                 <Play className="h-4 w-4" />
                 Start
                 <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
               </Link>
+
+              {/* Glowing Bottom Line */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-linear-to-r from-transparent via-emerald-500 to-transparent transition-all duration-700 ease-out opacity-0 group-hover:opacity-100" />
             </motion.div>
           ))}
         </motion.div>
@@ -266,9 +292,9 @@ export default function CandidateDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 space-y-5 shadow-sm"
+            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6 md:p-8 space-y-5 shadow-sm"
           >
-            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/2 to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/2 to-transparent rounded-xl pointer-events-none" />
             <div className="relative flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -291,31 +317,38 @@ export default function CandidateDashboard() {
                   role="listitem"
                 >
                   <Link href={`/candidate/jobs/detail?id=${job.id}`} className="block min-w-0">
-                    <div className={`group relative bg-background/60 border border-border/80 rounded-2xl p-5 ${cardHover} h-full`}>
-                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/3 to-transparent rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="relative flex items-start justify-between gap-3">
+                    <div className={`group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-2xl p-5 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:border-emerald-500/30 h-full`}>
+                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-2xl" />
+                      <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+                      <div className="relative flex items-start justify-between gap-3 z-10">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-11 w-11 rounded-xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0 overflow-hidden">
+                          <motion.div
+                            whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                            transition={{ duration: 0.5 }}
+                            className="h-11 w-11 rounded-xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0 overflow-hidden relative shadow-md group-hover:shadow-emerald-500/20 group-hover:border-emerald-500/30 transition-all duration-300"
+                          >
                             {job.company_logo ? (
                               <img
                                 src={job.company_logo}
                                 alt={job.company_name}
-                                className="rounded-2xl object-cover object-top w-full h-full"
+                                className="rounded-xl object-cover object-top w-full h-full relative z-10"
                               />
-                            )
-                              : job.company_name.slice(0, 2).toUpperCase()
-                            }
-                          </div>
+                            ) : (
+                              <span className="relative z-10">{job.company_name.slice(0, 2).toUpperCase()}</span>
+                            )}
+                            <div className="absolute inset-0 bg-emerald-500/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                          </motion.div>
                           <div className="min-w-0">
-                            <p className="text-xs text-muted-foreground font-semibold truncate">{job.company_name}</p>
-                            <p className="font-bold text-foreground leading-tight group-hover:text-emerald-600 transition-colors line-clamp-1">{job.title}</p>
+                            <p className="text-xs text-muted-foreground font-semibold truncate transition-colors group-hover:text-foreground/80">{job.company_name}</p>
+                            <p className="font-bold text-foreground leading-tight transition-all duration-300 group-hover:bg-clip-text group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-emerald-400 group-hover:to-emerald-600 line-clamp-1">{job.title}</p>
                           </div>
                         </div>
-                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border shrink-0 ${matchColor(job.match_score)}`}>
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border shrink-0 transition-transform duration-300 group-hover:scale-110 ${matchColor(job.match_score)}`}>
                           {job.match_score}
                         </span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground font-medium mt-3.5">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground font-medium mt-3.5 relative z-10">
                         <span className="flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
                           {job.location}
@@ -330,12 +363,14 @@ export default function CandidateDashboard() {
                         </span>
                         {job.visa === "Visa" && <span className="text-emerald-600 font-bold flex items-center gap-1"><Zap className="h-3 w-3" />Visa</span>}
                       </div>
-                      <div className="flex flex-wrap gap-1.5 mt-3.5">
+                      <div className="flex flex-wrap gap-1.5 mt-3.5 relative z-10">
                         {job.tags.map((t: any, ti: any) => (
                           <span key={ti} className="bg-muted/50 border border-border text-muted-foreground text-[10px] font-bold px-2 py-1 rounded-lg">{t}</span>
                         ))}
                       </div>
-                      <p className="text-[11px] text-muted-foreground/70 font-medium mt-3">{job.posted_time}</p>
+                      <p className="text-[11px] text-muted-foreground/70 font-medium mt-3 relative z-10">{job.posted_time}</p>
+
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-linear-to-r from-transparent via-emerald-500 to-transparent transition-all duration-700 ease-out opacity-0 group-hover:opacity-100" />
                     </div>
                   </Link>
                 </motion.div>
@@ -348,9 +383,9 @@ export default function CandidateDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 md:p-8 space-y-5 shadow-sm"
+            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6 md:p-8 space-y-5 shadow-sm"
           >
-            <div className="absolute inset-0 bg-linear-to-br from-blue-500/2 to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-500/2 to-transparent rounded-xl pointer-events-none" />
             <h2 className="text-lg font-bold text-foreground relative">Recent Applications</h2>
             {d.recent_applications.length === 0 ? (
               <p className="text-sm text-muted-foreground py-8 text-center font-medium relative">No applications yet. Start exploring jobs to begin your journey.</p>
@@ -363,15 +398,17 @@ export default function CandidateDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.25 + idx * 0.06, duration: 0.4 }}
                     role="listitem"
-                    className="flex flex-col sm:flex-row sm:items-center justify-between py-5 first:pt-0 last:pb-0 gap-3 group"
+                    className="group relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between py-5 px-4 first:pt-4 last:pb-4 gap-3 hover:bg-card/40 transition-colors duration-300 rounded-2xl cursor-pointer"
                   >
-                    <div className="space-y-1.5">
-                      <h3 className="text-sm font-bold text-foreground group-hover:text-emerald-600 transition-colors">{app.job_title}</h3>
-                      <p className="text-muted-foreground text-sm font-medium">{app.company_name} • {app.applied_date}</p>
+                    <div className="absolute inset-0 bg-linear-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none" />
+
+                    <div className="space-y-1.5 relative z-10">
+                      <h3 className="text-sm font-bold text-foreground group-hover:text-blue-500 transition-colors duration-300">{app.job_title}</h3>
+                      <p className="text-muted-foreground text-sm font-medium transition-colors group-hover:text-foreground/70">{app.company_name} • {app.applied_date}</p>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-xs font-bold text-muted-foreground">ATS <span className="text-foreground font-extrabold">{app.ats_score}</span></span>
-                      <span className={`text-[11px] font-bold border px-3 py-1.5 rounded-full ${statusColor(app.status)}`}>{app.status}</span>
+                    <div className="flex items-center gap-3 shrink-0 relative z-10">
+                      <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground/80 transition-colors">ATS <span className="text-foreground font-extrabold">{app.ats_score}</span></span>
+                      <span className={`text-[11px] font-bold border px-3 py-1.5 rounded-full shadow-sm group-hover:scale-105 transition-transform duration-300 ${statusColor(app.status)}`}>{app.status}</span>
                     </div>
                   </motion.div>
                 ))}
@@ -387,13 +424,20 @@ export default function CandidateDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative bg-card/80 backdrop-blur-sm border border-emerald-500/20 rounded-3xl p-6 space-y-5 shadow-lg shadow-emerald-500/5"
+            className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-emerald-500/30 rounded-xl p-6 space-y-5 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 cursor-default"
           >
-            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/4 to-transparent rounded-3xl pointer-events-none" />
-            <div className="relative flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                <Sparkles className="h-5 w-5 text-emerald-600" />
-              </div>
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-xl" />
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+            <div className="relative flex items-center gap-3 z-10">
+              <motion.div
+                className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl relative shadow-lg shadow-emerald-500/10 group-hover:border-emerald-500/40 transition-colors duration-300"
+                whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Sparkles className="h-6 w-6 text-emerald-500 relative z-10" />
+                <div className="absolute inset-0 bg-emerald-500/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
+              </motion.div>
               <div>
                 <h3 className="text-base font-bold text-foreground">Auto-apply Mode</h3>
                 <p className="text-xs text-muted-foreground font-medium mt-0.5">CareerSprint AI</p>
@@ -419,11 +463,13 @@ export default function CandidateDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 space-y-5 shadow-sm"
+            className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-blue-500/20 rounded-xl p-6 space-y-5 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 cursor-default"
           >
-            <div className="absolute inset-0 bg-linear-to-br from-blue-500/2 to-transparent rounded-3xl pointer-events-none" />
-            <div className="relative">
-              <h3 className="text-base font-bold text-foreground mb-4">CV Strength</h3>
+            <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-xl" />
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-linear-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+            <div className="relative z-10">
+              <h3 className="text-base font-bold text-foreground mb-4 group-hover:text-blue-500 transition-colors">CV Strength</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Score</span>
@@ -460,9 +506,9 @@ export default function CandidateDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl p-6 space-y-4 shadow-sm"
+            className="relative bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6 space-y-4 shadow-sm"
           >
-            <div className="absolute inset-0 bg-linear-to-br from-violet-500/2 to-transparent rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-br from-violet-500/2 to-transparent rounded-xl pointer-events-none" />
             <div className="relative flex justify-between items-center">
               <h3 className="text-base font-bold text-foreground">Preferences</h3>
               <Link href={profileId ? `/candidate/profile/${profileId}` : "/candidate/profile"} className="text-xs text-emerald-600 hover:text-emerald-500 font-bold flex items-center gap-1 transition-colors">
