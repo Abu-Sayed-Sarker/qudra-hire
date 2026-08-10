@@ -446,95 +446,108 @@ export default function BrowseJobsPage() {
                   key={job.id}
                   variants={fadeInUp}
                   custom={idx}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="relative group h-full"
                 >
+                  <div className="absolute -inset-0.5 bg-linear-to-br from-emerald-500/30 to-blue-500/30 rounded-[1rem] opacity-0 group-hover:opacity-100 transition duration-500 blur-xl"></div>
                   <Link
                     href={`/candidate/jobs/detail?id=${job.id}`}
-                    className="block h-full"
+                    className="relative block h-full bg-card/60 backdrop-blur-md hover:bg-card/80 transition-colors border border-border/60 hover:border-emerald-500/30 rounded-[0.8rem] p-6 overflow-hidden shadow-sm hover:shadow-2xl z-10"
                   >
-                    <div className={`group relative bg-card/80 backdrop-blur-sm border border-border/80 rounded-3xl p-6 ${cardHover} h-full overflow-hidden`}>
-                      <div className="absolute inset-0 bg-linear-to-br from-emerald-500/3 via-transparent to-blue-500/2 rounded-3xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="relative flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className="h-12 w-12 rounded-2xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0 shadow-sm">
-                            {
-                              job.company_logo ? (
-                                <img
-                                  src={job.company_logo}
-                                  alt={job.company_name}
-                                  className="rounded-2xl object-cover object-top w-full h-full"
-                                />
-                              )
-                                : job.company_name?.slice(0, 2).toUpperCase() || "CO"
-                            }
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all duration-500 group-hover:bg-emerald-500/20 group-hover:scale-150"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl -ml-10 -mb-10 transition-all duration-500 group-hover:bg-blue-500/20 group-hover:scale-150"></div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex items-start justify-between gap-3 mb-5">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="h-14 w-14 rounded-2xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/10 flex items-center justify-center text-base font-bold text-foreground shrink-0 shadow-inner overflow-hidden transform transition-transform duration-500 group-hover:rotate-3 group-hover:scale-105">
+                            {job.company_logo ? (
+                              <img
+                                src={job.company_logo}
+                                alt={job.company_name}
+                                className="object-cover w-full h-full"
+                              />
+                            ) : (
+                              <span className="bg-clip-text text-transparent bg-linear-to-r from-emerald-600 to-blue-600">
+                                {job.company_name?.slice(0, 2).toUpperCase() || "CO"}
+                              </span>
+                            )}
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-xs text-muted-foreground font-semibold truncate">{job.company_name}</p>
-                            <p className="font-bold text-foreground leading-tight group-hover:text-emerald-600 transition-colors line-clamp-1 mt-0.5">{job.title}</p>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-emerald-500 transition-colors line-clamp-1">{job.title}</h3>
+                            <p className="text-sm text-muted-foreground font-medium mt-1 truncate">{job.company_name}</p>
                           </div>
                         </div>
                         {job.match_score !== null && (
-                          <span className="text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 shrink-0 shadow-sm shadow-emerald-500/5">
-                            {job.match_score}% match
-                          </span>
+                          <div className="flex flex-col items-center justify-center bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-xl shrink-0 shadow-sm">
+                            <span className="text-xs font-black text-emerald-600">{job.match_score}%</span>
+                            <span className="text-[9px] font-bold text-emerald-600/70 uppercase tracking-wider">Match</span>
+                          </div>
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground font-medium mt-4">
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5 text-muted-foreground/70" />
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 mb-5">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground/90 bg-muted/50 px-3 py-1.5 rounded-full border border-border/50">
+                          <MapPin className="h-3.5 w-3.5 text-emerald-500/80" />
                           {job.location}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground/90 bg-muted/50 px-3 py-1.5 rounded-full border border-border/50">
+                          <Clock className="h-3.5 w-3.5 text-blue-500/80" />
                           {job.employment_type_display}
-                        </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-foreground bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+                          <DollarSign className="h-3.5 w-3.5 text-emerald-600" />
+                          <span className="text-emerald-700 dark:text-emerald-400">{salaryLabel(job)}</span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground font-medium">
-                        <DollarSign className="h-3.5 w-3.5 text-muted-foreground/70" />
-                        <span className="font-semibold text-foreground">{salaryLabel(job)}</span>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 mt-4">
+                      <div className="flex flex-wrap gap-2 mb-5 mt-auto">
                         {job.skills?.slice(0, 4).map((skill: string, si: number) => (
                           <span
                             key={si}
-                            className="bg-muted/40 border border-border text-muted-foreground text-[10px] font-bold px-2.5 py-1.5 rounded-lg"
+                            className="bg-background/80 backdrop-blur-md border border-border/80 text-foreground/80 text-[11px] font-semibold px-3 py-1 rounded-full group-hover:border-emerald-500/30 transition-colors shadow-sm"
                           >
                             {skill}
                           </span>
                         ))}
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-border/50">
-                        {job.visa_sponsorship && (
-                          <Badge variant="outline" className="text-[10px] font-bold border-emerald-500/25 text-emerald-600 bg-emerald-500/5">
-                            <Zap className="h-3 w-3 mr-1" />
-                            Visa
-                          </Badge>
-                        )}
-                        {job.open_to_remote && (
-                          <Badge variant="outline" className="text-[10px] font-bold border-blue-500/25 text-blue-600 bg-blue-500/5">
-                            <Globe className="h-3 w-3 mr-1" />
-                            Remote
-                          </Badge>
-                        )}
-                        {job.already_applied && (
-                          <Badge variant="outline" className="text-[10px] font-bold border-violet-500/25 text-violet-600 bg-violet-500/5">
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            Applied
-                          </Badge>
+                        {job.skills && job.skills.length > 4 && (
+                          <span className="bg-background/80 backdrop-blur-md border border-border/80 text-muted-foreground text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm">
+                            +{job.skills.length - 4}
+                          </span>
                         )}
                       </div>
 
-                      <p className="text-[11px] text-muted-foreground/70 font-semibold mt-4 flex items-center gap-1.5">
-                        <Clock className="h-3 w-3" />
-                        {new Date(job.published_at).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </p>
+                      <div className="pt-4 border-t border-border/60 flex items-center justify-between">
+                        <div className="flex flex-wrap gap-2">
+                          {job.visa_sponsorship && (
+                            <span className="flex items-center text-[10px] font-bold border border-emerald-500/30 text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-md">
+                              <Zap className="h-3 w-3 mr-1" />
+                              Visa
+                            </span>
+                          )}
+                          {job.open_to_remote && (
+                            <span className="flex items-center text-[10px] font-bold border border-blue-500/30 text-blue-600 bg-blue-500/10 px-2.5 py-1 rounded-md">
+                              <Globe className="h-3 w-3 mr-1" />
+                              Remote
+                            </span>
+                          )}
+                          {job.already_applied && (
+                            <span className="flex items-center text-[10px] font-bold border border-violet-500/30 text-violet-600 bg-violet-500/10 px-2.5 py-1 rounded-md">
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              Applied
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-[11px] text-muted-foreground/60 font-medium flex items-center gap-1.5 shrink-0">
+                          {new Date(job.published_at).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
                     </div>
                   </Link>
                 </motion.div>

@@ -32,7 +32,7 @@ export default function CandidateSubscriptionPage() {
   const history = historyData?.data ?? [];
   const allPlans = plansData?.data ?? [];
   const plans = allPlans.filter((p) => p.category === "CANDIDATE");
-  const profiles = profilesData?.data ?? [];
+  const profiles = (profilesData?.data as any).profiles ?? [];
 
   const activeSub = history.find((h) => h.sub_status === "ACTIVE");
   const freePlan = plans.find(
@@ -56,11 +56,11 @@ export default function CandidateSubscriptionPage() {
     premiumPlan?.features && premiumPlan.features.length > 0
       ? premiumPlan.features
       : [
-          "Unlimited AI job matching",
-          "Priority candidate placement",
-          "Advanced resume parsing & AI recruiter",
-          "24/7 Priority support",
-        ];
+        "Unlimited AI job matching",
+        "Priority candidate placement",
+        "Advanced resume parsing & AI recruiter",
+        "24/7 Priority support",
+      ];
 
   const isLoading = historyLoading || plansLoading || profilesLoading;
 
@@ -110,7 +110,7 @@ export default function CandidateSubscriptionPage() {
     }
     return (
       <div className="min-h-full bg-background text-foreground">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex flex-col items-center justify-center py-20 text-center">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 flex flex-col items-center justify-center text-center">
           <div className="h-16 w-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
             <AlertTriangle className="h-8 w-8 text-red-500" />
           </div>
@@ -293,11 +293,10 @@ export default function CandidateSubscriptionPage() {
                   <div key={row.id} className="border border-border rounded-xl bg-card px-4 py-4 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
                       <p className="font-semibold text-foreground text-sm leading-tight">{row.plan_name}</p>
-                      <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                        row.sub_status === "ACTIVE"
-                          ? "bg-[#4BC957]/15 text-[#4BC957]"
-                          : "bg-muted text-muted-foreground"
-                      }`}>
+                      <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${row.sub_status === "ACTIVE"
+                        ? "bg-[#4BC957]/15 text-[#4BC957]"
+                        : "bg-muted text-muted-foreground"
+                        }`}>
                         {row.sub_status}
                       </span>
                     </div>
@@ -339,11 +338,10 @@ export default function CandidateSubscriptionPage() {
                           <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
                           <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
                           <td className="px-5 py-3.5">
-                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                              row.sub_status === "ACTIVE"
-                                ? "bg-[#4BC957]/15 text-[#4BC957]"
-                                : "bg-muted text-muted-foreground"
-                            }`}>
+                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${row.sub_status === "ACTIVE"
+                              ? "bg-[#4BC957]/15 text-[#4BC957]"
+                              : "bg-muted text-muted-foreground"
+                              }`}>
                               {row.sub_status}
                             </span>
                           </td>
@@ -392,14 +390,13 @@ export default function CandidateSubscriptionPage() {
                 {profiles.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-2">No profiles found. Create a profile first.</p>
                 ) : (
-                  profiles.map((profile) => (
+                  profiles.map((profile: any) => (
                     <label
                       key={profile.id}
-                      className={`flex items-center gap-3 border rounded-xl px-4 py-3 cursor-pointer transition-all ${
-                        selectedProfileId === profile.id
-                          ? "border-[#4BC957] bg-[#4BC957]/5"
-                          : "border-border hover:border-muted-foreground/30"
-                      }`}
+                      className={`flex items-center gap-3 border rounded-xl px-4 py-3 cursor-pointer transition-all ${selectedProfileId === profile.id
+                        ? "border-[#4BC957] bg-[#4BC957]/5"
+                        : "border-border hover:border-muted-foreground/30"
+                        }`}
                     >
                       <input
                         type="radio"

@@ -17,6 +17,8 @@ import {
   Upload,
   Sun,
   Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -65,7 +67,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const [createProfile, { isLoading: isCreating }] = useCreateCandidateProfileMutation();
   const { resolvedTheme, setTheme } = useTheme();
 
-
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -116,17 +118,26 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
 
   return (
     <>
-      <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-border bg-card text-foreground">
+      <aside className={cn("flex h-screen shrink-0 flex-col border-r border-border bg-card text-foreground transition-all duration-300", isCollapsed ? "w-20" : "w-64")}>
         {/* Brand */}
-        <div className="flex items-center gap-1.5 border-b border-border px-6 py-5 font-sans text-xl font-bold tracking-tight">
-          <Link href="/" className="text-2xl font-bold tracking-tight">
-            <div className="hidden dark:block">
-              <Image src='/logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
-            </div>
-            <div className="block dark:hidden">
-              <Image src='/light-logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
-            </div>
-          </Link>
+        <div className={cn("flex items-center border-b border-border py-5 font-sans text-xl font-bold tracking-tight", isCollapsed ? "justify-center px-4" : "gap-1.5 px-6 justify-between")}>
+          {!isCollapsed && (
+            <Link href="/" className="text-2xl font-bold tracking-tight">
+              <div className="hidden dark:block">
+                <Image src='/logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
+              </div>
+              <div className="block dark:hidden">
+                <Image src='/light-logo.png' height={200} width={700} className="w-48 h-auto" alt="logo" />
+              </div>
+            </Link>
+          )}
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 hover:bg-muted rounded-xl transition-colors">
+            {isCollapsed ? (
+              <PanelLeftOpen className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5 text-muted-foreground" />
+            )}
+          </button>
         </div>
 
         {/* Nav */}
@@ -140,13 +151,15 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
               <Link
                 key={href}
                 href={href}
-                onClick={() => { setSidebarOpen(false) }}
+                onClick={() => { setSidebarOpen?.(false) }}
                 className={cn(
-                  "group flex items-center gap-3.5 rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200",
+                  "group flex items-center rounded-xl py-3.5 text-sm font-medium transition-all duration-200",
+                  isCollapsed ? "justify-center px-0" : "gap-3.5 px-4",
                   isActive
                     ? "bg-muted text-foreground border border-border shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
+                title={isCollapsed ? label : undefined}
               >
                 <Icon
                   className={cn(
@@ -154,7 +167,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
                     isActive ? "text-[#4BC957]" : "text-muted-foreground group-hover:text-foreground"
                   )}
                 />
-                <span>{label}</span>
+                {!isCollapsed && <span>{label}</span>}
               </Link>
             );
           })}
@@ -162,21 +175,24 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-              "w-full group flex items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200 outline-none",
+              "w-full group flex items-center rounded-xl py-3.5 text-sm font-medium transition-all duration-200 outline-none",
+              isCollapsed ? "justify-center px-0" : "justify-between px-4",
               pathname.startsWith("/candidate/profile")
                 ? "bg-muted text-foreground border border-border shadow-sm"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}>
-              <div className="flex items-center gap-3.5">
+            )}
+              title={isCollapsed ? "My profile" : undefined}
+            >
+              <div className={cn("flex items-center", isCollapsed ? "" : "gap-3.5")}>
                 <User
                   className={cn(
                     "h-5 w-5 transition-colors",
                     pathname.startsWith("/candidate/profile") ? "text-[#4BC957]" : "text-muted-foreground group-hover:text-foreground"
                   )}
                 />
-                <span>My profile</span>
+                {!isCollapsed && <span>My profile</span>}
               </div>
-              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              {!isCollapsed && <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="w-56 bg-card border border-border p-2 shadow-xl"
@@ -217,17 +233,21 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
         </nav>
 
         {/* Profile */}
-        <div className="border-t border-border p-4">
+        <div className={cn("border-t border-border p-4 flex", isCollapsed ? "justify-center px-2" : "")}>
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-muted transition-colors cursor-pointer outline-none">
-              <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md">
+            <DropdownMenuTrigger className={cn("flex items-center gap-3 rounded-xl p-2 hover:bg-muted transition-colors cursor-pointer outline-none", isCollapsed ? "justify-center" : "w-full text-left")} title={isCollapsed ? fullName : undefined}>
+              <div className="h-9 w-9 rounded-full bg-linear-to-tr from-[#4BC957] to-emerald-400 flex items-center justify-center font-bold text-white text-sm shadow-md shrink-0">
                 {initials}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground truncate">{fullName}</p>
-                <p className="text-[13px] text-muted-foreground truncate">{email}</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              {!isCollapsed && (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground truncate">{fullName}</p>
+                    <p className="text-[13px] text-muted-foreground truncate">{email}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </>
+              )}
             </DropdownMenuTrigger>
             <DropdownMenuContent side={isMobile ? "top" : "right"} align="start" className="w-56 bg-card border border-border p-2 shadow-xl">
               <DropdownMenuItem
