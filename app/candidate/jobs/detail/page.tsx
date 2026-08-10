@@ -214,10 +214,10 @@ function JobDetailContent() {
     <div className="p-4 md:p-8 space-y-6 max-w-full mx-auto text-on-surface">
       {/* Back button */}
       <div>
-        <Link href="/candidate" className="inline-flex items-center gap-2 text-on-surface-muted hover:text-on-surface text-sm font-semibold transition-colors">
+        <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-on-surface-muted hover:text-on-surface text-sm font-semibold transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Back
-        </Link>
+        </button>
       </div>
 
       {/* Main Grid */}
