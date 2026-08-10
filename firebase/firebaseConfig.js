@@ -1,21 +1,32 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_apiKey,
     authDomain: process.env.NEXT_PUBLIC_authDomain,
     projectId: process.env.NEXT_PUBLIC_projectId,
     storageBucket: process.env.NEXT_PUBLIC_storageBucket,
     messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
-    appId: process.env.NEXT_PUBLIC_appId
+    appId: process.env.NEXT_PUBLIC_appId,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+function isFirebaseConfigured() {
+    return Object.values(firebaseConfig).every(Boolean);
+}
 
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+export function getFirebaseAuth() {
+    if (!isFirebaseConfigured()) {
+        return null;
+    }
+
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    return getAuth(app);
+}
+
+export function getGoogleProvider() {
+    if (!isFirebaseConfigured()) {
+        return null;
+    }
+
+    return new GoogleAuthProvider();
+}

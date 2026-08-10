@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Loader2 } from "lucide-react";
-import { auth, googleProvider } from "@/firebase/firebaseConfig";
+import { getFirebaseAuth, getGoogleProvider } from "@/firebase/firebaseConfig";
 import { signInWithPopup } from "firebase/auth";
 
 interface GoogleLoginButtonProps {
@@ -18,6 +18,13 @@ export default function GoogleLoginButton({ onSuccess, onError, text = "Continue
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      const auth = getFirebaseAuth();
+      const googleProvider = getGoogleProvider();
+
+      if (!auth || !googleProvider) {
+        throw new Error("Google sign-in is not configured.");
+      }
+
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       onSuccess(idToken);
