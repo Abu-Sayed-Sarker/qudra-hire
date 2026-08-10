@@ -65,7 +65,7 @@ export default function CandidateProfilePage() {
   const { data: profileRes, isLoading, error } = useGetCandidateProfileByIdQuery(id, { skip: !id });
   const [patchProfile, { isLoading: isSaving }] = usePatchCandidateProfileMutation();
   const [deleteProfile, { isLoading: isDeleting }] = useDeleteCandidateProfileMutation();
-  const [setDefaultProfile, { isLoading: isSettingDefault }] = useSetDefaultCandidateProfileMutation();
+  const [setDefaultProfile] = useSetDefaultCandidateProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [toggleAutoApply, { isLoading: isTogglingAutoApply }] = useToggleCandidateAutoApplyMutation();
   const { data: plansRes } = useGetSubscriptionPlansQuery();
@@ -109,6 +109,7 @@ export default function CandidateProfilePage() {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
+    email: "",
     role_title: "",
     industry: "",
     about_me: "",
@@ -163,6 +164,7 @@ export default function CandidateProfilePage() {
     setForm({
       first_name: profile.first_name ?? "",
       last_name: profile.last_name ?? "",
+      email: profile.email ?? profile.email ?? "",
       role_title: profile.role_title ?? "",
       industry: profile.industry ?? "",
       about_me: profile.about_me ?? "",
@@ -312,6 +314,7 @@ export default function CandidateProfilePage() {
       const formData = new FormData();
       formData.append("first_name", form.first_name);
       formData.append("last_name", form.last_name);
+      if (form.email) formData.append("email", form.email);
       formData.append("role_title", form.role_title);
       formData.append("industry", form.industry || "");
       formData.append("about_me", form.about_me || "");
@@ -626,6 +629,10 @@ export default function CandidateProfilePage() {
                       <input type="text" value={form.last_name} onChange={(e) => setField("last_name", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
                     <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">Email</label>
+                      <input type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
+                    </div>
+                    <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-muted-foreground">Age</label>
                       <input type="number" min={0} value={form.age} onChange={(e) => setField("age", e.target.value)} readOnly={ro} className={`w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring ${ro ? "bg-muted cursor-not-allowed" : "bg-background"}`} />
                     </div>
@@ -726,7 +733,7 @@ export default function CandidateProfilePage() {
                           if (file) setCvFile(file);
                         }}
                       />
-                      <button 
+                      <button
                         onClick={() => cvFileInputRef.current?.click()}
                         className="text-xs font-semibold border border-border hover:bg-muted px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors"
                       >

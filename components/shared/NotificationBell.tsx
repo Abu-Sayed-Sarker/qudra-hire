@@ -59,7 +59,7 @@ export default function NotificationBell() {
   return (
     <Popover>
       <PopoverTrigger className="relative p-2.5 rounded-xl hover:bg-muted transition-colors duration-200">
-        <Bell className="h-5 w-5 text-muted-foreground" />
+        <Bell onClick={() => handleMarkAllRead()} className="h-5 w-5 text-muted-foreground" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-card">
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -104,27 +104,25 @@ export default function NotificationBell() {
                       handleMarkRead(notification.id);
                     }
                   }}
-                  className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors ${
-                    !notification.is_read ? "bg-muted/30" : ""
-                  }`}
+                  className={`w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors ${!notification.is_read ? "bg-muted/30" : ""
+                    }`}
                 >
                   <div className="flex gap-3">
-                    <div className="mt-0.5 flex-shrink-0">
+                    <div className="mt-0.5 shrink-0">
                       {notificationIcon(notification.notification_type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p
-                          className={`text-sm leading-snug ${
-                            !notification.is_read
-                              ? "font-semibold text-foreground"
-                              : "font-medium text-foreground"
-                          }`}
+                          className={`text-sm leading-snug ${!notification.is_read
+                            ? "font-semibold text-foreground"
+                            : "font-medium text-foreground"
+                            }`}
                         >
                           {notification.title}
                         </p>
                         {!notification.is_read && (
-                          <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                          <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
                         )}
                       </div>
                       <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">

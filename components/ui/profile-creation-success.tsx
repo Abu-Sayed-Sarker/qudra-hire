@@ -28,7 +28,7 @@ export default function ProfileCreationSuccess({
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/95 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-8 px-6">
         {/* Success circle with animated checkmark */}
         <motion.div

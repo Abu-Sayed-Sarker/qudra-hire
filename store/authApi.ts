@@ -1252,10 +1252,10 @@ export const authApi = createApi({
       }),
     }),
 
-    // POST /auth/google/
-    googleLogin: builder.mutation<ApiResponse<LoginData>, { credential: string }>({
+    // POST /auth/login/google/
+    googleLogin: builder.mutation<ApiResponse<LoginData>, { id_token: string; role?: string }>({
       query: (body) => ({
-        url: "auth/google/",
+        url: "auth/login/google/",
         method: "POST",
         body,
       }),
@@ -1948,7 +1948,7 @@ export const authApi = createApi({
     // GET /auth/candidate/profiles/
     getCandidateProfiles: builder.query<ApiResponse<CandidateProfile[]>, void>({
       query: () => "auth/candidate/profiles/",
-      providesTags: ["CandidateProfiles"],
+      providesTags: ["CandidateProfiles",],
     }),
 
     // POST /auth/candidate/profiles/  (multipart/form-data or json)

@@ -89,7 +89,7 @@ function FileDropZone({
         {file ? (
           <div className="flex items-center justify-center gap-2">
             <FileText size={16} className="text-[#23C65F] shrink-0" />
-            <span className="text-sm text-on-surface truncate max-w-[200px]">{file.name}</span>
+            <span className="text-sm text-on-surface truncate max-w-50">{file.name}</span>
             <button
               type="button"
               onClick={(e) => {
@@ -143,7 +143,7 @@ export default function SignupPage() {
   async function handleGoogleSuccess(credential: string) {
     setErrorMsg("");
     try {
-      const result = await googleLogin({ credential }).unwrap();
+      const result = await googleLogin({ id_token: credential, role: accountType.toUpperCase() }).unwrap();
 
       dispatch(
         setCredentials({
@@ -248,7 +248,7 @@ export default function SignupPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[450px] bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm"
+        className="w-full max-w-112.5 bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm"
       >
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Home">
@@ -299,6 +299,7 @@ export default function SignupPage() {
             role="tabpanel"
           >
             <GoogleLoginButton
+              text="Sign up with Google"
               onSuccess={handleGoogleSuccess}
               onError={() => setErrorMsg("Google sign up failed. Please try again.")}
             />
@@ -366,7 +367,7 @@ export default function SignupPage() {
                 placeholder="Re-enter password"
                 required
               />
-{/* 
+              {/* 
               <FileDropZone
                 label="CV / Résumé"
                 hint="Upload CV (PDF / DOCX) — AI parses into a structured profile"
@@ -395,6 +396,18 @@ export default function SignupPage() {
             transition={{ duration: 0.3 }}
             role="tabpanel"
           >
+            <GoogleLoginButton
+              text="Sign up with Google"
+              onSuccess={handleGoogleSuccess}
+              onError={() => setErrorMsg("Google sign up failed. Please try again.")}
+            />
+
+            <div className="flex items-center gap-3 mb-6 mt-6">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">OR</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
             <form className="space-y-4" onSubmit={handleCompanySubmit} noValidate>
               <div>
                 <label htmlFor="co-name" className="block text-xs font-medium text-on-surface mb-1.5">Company name</label>

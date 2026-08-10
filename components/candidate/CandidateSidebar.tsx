@@ -39,7 +39,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
-import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation } from "@/store/authApi";
+import { useGetCandidateProfilesQuery, useCreateCandidateProfileMutation, authApi } from "@/store/authApi";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -73,7 +73,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const [successProfileId, setSuccessProfileId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const profiles = profilesData?.data ?? [];
+  const profiles = (profilesData?.data as any)?.profiles || [];
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim() || "Candidate";
   const email = user?.email || "";
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
@@ -105,6 +105,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
     setShowSuccess(false);
     if (successProfileId) {
       router.push(`/candidate/profile/${successProfileId}`);
+      dispatch(authApi.util.invalidateTags(["CandidateProfiles"]))
     }
   };
 
@@ -190,7 +191,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
               ) : profiles.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-muted-foreground">No profiles yet</div>
               ) : (
-                profiles.map((profile) => (
+                profiles.map((profile: any) => (
                   <DropdownMenuItem
                     key={profile.id}
                     onClick={() => { router.push(`/candidate/profile/${profile.id}`); setSidebarOpen?.(false); }}

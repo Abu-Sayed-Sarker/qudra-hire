@@ -160,7 +160,7 @@ export default function QudraHeader() {
             )}
 
             <div className="hidden md:block">
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
             </div>
 
             <div className="hidden md:block">
@@ -256,10 +256,10 @@ export default function QudraHeader() {
                   )}
                 </div>
 
-                <div className="pt-3 border-t border-surface mt-2 flex items-center justify-between">
+                {/* <div className="pt-3 border-t border-surface mt-2 flex items-center justify-between">
                   <span className="text-sm text-on-surface-muted">Theme</span>
                   <ThemeToggle />
-                </div>
+                </div> */}
 
                 <div className="pt-2 border-t border-surface">
                   <GoogleTranslate />

@@ -349,13 +349,13 @@ export default function BrowseJobsPage() {
                 key={filter.label}
                 onClick={() => filter.setter(!filter.checked)}
                 className={`inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-bold transition-all ${filter.checked
-                    ? `bg-${filter.color}-500/10 border-${filter.color}-500/30 text-${filter.color}-600 shadow-sm`
-                    : "border-border bg-background/40 text-muted-foreground hover:border-border/80"
+                  ? `bg-${filter.color}-500/10 border-${filter.color}-500/30 text-${filter.color}-600 shadow-sm`
+                  : "border-border bg-background/40 text-muted-foreground hover:border-border/80"
                   }`}
               >
                 <div className={`h-4 w-4 rounded-md border-2 flex items-center justify-center transition-all ${filter.checked
-                    ? `bg-${filter.color}-600 border-${filter.color}-600`
-                    : "border-border"
+                  ? `bg-${filter.color}-600 border-${filter.color}-600`
+                  : "border-border"
                   }`}>
                   {filter.checked && (
                     <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -456,7 +456,16 @@ export default function BrowseJobsPage() {
                       <div className="relative flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3.5 min-w-0">
                           <div className="h-12 w-12 rounded-2xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0 shadow-sm">
-                            {job.company_name?.slice(0, 2).toUpperCase() || "CO"}
+                            {
+                              job.company_logo ? (
+                                <img
+                                  src={job.company_logo}
+                                  alt={job.company_name}
+                                  className="rounded-2xl object-cover object-top w-full h-full"
+                                />
+                              )
+                                : job.company_name?.slice(0, 2).toUpperCase() || "CO"
+                            }
                           </div>
                           <div className="min-w-0">
                             <p className="text-xs text-muted-foreground font-semibold truncate">{job.company_name}</p>

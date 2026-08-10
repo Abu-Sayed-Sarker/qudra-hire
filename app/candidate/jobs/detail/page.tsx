@@ -228,7 +228,16 @@ function JobDetailContent() {
           <div className="flex items-start flex-wrap justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-xl bg-linear-to-br from-surface-item to-surface-deep border border-surface flex items-center justify-center font-bold text-on-surface-muted text-sm shrink-0">
-                {companyInitials}
+                {
+                  job.company_logo ? (
+                    <img
+                      src={job.company_logo}
+                      alt={job.company_name}
+                      className="rounded-2xl object-cover object-top w-full h-full"
+                    />
+                  )
+                    : companyInitials
+                }
               </div>
               <div>
                 <p className="text-on-surface-muted font-semibold">{job.company_name}</p>

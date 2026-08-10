@@ -282,7 +282,7 @@ export default function CandidateDashboard() {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative" role="list" aria-label="Job recommendations">
-              {d.recommendations.map((job, idx) => (
+              {d.recommendations.map((job: any, idx) => (
                 <motion.div
                   key={job.id}
                   initial={{ opacity: 0, y: 12 }}
@@ -295,8 +295,16 @@ export default function CandidateDashboard() {
                       <div className="absolute inset-0 bg-linear-to-br from-emerald-500/3 to-transparent rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="relative flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-11 w-11 rounded-xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0">
-                            {job.company_name.slice(0, 2).toUpperCase()}
+                          <div className="h-11 w-11 rounded-xl bg-linear-to-br from-emerald-500/10 to-blue-500/10 border border-border flex items-center justify-center text-sm font-bold text-foreground shrink-0 overflow-hidden">
+                            {job.company_logo ? (
+                              <img
+                                src={job.company_logo}
+                                alt={job.company_name}
+                                className="rounded-2xl object-cover object-top w-full h-full"
+                              />
+                            )
+                              : job.company_name.slice(0, 2).toUpperCase()
+                            }
                           </div>
                           <div className="min-w-0">
                             <p className="text-xs text-muted-foreground font-semibold truncate">{job.company_name}</p>
@@ -304,7 +312,7 @@ export default function CandidateDashboard() {
                           </div>
                         </div>
                         <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border shrink-0 ${matchColor(job.match_score)}`}>
-                          {job.match_score}%
+                          {job.match_score}
                         </span>
                       </div>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground font-medium mt-3.5">
@@ -323,7 +331,7 @@ export default function CandidateDashboard() {
                         {job.visa === "Visa" && <span className="text-emerald-600 font-bold flex items-center gap-1"><Zap className="h-3 w-3" />Visa</span>}
                       </div>
                       <div className="flex flex-wrap gap-1.5 mt-3.5">
-                        {job.tags.map((t, ti) => (
+                        {job.tags.map((t: any, ti: any) => (
                           <span key={ti} className="bg-muted/50 border border-border text-muted-foreground text-[10px] font-bold px-2 py-1 rounded-lg">{t}</span>
                         ))}
                       </div>

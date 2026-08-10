@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useLoginWithEmailMutation, useGoogleLoginMutation } from "@/store/authApi";
 import { setCredentials } from "@/store/authSlice";
 import { useAppDispatch } from "@/store/hooks";
@@ -27,7 +27,7 @@ export default function LoginPage() {
   async function handleGoogleSuccess(credential: string) {
     setErrorMsg("");
     try {
-      const result = await googleLogin({ credential }).unwrap();
+      const result = await googleLogin({ id_token: credential }).unwrap();
 
       dispatch(
         setCredentials({
@@ -94,7 +94,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[400px] bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm"
+        className="w-full max-w-100 bg-card border border-border rounded-2xl p-6 sm:p-10 shadow-sm"
       >
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Home">
