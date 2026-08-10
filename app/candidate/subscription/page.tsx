@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Check, Zap, Star, ShieldCheck, Lock, Loader2, CreditCard, AlertTriangle } from "lucide-react";
 import { useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery, useGetCandidateProfilesQuery, useCreateStripeCheckoutSessionMutation } from "@/store/authApi";
 import { toast } from "sonner";
@@ -136,54 +137,93 @@ export default function CandidateSubscriptionPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-[#4BC957] shrink-0" />
-              <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Active Subscriptions</span>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-2xl px-5 py-4 shadow-sm hover:shadow-lg hover:border-emerald-500/30 transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-4 h-4 text-[#4BC957] shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Active Subscriptions</span>
+              </div>
+              <p className="text-4xl font-extrabold text-foreground">{activeSub ? 1 : 0}</p>
             </div>
-            <p className="text-4xl font-extrabold text-foreground">{activeSub ? 1 : 0}</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-[#4BC957] shrink-0" />
-              <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Total Subscriptions</span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-2xl px-5 py-4 shadow-sm hover:shadow-lg hover:border-emerald-500/30 transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-4 h-4 text-[#4BC957] shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Total Subscriptions</span>
+              </div>
+              <p className="text-4xl font-extrabold text-foreground">{history.length}</p>
             </div>
-            <p className="text-4xl font-extrabold text-foreground">{history.length}</p>
-          </div>
-          <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <Lock className="w-4 h-4 text-slate-400 shrink-0" />
-              <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Expired</span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-2xl px-5 py-4 shadow-sm hover:shadow-lg transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-linear-to-br from-slate-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2">
+                <Lock className="w-4 h-4 text-slate-400 shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Expired</span>
+              </div>
+              <p className="text-4xl font-extrabold text-foreground">{history.filter((h) => h.sub_status !== "ACTIVE").length}</p>
             </div>
-            <p className="text-4xl font-extrabold text-foreground">{history.filter((h) => h.sub_status !== "ACTIVE").length}</p>
-          </div>
+          </motion.div>
         </div>
 
         {/* Active Subscription */}
         {activeSub && (
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
             <h2 className="text-lg font-bold text-foreground mb-3">Your active subscription</h2>
-            <div className="bg-card border border-border rounded-xl px-5 py-4 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
+            <div className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl px-5 py-5 shadow-lg shadow-emerald-500/5 hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-500/50 transition-all duration-500">
+              <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+              <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-emerald-500/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+              <div className="relative z-10 flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 bg-[#4BC957]/15">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 0.5 }}
+                    className="mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[#4BC957]/15 border border-[#4BC957]/30 shadow-inner"
+                  >
                     <Check className="w-4 h-4 text-[#4BC957]" />
-                  </div>
+                  </motion.div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-sm leading-tight">{activeSub.plan_name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{activeSub.currency} {activeSub.price} / plan</p>
+                    <p className="font-bold text-foreground text-base leading-tight group-hover:text-[#4BC957] transition-colors">{activeSub.plan_name}</p>
+                    <p className="text-sm font-medium text-muted-foreground mt-0.5">{activeSub.currency} {activeSub.price} / plan</p>
                   </div>
                 </div>
-                <span className="text-[11px] font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 rounded px-2 py-0.5">
-                  ✓ Active
+                <span className="text-[11px] font-bold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 rounded-full px-3 py-1 shadow-sm flex items-center gap-1.5 group-hover:scale-105 transition-transform">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4BC957] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4BC957]"></span>
+                  </span>
+                  Active
                 </span>
               </div>
-              <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-[12px] text-muted-foreground">
+              <div className="relative z-10 mt-4 pt-3 border-t border-border flex items-center justify-between text-xs font-medium text-muted-foreground">
                 <span>Started {new Date(activeSub.started_at).toLocaleDateString()}</span>
                 <span>Renews {new Date(activeSub.expires_at).toLocaleDateString()}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Choose your plan */}
@@ -191,7 +231,7 @@ export default function CandidateSubscriptionPage() {
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-bold text-foreground">Choose your plan</h2>
-              <div className="inline-flex items-center bg-muted border border-border rounded-xl p-1 gap-1">
+              {/* <div className="inline-flex items-center bg-muted border border-border rounded-xl p-1 gap-1">
                 <button
                   onClick={() => setYearly(false)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all ${!yearly ? "bg-background text-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
@@ -204,77 +244,99 @@ export default function CandidateSubscriptionPage() {
                 >
                   Yearly
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
               {/* Free card */}
               {freePlan && (
-                <div className="bg-card border border-border rounded-2xl p-6 flex flex-col h-full shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Zap className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">STARTER</span>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1, duration: 0.5 }}
+                  className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-xl p-8 flex flex-col h-full shadow-sm hover:shadow-2xl hover:shadow-slate-500/10 hover:border-slate-500/30 transition-all duration-500"
+                >
+                  <div className="absolute inset-0 bg-linear-to-br from-slate-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                  <div className="relative z-10 flex-1 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Zap className="w-5 h-5 text-muted-foreground group-hover:scale-110 transition-transform" />
+                      <span className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">STARTER</span>
+                    </div>
+                    <h3 className="text-3xl font-extrabold text-foreground mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">{freePlan.name}</h3>
+                    <p className="text-sm font-medium text-muted-foreground mb-6">{freePlan.description || "Everything you need to start."}</p>
+                    <div className="flex items-baseline gap-1.5 mb-8">
+                      <span className="text-4xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
+                      <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{freePlan.renewal}</span>
+                    </div>
+                    <button
+                      onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
+                      className="w-full h-12 rounded-2xl font-bold text-sm border border-border text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] transition-all mb-8 shadow-sm"
+                    >
+                      Get started free
+                    </button>
+                    <div className="border-t border-border/50 mb-6" />
+                    <ul className="space-y-4 flex-1">
+                      {freeFeatures.map((f) => (
+                        <li key={f} className="flex items-start gap-3 text-sm font-medium text-muted-foreground">
+                          <span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-slate-200 dark:group-hover:bg-slate-800 transition-colors">
+                            <Check className="h-3 w-3 text-muted-foreground" />
+                          </span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <h3 className="text-3xl font-extrabold text-foreground mb-1">{freePlan.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{freePlan.description || "Everything you need to start."}</p>
-                  <div className="flex items-baseline gap-1 mb-5">
-                    <span className="text-3xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
-                    <span className="text-sm text-muted-foreground">{freePlan.renewal}</span>
-                  </div>
-                  <button
-                    onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
-                    className="w-full h-11 rounded-xl font-bold text-sm border border-border text-foreground hover:bg-muted transition-all mb-5"
-                  >
-                    Get started free
-                  </button>
-                  <div className="border-t border-border mb-4" />
-                  <ul className="space-y-2.5 flex-1">
-                    {freeFeatures.map((f) => (
-                      <li key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                        <span className="h-4 w-4 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Check className="h-2.5 w-2.5 text-muted-foreground" />
-                        </span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                </motion.div>
               )}
 
               {/* Premium card */}
               {premiumPlan && (
-                <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  className="group relative bg-green-50/80 dark:bg-[#0f1f14]/80 backdrop-blur-2xl border-2 border-[#4BC957]/50 rounded-xl p-8 flex flex-col h-full shadow-2xl shadow-[#4BC957]/10 hover:shadow-[#4BC957]/20 hover:-translate-y-1 transition-all duration-500"
+                >
+                  <div className="absolute inset-0 bg-linear-to-br from-[#4BC957]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                  <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent pointer-events-none z-0 skew-x-12" />
+
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
+                    <span className="bg-linear-to-r from-[#4BC957] to-emerald-400 text-white text-[11px] font-bold px-4 py-1.5 rounded-full tracking-wider shadow-lg shadow-[#4BC957]/30">MOST POPULAR</span>
                   </div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Star className="w-4 h-4 text-[#4BC957]" />
-                    <span className="text-[10px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
+
+                  <div className="relative z-10 flex-1 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                      <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.5 }}>
+                        <Star className="w-5 h-5 text-[#4BC957]" fill="currentColor" />
+                      </motion.div>
+                      <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
+                    </div>
+                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2 bg-clip-text group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-emerald-500 group-hover:to-[#4BC957] transition-all duration-300">{premiumPlan.name}</h3>
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-6">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
+                    <div className="flex items-baseline gap-1.5 mb-8">
+                      <span className="text-4xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
+                      <span className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">/ month</span>
+                    </div>
+                    <button
+                      onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
+                      className="w-full h-12 rounded-2xl font-bold text-sm bg-linear-to-r from-[#4BC957] to-emerald-500 hover:from-emerald-500 hover:to-[#4BC957] text-white shadow-xl shadow-[#4BC957]/30 hover:shadow-[#4BC957]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mb-8"
+                    >
+                      Upgrade to {premiumPlan.name}
+                    </button>
+                    <div className="border-t border-green-200 dark:border-white/10 mb-6" />
+                    <ul className="space-y-4 flex-1">
+                      {premiumFeatures.map((f) => (
+                        <li key={f} className="flex items-start gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <span className="h-5 w-5 rounded-full bg-[#4BC957]/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                            <Check className="h-3 w-3 text-[#4BC957]" />
+                          </span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{premiumPlan.name}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
-                  <div className="flex items-baseline gap-1 mb-5">
-                    <span className="text-3xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">/ month</span>
-                  </div>
-                  <button
-                    onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
-                    className="w-full h-11 rounded-xl font-bold text-sm bg-[#4BC957] hover:bg-[#3DAF49] text-white shadow-lg shadow-[#4BC957]/20 transition-all mb-5"
-                  >
-                    Upgrade to {premiumPlan.name}
-                  </button>
-                  <div className="border-t border-green-200 dark:border-white/10 mb-4" />
-                  <ul className="space-y-2.5 flex-1">
-                    {premiumFeatures.map((f) => (
-                      <li key={f} className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-300">
-                        <span className="h-4 w-4 rounded-full bg-[#4BC957]/15 flex items-center justify-center shrink-0">
-                          <Check className="h-2.5 w-2.5 text-[#4BC957]" />
-                        </span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                </motion.div>
               )}
             </div>
           </div>
@@ -289,18 +351,24 @@ export default function CandidateSubscriptionPage() {
             <>
               {/* Mobile: stacked cards */}
               <div className="sm:hidden space-y-3">
-                {history.map((row) => (
-                  <div key={row.id} className="border border-border rounded-xl bg-card px-4 py-4 shadow-sm">
+                {history.map((row, idx) => (
+                  <motion.div
+                    key={row.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * idx, duration: 0.4 }}
+                    className="border border-border/80 rounded-2xl bg-card/60 backdrop-blur-2xl px-4 py-4 shadow-sm hover:shadow-md hover:border-emerald-500/30 transition-all duration-300"
+                  >
                     <div className="flex items-start justify-between gap-3">
-                      <p className="font-semibold text-foreground text-sm leading-tight">{row.plan_name}</p>
-                      <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${row.sub_status === "ACTIVE"
-                        ? "bg-[#4BC957]/15 text-[#4BC957]"
-                        : "bg-muted text-muted-foreground"
+                      <p className="font-bold text-foreground text-sm leading-tight">{row.plan_name}</p>
+                      <span className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-bold shadow-sm ${row.sub_status === "ACTIVE"
+                        ? "bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30"
+                        : "bg-muted text-muted-foreground border border-border"
                         }`}>
                         {row.sub_status}
                       </span>
                     </div>
-                    <dl className="mt-3 pt-3 border-t border-border grid grid-cols-2 gap-y-2 text-xs">
+                    <dl className="mt-3 pt-3 border-t border-border/50 grid grid-cols-2 gap-y-3 text-xs">
                       <div>
                         <dt className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Started</dt>
                         <dd className="text-foreground font-medium">{new Date(row.started_at).toLocaleDateString()}</dd>
@@ -314,39 +382,45 @@ export default function CandidateSubscriptionPage() {
                         <dd className="text-foreground font-bold">{row.currency} {row.price}</dd>
                       </div>
                     </dl>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
               {/* Desktop: table */}
-              <div className="hidden sm:block border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+              <div className="hidden sm:block border border-border/80 rounded-2xl overflow-hidden bg-card/60 backdrop-blur-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-muted/50 border-b border-border text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                        <th className="px-5 py-3 text-left">Plan</th>
-                        <th className="px-5 py-3 text-left">Started</th>
-                        <th className="px-5 py-3 text-left">Expires</th>
-                        <th className="px-5 py-3 text-left">Status</th>
-                        <th className="px-5 py-3 text-right">Amount</th>
+                      <tr className="bg-muted/50 border-b border-border/50 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                        <th className="px-5 py-4 text-left">Plan</th>
+                        <th className="px-5 py-4 text-left">Started</th>
+                        <th className="px-5 py-4 text-left">Expires</th>
+                        <th className="px-5 py-4 text-left">Status</th>
+                        <th className="px-5 py-4 text-right">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {history.map((row) => (
-                        <tr key={row.id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                          <td className="px-5 py-3.5 text-foreground font-medium">{row.plan_name}</td>
-                          <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
-                          <td className="px-5 py-3.5 text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
-                          <td className="px-5 py-3.5">
-                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${row.sub_status === "ACTIVE"
-                              ? "bg-[#4BC957]/15 text-[#4BC957]"
-                              : "bg-muted text-muted-foreground"
+                      {history.map((row, idx) => (
+                        <motion.tr
+                          key={row.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 * idx, duration: 0.4 }}
+                          className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors group cursor-default"
+                        >
+                          <td className="px-5 py-4 text-foreground font-bold group-hover:text-emerald-500 transition-colors">{row.plan_name}</td>
+                          <td className="px-5 py-4 text-muted-foreground font-medium">{new Date(row.started_at).toLocaleDateString()}</td>
+                          <td className="px-5 py-4 text-muted-foreground font-medium">{new Date(row.expires_at).toLocaleDateString()}</td>
+                          <td className="px-5 py-4">
+                            <span className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold shadow-sm ${row.sub_status === "ACTIVE"
+                              ? "bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30"
+                              : "bg-muted text-muted-foreground border border-border"
                               }`}>
                               {row.sub_status}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 text-right font-semibold text-foreground">{row.currency} {row.price}</td>
-                        </tr>
+                          <td className="px-5 py-4 text-right font-extrabold text-foreground">{row.currency} {row.price}</td>
+                        </motion.tr>
                       ))}
                     </tbody>
                   </table>
