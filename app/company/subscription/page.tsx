@@ -69,32 +69,16 @@ export default function CompanySubscriptionPage() {
   const plans = allPlans.filter((p) => p.category === "COMPANY");
 
   const activeSub = history.find((h) => h.sub_status === "ACTIVE");
-  const freePlan = plans.find(
-    (p) => p.plan_type === "Free" || p.name?.toLowerCase() === "free" || Number(p.price) === 0
-  );
-  const premiumPlan = plans.find(
-    (p) =>
-      p.plan_type === "Premium" ||
-      p.plan_type === "Pro" ||
-      p.name?.toLowerCase() === "pro" ||
-      p.name?.toLowerCase() === "premium" ||
-      Number(p.price) > 0
-  );
-
-  const freeFeatures =
-    freePlan?.features && freePlan.features.length > 0
-      ? freePlan.features
-      : ["Post active job vacancies", "Basic candidate matching", "Standard analytics dashboard"];
-
-  const premiumFeatures =
-    premiumPlan?.features && premiumPlan.features.length > 0
-      ? premiumPlan.features
-      : [
-        "Unlimited active job postings",
-        "Advanced AI recruiter & automated screening",
-        "Priority candidate matching & outreach",
-        "Dedicated account manager & 24/7 support",
-      ];
+  const getFeatures = (plan: any, isFree: boolean) => {
+    if (plan.features && plan.features.length > 0) return plan.features;
+    if (isFree) return ["Post active job vacancies", "Basic candidate matching", "Standard analytics dashboard"];
+    return [
+      "Unlimited active job postings",
+      "Advanced AI recruiter & automated screening",
+      "Priority candidate matching & outreach",
+      "Dedicated account manager & 24/7 support",
+    ];
+  };
 
   const isLoading = historyLoading || plansLoading;
 
@@ -181,125 +165,118 @@ export default function CompanySubscriptionPage() {
         )}
 
         {/* Plans Grid */}
-        {(freePlan || premiumPlan) && (
+        {plans.length > 0 && (
           <div>
             <div className="flex flex-wrap items-center gap-5 justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-foreground tracking-tight">Available Plans</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">Select a plan that fits your hiring needs</p>
               </div>
-              {/* <div className="bg-muted p-1 rounded-full flex items-center border border-border">
-                <button
-                  onClick={() => setYearly(false)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${!yearly ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-                    }`}
-                >
-                  Monthly
-                </button>
-                <button
-                  onClick={() => setYearly(true)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${yearly ? "bg-[#4BC957] text-white shadow-sm" : "text-muted-foreground"
-                    }`}
-                >
-                  Yearly
-                </button>
-              </div> */}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Free Card */}
-              {freePlan && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                  className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-xl p-8 flex flex-col h-full shadow-sm hover:shadow-2xl hover:shadow-slate-500/10 hover:border-slate-500/30 transition-all duration-500"
-                >
-                  <div className="absolute inset-0 bg-linear-to-br from-slate-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {plans.map((plan) => {
+                const isFree = plan.plan_type === "Free" || plan.name?.toLowerCase() === "free" || Number(plan.price) === 0;
+                const features = getFeatures(plan, isFree);
 
-                  <div className="relative z-10 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Zap className="w-5 h-5 text-muted-foreground group-hover:scale-110 transition-transform" />
-                      <span className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">STARTER</span>
-                    </div>
-                    <h3 className="text-3xl font-extrabold text-foreground mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">{freePlan.name}</h3>
-                    <p className="text-sm font-medium text-muted-foreground mb-6">{freePlan.description || "Everything you need to get started."}</p>
-                    <div className="flex items-baseline gap-1.5 mb-8">
-                      <span className="text-4xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
-                      <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider ml-1">{freePlan.renewal}</span>
-                    </div>
-                    <button
-                      onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
-                      disabled={activeSub?.plan_name === freePlan.name}
-                      className="w-full h-12 rounded-2xl border border-border bg-background hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] text-foreground text-sm font-bold transition-all mb-8 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                if (isFree) {
+                  return (
+                    <motion.div
+                      key={plan.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2, duration: 0.5 }}
+                      className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-xl p-8 flex flex-col h-full shadow-sm hover:shadow-2xl hover:shadow-slate-500/10 hover:border-slate-500/30 transition-all duration-500"
                     >
-                      {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
-                    </button>
-                    <div className="border-t border-border/50 pt-6 space-y-4 flex-1">
-                      {freeFeatures.map((f) => (
-                        <div key={f} className="flex items-start gap-3">
-                          <span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-slate-200 dark:group-hover:bg-slate-800 transition-colors">
-                            <Check className="w-3 h-3 text-muted-foreground" />
-                          </span>
-                          <span className="text-sm font-medium text-muted-foreground">{f}</span>
+                      <div className="absolute inset-0 bg-linear-to-br from-slate-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                      <div className="relative z-10 flex-1 flex flex-col">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Zap className="w-5 h-5 text-muted-foreground group-hover:scale-110 transition-transform" />
+                          <span className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">{plan.plan_type || "STARTER"}</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
+                        <h3 className="text-3xl font-extrabold text-foreground mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">{plan.name}</h3>
+                        <p className="text-sm font-medium text-muted-foreground mb-6">{plan.description || "Everything you need to get started."}</p>
+                        <div className="flex items-baseline gap-1.5 mb-8">
+                          <span className="text-4xl font-extrabold text-foreground">{plan.currency || "AED"} {Number(plan.price)}</span>
+                          <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider ml-1">/ {plan.renewal || "month"}</span>
+                        </div>
+                        <button
+                          onClick={() => openCheckout({ id: plan.id, name: plan.name, price: plan.price })}
+                          disabled={activeSub?.plan_name === plan.name}
+                          className="w-full h-12 rounded-2xl border border-border bg-background hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] text-foreground text-sm font-bold transition-all mb-8 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        >
+                          {activeSub?.plan_name === plan.name ? "Current plan" : `Get started ${plan.name.toLowerCase()}`}
+                        </button>
+                        <div className="border-t border-border/50 pt-6 space-y-4 flex-1">
+                          {features.map((f: string) => (
+                            <div key={f} className="flex items-start gap-3">
+                              <span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-slate-200 dark:group-hover:bg-slate-800 transition-colors">
+                                <Check className="w-3 h-3 text-muted-foreground" />
+                              </span>
+                              <span className="text-sm font-medium text-muted-foreground">{f}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                } else {
+                  return (
+                    <motion.div
+                      key={plan.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                      className="group relative bg-green-50/80 dark:bg-[#0f1f14]/80 backdrop-blur-2xl border-2 border-[#4BC957]/50 rounded-xl p-8 flex flex-col h-full shadow-2xl shadow-[#4BC957]/10 hover:shadow-[#4BC957]/20 hover:-translate-y-1 transition-all duration-500"
+                    >
+                      <div className="absolute inset-0 bg-linear-to-br from-[#4BC957]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                      <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent pointer-events-none z-0 skew-x-12" />
 
-              {/* Premium Card */}
-              {premiumPlan && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="group relative bg-green-50/80 dark:bg-[#0f1f14]/80 backdrop-blur-2xl border-2 border-[#4BC957]/50 rounded-xl p-8 flex flex-col h-full shadow-2xl shadow-[#4BC957]/10 hover:shadow-[#4BC957]/20 hover:-translate-y-1 transition-all duration-500"
-                >
-                  <div className="absolute inset-0 bg-linear-to-br from-[#4BC957]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                  <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent pointer-events-none z-0 skew-x-12" />
-
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-                    <span className="bg-linear-to-r from-[#4BC957] to-emerald-400 text-white text-[11px] font-bold px-4 py-1.5 rounded-full tracking-wider shadow-lg shadow-[#4BC957]/30">MOST POPULAR</span>
-                  </div>
-
-                  <div className="relative z-10 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
-                      <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.5 }}>
-                        <Star className="w-5 h-5 text-[#4BC957]" fill="currentColor" />
-                      </motion.div>
-                      <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
-                    </div>
-                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2 bg-clip-text group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-emerald-500 group-hover:to-[#4BC957] transition-all duration-300">{premiumPlan.name}</h3>
-                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-6">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
-                    <div className="flex items-baseline gap-1.5 mb-8">
-                      <span className="text-4xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
-                      <span className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">/ month</span>
-                      {yearly && premiumPlan.discount && (
-                        <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{premiumPlan.discount}</span>
+                      {plan.name?.toLowerCase() === 'pro' && (
+                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
+                          <span className="bg-linear-to-r from-[#4BC957] to-emerald-400 text-white text-[11px] font-bold px-4 py-1.5 rounded-full tracking-wider shadow-lg shadow-[#4BC957]/30">MOST POPULAR</span>
+                        </div>
                       )}
-                    </div>
-                    <button
-                      onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
-                      disabled={activeSub?.plan_name === premiumPlan.name}
-                      className="w-full h-12 rounded-2xl font-bold text-sm bg-linear-to-r from-[#4BC957] to-emerald-500 hover:from-emerald-500 hover:to-[#4BC957] text-white shadow-xl shadow-[#4BC957]/30 hover:shadow-[#4BC957]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mb-8 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    >
-                      {activeSub?.plan_name === premiumPlan.name ? "Active" : `Upgrade to ${premiumPlan.name}`}
-                    </button>
-                    <div className="border-t border-green-200 dark:border-white/10 pt-6 space-y-4 flex-1">
-                      {premiumFeatures.map((f) => (
-                        <div key={f} className="flex items-start gap-3">
-                          <span className="h-5 w-5 rounded-full bg-[#4BC957]/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
-                            <Check className="h-3 w-3 text-[#4BC957]" />
-                          </span>
-                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{f}</span>
+
+                      <div className="relative z-10 flex-1 flex flex-col">
+                        <div className="flex items-center gap-2 mb-4">
+                          <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.5 }}>
+                            <Star className="w-5 h-5 text-[#4BC957]" fill="currentColor" />
+                          </motion.div>
+                          <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase">{plan.plan_type || "RECOMMENDED"}</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
+                        <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2 bg-clip-text group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-emerald-500 group-hover:to-[#4BC957] transition-all duration-300">{plan.name}</h3>
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-6">{plan.description || "Your always-on AI Recruiter."}</p>
+                        <div className="flex items-baseline gap-1.5 mb-8">
+                          <span className="text-4xl font-extrabold text-slate-900 dark:text-white">{plan.currency || "AED"} {Number(plan.price)}</span>
+                          <span className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">/ {plan.renewal || "month"}</span>
+                          {yearly && plan.discount && Number(plan.discount) > 0 && (
+                            <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{plan.discount}</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => openCheckout({ id: plan.id, name: plan.name, price: plan.price })}
+                          disabled={activeSub?.plan_name === plan.name}
+                          className="w-full h-12 rounded-2xl font-bold text-sm bg-linear-to-r from-[#4BC957] to-emerald-500 hover:from-emerald-500 hover:to-[#4BC957] text-white shadow-xl shadow-[#4BC957]/30 hover:shadow-[#4BC957]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mb-8 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        >
+                          {activeSub?.plan_name === plan.name ? "Active" : `Upgrade to ${plan.name}`}
+                        </button>
+                        <div className="border-t border-green-200 dark:border-white/10 pt-6 space-y-4 flex-1">
+                          {features.map((f: string) => (
+                            <div key={f} className="flex items-start gap-3">
+                              <span className="h-5 w-5 rounded-full bg-[#4BC957]/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                                <Check className="h-3 w-3 text-[#4BC957]" />
+                              </span>
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{f}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                }
+              })}
             </div>
           </div>
         )}
