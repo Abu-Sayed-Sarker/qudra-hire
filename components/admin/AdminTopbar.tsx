@@ -1,10 +1,11 @@
 "use client";
 
-import { Search, ChevronDown, Sun, Moon } from "lucide-react";
+import { Search, ChevronDown, Sun, Moon, Menu } from "lucide-react";
 import NotificationBell from "@/components/shared/NotificationBell";
 import { useAppSelector } from "@/store/hooks";
 import { useTheme } from "@/components/layout/ThemeProvider";
 import { useState } from "react";
+import AdminSidebar from "./AdminSidebar";
 
 export default function AdminTopbar() {
   const user = useAppSelector((s) => s.auth.user);
@@ -12,18 +13,43 @@ export default function AdminTopbar() {
   const email = user?.email || "";
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "AD").toUpperCase();
   const { resolvedTheme, setTheme } = useTheme();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <header className="flex items-center justify-between h-16 px-6 bg-card border-b border-border">
-      {/* Left: Search */}
-      <div className="relative flex-1 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search anything..."
-          className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/30 focus:bg-card focus:ring-2 focus:ring-primary/10 transition-all duration-200"
-        />
-      </div>
+    <>
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="absolute left-0 top-0 h-full w-65 bg-background">
+            <AdminSidebar setSidebarOpen={setSidebarOpen} />
+          </div>
+        </div>
+      )}
+
+      <header className="flex items-center justify-between h-16 px-4 lg:px-6 bg-card border-b border-border shrink-0">
+        {/* Left: Mobile Menu & Search */}
+        <div className="flex items-center gap-3 flex-1 max-w-md">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          
+          <div className="relative flex-1 hidden sm:block">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search anything..."
+              className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/30 focus:bg-card focus:ring-2 focus:ring-primary/10 transition-all duration-200"
+            />
+          </div>
+        </div>
 
       {/* Right: Notifications + Theme + Language + Profile */}
       <div className="flex items-center gap-2">
@@ -57,5 +83,6 @@ export default function AdminTopbar() {
         </button>
       </div>
     </header>
+    </>
   );
 }

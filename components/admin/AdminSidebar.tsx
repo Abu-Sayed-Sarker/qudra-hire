@@ -33,7 +33,7 @@ const navItems = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ setSidebarOpen }: { setSidebarOpen?: (open: boolean) => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -78,6 +78,7 @@ export default function AdminSidebar() {
             <Link
               key={href}
               href={href}
+              onClick={() => setSidebarOpen?.(false)}
               title={isCollapsed ? label : undefined}
               className={cn(
                 "group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[15px] font-medium transition-all duration-200",

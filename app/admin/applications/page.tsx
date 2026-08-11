@@ -170,8 +170,8 @@ export default function ApplicationManagementPage() {
               <button
                 onClick={() => setFilter(s)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${filter === s
-                    ? "bg-primary/10 border-primary/30 text-primary"
-                    : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/20"
+                  ? "bg-primary/10 border-primary/30 text-primary"
+                  : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/20"
                   }`}
               >
                 <span className="text-foreground font-bold">{counts[s.toLowerCase() as keyof typeof counts] ?? 0}</span>
@@ -185,8 +185,8 @@ export default function ApplicationManagementPage() {
           <button
             onClick={() => setFilter("All")}
             className={`ml-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${filter === "All"
-                ? "bg-primary text-white border-primary"
-                : "bg-card border-border text-muted-foreground hover:text-foreground"
+              ? "bg-primary text-white border-primary"
+              : "bg-card border-border text-muted-foreground hover:text-foreground"
               }`}
           >
             All ({counts.all})
@@ -205,7 +205,7 @@ export default function ApplicationManagementPage() {
       {!isLoading && (
         <div className="rounded-2xl bg-card border border-border overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px]">
+            <table className="w-full min-w-225">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   {["Candidate", "Company", "Job", "Match", "ATS", "Applied", "Status", "Actions"].map(h => (
@@ -237,7 +237,7 @@ export default function ApplicationManagementPage() {
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div
-                              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold text-white shrink-0"
                               style={{ background: avatarColor(app.candidate_name) }}
                             >
                               {getInitials(app.candidate_name)}

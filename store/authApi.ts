@@ -388,6 +388,7 @@ export interface CompanyJobApplication {
   created_at: string;
   candidate_id: string;
   candidate_email: string;
+  candidate_image?: string | null;
 }
 
 export const APPLICATION_STATUSES = [

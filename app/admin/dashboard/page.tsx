@@ -135,33 +135,33 @@ export default function AdminDashboardPage() {
 
   const revenueData = d
     ? d.revenue_overview.labels.map((label, i) => {
-        const entry: Record<string, string | number> = { month: label };
-        d.revenue_overview.datasets.forEach((ds) => {
-          entry[ds.label] = ds.data[i];
-        });
-        return entry;
-      })
+      const entry: Record<string, string | number> = { month: label };
+      d.revenue_overview.datasets.forEach((ds) => {
+        entry[ds.label] = ds.data[i];
+      });
+      return entry;
+    })
     : [];
 
   const userGrowthData = d
     ? d.user_growth.labels.map((label, i) => ({
-        month: label,
-        users: d.user_growth.data[i],
-      }))
+      month: label,
+      users: d.user_growth.data[i],
+    }))
     : [];
 
   const appsTrendData = d
     ? d.applications_trend.labels.map((label, i) => ({
-        day: label,
-        apps: d.applications_trend.data[i],
-      }))
+      day: label,
+      apps: d.applications_trend.data[i],
+    }))
     : [];
 
   const planDistributionData = d
     ? d.plan_distribution.data.map((item, i) => ({
-        ...item,
-        color: PLAN_COLORS[i % PLAN_COLORS.length],
-      }))
+      ...item,
+      color: PLAN_COLORS[i % PLAN_COLORS.length],
+    }))
     : [];
 
   const revenueDataset = d?.revenue_overview.datasets.find((ds) =>
@@ -210,7 +210,7 @@ export default function AdminDashboardPage() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Revenue Overview */}
-        <div className="col-span-2 rounded-2xl bg-card border border-border p-6 shadow-sm">
+        <div className="lg:col-span-2 rounded-2xl bg-card border border-border p-6 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-base font-semibold text-foreground">{d?.revenue_overview.title ?? "Revenue Overview"}</p>
@@ -219,7 +219,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-lg">{d?.revenue_overview.period ?? ""}</span>
           </div>
           {isLoading ? (
-            <Skeleton className="w-full h-[220px] rounded-xl" />
+            <Skeleton className="w-full h-55 rounded-xl" />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={revenueData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
@@ -244,7 +244,7 @@ export default function AdminDashboardPage() {
           <p className="text-base font-semibold text-foreground">{d?.plan_distribution.title ?? "Plan Distribution"}</p>
           <p className="text-sm text-muted-foreground mt-0.5">{d?.plan_distribution.subtitle ?? ""}</p>
           {isLoading ? (
-            <Skeleton className="w-full h-[180px] mt-4 rounded-xl" />
+            <Skeleton className="w-full h-45 mt-4 rounded-xl" />
           ) : (
             <>
               <div className="flex-1 flex justify-center items-center mt-2">
@@ -262,7 +262,7 @@ export default function AdminDashboardPage() {
                 {planDistributionData.map((item, idx) => (
                   <div key={`${item.name}-${idx}`} className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
                       <span className="text-sm text-muted-foreground">{item.name}</span>
                     </div>
                     <span className="text-sm text-foreground font-semibold">{item.value}</span>
@@ -280,7 +280,7 @@ export default function AdminDashboardPage() {
         <div className="rounded-2xl bg-card border border-border p-6 shadow-sm">
           <p className="text-base font-semibold text-foreground mb-4">{d?.user_growth.title ?? "User Growth"}</p>
           {isLoading ? (
-            <Skeleton className="w-full h-[180px] rounded-xl" />
+            <Skeleton className="w-full h-45 rounded-xl" />
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={userGrowthData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -298,7 +298,7 @@ export default function AdminDashboardPage() {
         <div className="rounded-2xl bg-card border border-border p-6 shadow-sm">
           <p className="text-base font-semibold text-foreground mb-4">{d?.applications_trend.title ?? "Applications Trend"}</p>
           {isLoading ? (
-            <Skeleton className="w-full h-[180px] rounded-xl" />
+            <Skeleton className="w-full h-45 rounded-xl" />
           ) : (
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={appsTrendData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -324,31 +324,32 @@ export default function AdminDashboardPage() {
           <div className="space-y-4">
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-10 h-10 rounded-xl" />
-                      <div>
-                        <Skeleton className="w-28 h-3.5 mb-1.5" />
-                        <Skeleton className="w-20 h-2.5" />
-                      </div>
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-10 h-10 rounded-xl" />
+                    <div>
+                      <Skeleton className="w-28 h-3.5 mb-1.5" />
+                      <Skeleton className="w-20 h-2.5" />
                     </div>
-                    <Skeleton className="w-16 h-6 rounded-lg" />
                   </div>
-                ))
+                  <Skeleton className="w-16 h-6 rounded-lg" />
+                </div>
+              ))
               : d?.recent_candidates.map((c) => (
-                  <div key={c.email} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-shrink-0 bg-gradient-to-br from-primary to-emerald-400 shadow-sm">
-                        {c.initials}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{c.name}</p>
-                        <p className="text-xs text-muted-foreground">{c.designations}</p>
-                      </div>
+                <div key={c.email} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold text-white flex-s
+                    hrink-0 bg-linear-to-br from-primary to-emerald-400 shadow-sm">
+                      {c.initials}
                     </div>
-                    <PlanBadge plan={c.plan} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{c.name}</p>
+                      <p className="text-xs text-muted-foreground">{c.designations}</p>
+                    </div>
                   </div>
-                ))}
+                  <PlanBadge plan={c.plan} />
+                </div>
+              ))}
           </div>
         </div>
 
@@ -361,31 +362,31 @@ export default function AdminDashboardPage() {
           <div className="space-y-4">
             {isLoading
               ? Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-10 h-10 rounded-xl" />
-                      <div>
-                        <Skeleton className="w-32 h-3.5 mb-1.5" />
-                        <Skeleton className="w-16 h-2.5" />
-                      </div>
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-10 h-10 rounded-xl" />
+                    <div>
+                      <Skeleton className="w-32 h-3.5 mb-1.5" />
+                      <Skeleton className="w-16 h-2.5" />
                     </div>
-                    <Skeleton className="w-16 h-6 rounded-lg" />
                   </div>
-                ))
+                  <Skeleton className="w-16 h-6 rounded-lg" />
+                </div>
+              ))
               : d?.pending_verifications.map((p) => (
-                  <div key={p.company_name} className="flex items-center justify-between group">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 bg-amber-50 text-amber-600 border border-amber-200">
-                        <Building2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{p.company_name}</p>
-                        <p className="text-xs text-muted-foreground">{p.location}</p>
-                      </div>
+                <div key={p.company_name} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 bg-amber-50 text-amber-600 border border-amber-200">
+                      <Building2 className="w-4 h-4" />
                     </div>
-                    <StatusBadge status={p.status} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{p.company_name}</p>
+                      <p className="text-xs text-muted-foreground">{p.location}</p>
+                    </div>
                   </div>
-                ))}
+                  <StatusBadge status={p.status} />
+                </div>
+              ))}
           </div>
         </div>
 
@@ -398,29 +399,29 @@ export default function AdminDashboardPage() {
           <div className="space-y-4">
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div>
-                      <Skeleton className="w-28 h-3.5 mb-1.5" />
-                      <Skeleton className="w-24 h-2.5" />
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5">
-                      <Skeleton className="w-16 h-3.5" />
-                      <Skeleton className="w-16 h-5 rounded-lg" />
-                    </div>
+                <div key={i} className="flex items-center justify-between">
+                  <div>
+                    <Skeleton className="w-28 h-3.5 mb-1.5" />
+                    <Skeleton className="w-24 h-2.5" />
                   </div>
-                ))
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Skeleton className="w-16 h-3.5" />
+                    <Skeleton className="w-16 h-5 rounded-lg" />
+                  </div>
+                </div>
+              ))
               : d?.recent_payments.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{p.candidate_name}</p>
-                      <p className="text-xs text-muted-foreground">{p.designation}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5">
-                      <span className="text-sm font-semibold text-foreground">{p.amount}</span>
-                      <StatusBadge status={p.status} />
-                    </div>
+                <div key={i} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{p.candidate_name}</p>
+                    <p className="text-xs text-muted-foreground">{p.designation}</p>
                   </div>
-                ))}
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="text-sm font-semibold text-foreground">{p.amount}</span>
+                    <StatusBadge status={p.status} />
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
       </div>
