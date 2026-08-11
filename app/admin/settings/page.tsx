@@ -62,7 +62,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-5xl w-full space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         {!isLoading && !isError && (
