@@ -102,9 +102,9 @@ function JobApplicantsInner() {
 
   const mappedApplicants = applications.map((app) => {
     const stage = mapStatusToStage(app.application_status);
-    const interviewStatus = app.status_reason?.includes("Completed") ? "Completed" : 
-                           app.status_reason?.includes("In progress") ? "In progress" : "Pending";
-    
+    const interviewStatus = app.status_reason?.includes("Completed") ? "Completed" :
+      app.status_reason?.includes("In progress") ? "In progress" : "Pending";
+
     return {
       id: app.candidate_id || app.id,
       name: app.full_name,
@@ -123,6 +123,7 @@ function JobApplicantsInner() {
       application_id: app.id,
       job: app.job,
       applicationStatus: app.application_status,
+      image: app.candidate_image || null,
     };
   });
 
@@ -145,7 +146,7 @@ function JobApplicantsInner() {
   const interviewStatuses = ["Pending", "In progress", "Completed"];
 
   const toggleStage = (stage: string) => {
-    
+
     setTempFilters((prev) => ({
       ...prev,
       stages: prev.stages.includes(stage)
@@ -420,9 +421,13 @@ function JobApplicantsInner() {
               {/* Top row Info */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-[#2E3C51] flex items-center justify-center font-bold text-slate-300 text-sm shadow-inner flex-shrink-0">
-                    {candidate.initials}
-                  </div>
+                  {candidate.image ? (
+                    <img src={candidate.image} alt={candidate.name} className="h-11 w-11 rounded-xl object-cover shadow-inner shrink-0 border border-[#2E3C51]" />
+                  ) : (
+                    <div className="h-11 w-11 rounded-xl bg-linear-to-br from-[#1E293B] to-[#0F172A] border border-[#2E3C51] flex items-center justify-center font-bold text-slate-300 text-sm shadow-inner shrink-0">
+                      {candidate.initials}
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-base font-bold text-white tracking-tight group-hover:text-[#4BC957] transition-colors">{candidate.name}</h3>
                     <p className="text-slate-500 font-semibold mt-0.5">
