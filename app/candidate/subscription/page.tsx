@@ -217,7 +217,11 @@ export default function CandidateSubscriptionPage() {
               <h2 className="text-lg font-bold text-foreground">Choose your plan</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+            <div className={`grid gap-5 items-stretch ${plans.length === 1 ? "grid-cols-1 mx-auto" :
+                plans.length === 2 ? "grid-cols-1 md:grid-cols-2 mx-auto" :
+                  plans.length === 3 ? "grid-cols-1 md:grid-cols-3" :
+                    "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+              }`}>
               {plans.map((plan) => {
                 const isFree = plan.plan_type === "Free" || plan.name?.toLowerCase() === "free" || Number(plan.price) === 0;
                 const features = getFeatures(plan, isFree);

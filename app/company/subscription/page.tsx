@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Star, Zap, ShieldCheck, Building2, Loader2, CreditCard } from "lucide-react";
 import { useCreateStripeCheckoutSessionMutation, useGetCompanyProfileQuery, useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
-import { useAppSelector } from "@/store/hooks";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -174,7 +173,11 @@ export default function CompanySubscriptionPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className={`grid gap-6 items-stretch ${plans.length === 1 ? "grid-cols-1 mx-auto" :
+                plans.length === 2 ? "grid-cols-1 md:grid-cols-2 mx-auto" :
+                  plans.length === 3 ? "grid-cols-1 md:grid-cols-3" :
+                    "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+              }`}>
               {plans.map((plan) => {
                 const isFree = plan.plan_type === "Free" || plan.name?.toLowerCase() === "free" || Number(plan.price) === 0;
                 const features = getFeatures(plan, isFree);
