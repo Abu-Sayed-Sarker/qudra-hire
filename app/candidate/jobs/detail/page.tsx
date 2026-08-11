@@ -366,14 +366,19 @@ function JobDetailContent() {
                     </div>
                   )}
                 </div>
-                <div className="flex gap-3">
-                  <button onClick={startTailoring} className="flex-1 flex items-center justify-center gap-1.5 border border-[#23C65F] hover:bg-[#23C65F]/10 text-[#23C65F] text-[13px] font-bold py-3 px-3 rounded-xl transition-all active:scale-[0.98]">
-                    Tailor my CV for this role
-                  </button>
-                  <button onClick={() => { setApplyModalOpen(true); setApplyStep("review"); }} className="flex-1 flex items-center justify-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white text-[13px] font-bold py-3 px-3 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98]">
-                    Apply now
-                  </button>
-                </div>
+                {job?.already_applied ?
+                  <div className="p-4 text-center">
+                    <h3 className="font-bold text-on-surface-muted uppercase tracking-wider">You have already applied for this job</h3>
+                  </div> : <div className="flex gap-3">
+                    <button onClick={startTailoring} className="flex-1 flex items-center justify-center gap-1.5 border border-[#23C65F] hover:bg-[#23C65F]/10 text-[#23C65F] text-[13px] font-bold py-3 px-3 rounded-xl transition-all active:scale-[0.98]">
+                      Tailor my CV for this role
+                    </button>
+                    <button onClick={() => { setApplyModalOpen(true); setApplyStep("review"); }} className="flex-1 flex items-center justify-center gap-1.5 bg-[#23C65F] hover:bg-[#1DA852] text-white text-[13px] font-bold py-3 px-3 rounded-xl transition-all shadow-md shadow-[#23C65F]/10 active:scale-[0.98]">
+                      Apply now
+                    </button>
+                  </div>
+                }
+
               </div>
             </div>
           )}
