@@ -233,7 +233,7 @@ function PlanModal({
               <button
                 type="button"
                 onClick={addFeature}
-                className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[#6366f1] transition-colors"
+                className="shrink-0 w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-[#6366f1] transition-colors"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -294,9 +294,6 @@ export default function SubscriptionsPage() {
   const plans = dashboard?.plans ?? [];
   const activePremiumPlans = dashboard?.active_premium_plans ?? [];
 
-  const freePlans = plans.filter(p => p.plan_type === "Free");
-  const premiumPlans = plans.filter(p => p.plan_type === "Premium");
-
   const statsData = metrics ? [
     { icon: Sparkles, label: "Premium Plans Active", value: String(metrics.premium_active_count), change: "" },
     { icon: Star, label: "Starter Plans Active", value: String(metrics.starter_active_count), change: "" },
@@ -322,7 +319,7 @@ export default function SubscriptionsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Subscription Plans</h1>
@@ -342,7 +339,7 @@ export default function SubscriptionsPage() {
       </div>
 
       {/* Billing toggle */}
-      <div className="flex items-center gap-3">
+      {/* <div className="flex items-center gap-3">
         <button
           onClick={() => setBilling("monthly")}
           className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${billing === "monthly"
@@ -362,105 +359,123 @@ export default function SubscriptionsPage() {
           Yearly
 
         </button>
+      </div> */}
+
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-foreground">All Plans</h1>
+
       </div>
 
-      {/* Plan Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Free Plan */}
-        {freePlans.filter(p => p.category === "CANDIDATE").map(plan => (
-          <div key={plan.id} className="rounded-xl bg-card border border-border p-6 shadow-sm">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-1">⚡ {plan.plan_title}</p>
-                <h2 className="text-4xl font-black text-foreground">{plan.name}</h2>
-                <p className="text-sm text-muted-foreground mt-1">{plan.description || "Everything you need to start your search."}</p>
-              </div>
-              <button
-                onClick={() => { setSelectedPlan(plan); setModalMode("edit"); }}
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => handleDeletePlan(plan.id, plan.name)}
-                className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="mb-5">
-              <span className="text-3xl font-black text-foreground">{plan.currency} {Number(plan.price).toFixed(0)} </span>
-              <span className="text-muted-foreground text-sm">{plan.renewal}</span>
-            </div>
-            <button className="w-full py-2.5 rounded-lg border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors mb-5">
-              Get started free
-            </button>
-            <ul className="space-y-2.5">
-              {plan.features.map(f => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <Check className="h-4 w-4 text-[#21c55e] flex-shrink-0 mt-0.5" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-muted-foreground mt-3">{plan.subscribers_count} subscriber{plan.subscribers_count !== 1 ? "s" : ""}</p>
-          </div>
-        ))}
 
-        {/* Premium Plan */}
-        {premiumPlans.filter(p => p.category === "CANDIDATE").map(plan => (
-          <div key={plan.id} className="rounded-xl bg-card border border-[#6366f1]/40 p-6 shadow-md relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2">
-              <span className="inline-block bg-[#21c55e] text-[#0f172a] text-[10px] font-black px-4 py-1 rounded-b-full tracking-wide">
-                Most popular
-              </span>
-            </div>
-            <div className="flex items-start justify-between mb-4 mt-3">
-              <div>
-                <p className="text-[11px] font-bold text-[#6366f1] uppercase tracking-widest mb-1">⭐ {plan.plan_title}</p>
-                <h2 className="text-4xl font-black text-foreground">{plan.name}</h2>
-                <p className="text-sm text-muted-foreground mt-1">{plan.description || "Your always-on AI Recruiter."}</p>
+      {/* Plan Cards */}
+      <div className={`grid gap-5 items-stretch ${plans.length === 1 ? "grid-cols-1 max-w-md" :
+        plans.length === 2 ? "grid-cols-1 md:grid-cols-2" :
+          plans.length === 3 ? "grid-cols-1 md:grid-cols-3" :
+            "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        }`}>
+        {plans.map(plan => {
+          const isFree = plan.plan_type === "Free" || plan.name?.toLowerCase() === "free" || Number(plan.price) === 0;
+
+          if (isFree) {
+            return (
+              <div key={plan.id} className="rounded-xl bg-card border border-border p-6 shadow-sm flex flex-col">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-1">⚡ {plan.category} - {plan.plan_type || "STARTER"}</p>
+                    <h2 className="text-4xl font-black text-foreground">{plan.name}</h2>
+                    <p className="text-sm text-muted-foreground mt-1">{plan.description || "Everything you need to start."}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => { setSelectedPlan(plan); setModalMode("edit"); }}
+                      className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Edit Plan"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeletePlan(plan.id, plan.name)}
+                      className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                      title="Delete Plan"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mb-5">
+                  <span className="text-3xl font-black text-foreground">{plan.currency} {Number(plan.price).toFixed(0)} </span>
+                  <span className="text-muted-foreground text-sm">/ {plan.renewal}</span>
+                </div>
+                <div className="border-t border-border/50 mb-5" />
+                <ul className="space-y-2.5 flex-1">
+                  {plan.features.map((f: string) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                      <Check className="h-4 w-4 text-[#21c55e] shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground mt-5 pt-3 border-t border-border/50 font-medium">{plan.subscribers_count} subscriber{plan.subscribers_count !== 1 ? "s" : ""}</p>
               </div>
-              <button
-                onClick={() => { setSelectedPlan(plan); setModalMode("edit"); }}
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => handleDeletePlan(plan.id, plan.name)}
-                className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="mb-5">
-              <span className="text-3xl font-black text-foreground">
-                {plan.currency} {Number(plan.price).toFixed(0)}{" "}
-              </span>
-              <span className="text-muted-foreground text-sm">
-                / {billing === "monthly" ? "month" : "year"}
-              </span>
-              {plan.discount && plan.discount !== "None" && (
-                <span className="ml-2 text-xs font-medium text-[#21c55e] bg-[#21c55e]/10 px-2 py-0.5 rounded-full">
-                  {plan.discount}
-                </span>
-              )}
-            </div>
-            <button className="w-full py-2.5 rounded-lg bg-[#21c55e] hover:bg-[#21c55e]/90 text-[#0f172a] text-sm font-bold transition-colors mb-5">
-              Upgrade to Premium
-            </button>
-            <ul className="space-y-2.5">
-              {plan.features.map(f => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <Check className="h-4 w-4 text-[#21c55e] flex-shrink-0 mt-0.5" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-muted-foreground mt-3">{plan.subscribers_count} subscriber{plan.subscribers_count !== 1 ? "s" : ""}</p>
-          </div>
-        ))}
+            );
+          } else {
+            return (
+              <div key={plan.id} className="rounded-xl bg-card border border-[#6366f1]/40 p-6 shadow-md relative overflow-hidden flex flex-col">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2">
+                  <span className="inline-block bg-[#21c55e] text-[#0f172a] text-[10px] font-black px-4 py-1 rounded-b-full tracking-wide uppercase">
+                    {plan.category}
+                  </span>
+                </div>
+                <div className="flex items-start justify-between mb-4 mt-3">
+                  <div>
+                    <p className="text-[11px] font-bold text-[#6366f1] uppercase tracking-widest mb-1">⭐ {plan.plan_type || "PREMIUM"}</p>
+                    <h2 className="text-4xl font-black text-foreground">{plan.name}</h2>
+                    <p className="text-sm text-muted-foreground mt-1">{plan.description || "Your always-on premium features."}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => { setSelectedPlan(plan); setModalMode("edit"); }}
+                      className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Edit Plan"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeletePlan(plan.id, plan.name)}
+                      className="p-1.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-colors"
+                      title="Delete Plan"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mb-5">
+                  <span className="text-3xl font-black text-foreground">
+                    {plan.currency} {Number(plan.price).toFixed(0)}{" "}
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    / {plan.renewal}
+                  </span>
+                  {plan.discount && plan.discount !== "None" && (
+                    <span className="ml-2 text-xs font-medium text-[#21c55e] bg-[#21c55e]/10 px-2 py-0.5 rounded-full">
+                      {plan.discount}
+                    </span>
+                  )}
+                </div>
+                <div className="border-t border-[#6366f1]/20 mb-5" />
+                <ul className="space-y-2.5 flex-1">
+                  {plan.features.map((f: string) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                      <Check className="h-4 w-4 text-[#21c55e] shrink-0 mt-0.5" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground mt-5 pt-3 border-t border-[#6366f1]/20 font-medium">{plan.subscribers_count} subscriber{plan.subscribers_count !== 1 ? "s" : ""}</p>
+              </div>
+            );
+          }
+        })}
       </div>
 
       {/* Active Premium Plans Table */}
@@ -468,7 +483,7 @@ export default function SubscriptionsPage() {
         <h2 className="text-base font-bold text-foreground mb-3">Active Premium Plans</h2>
         <div className="rounded-xl bg-card border border-border overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
+            <table className="w-full min-w-175">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   {["CANDIDATE", "DESIGNATION", "BILLING", "START", "EXPIRES", "JOBS APPLIED"].map(h => (

@@ -34,13 +34,13 @@ type AppStatus = "Applied" | "Shortlisted" | "Interview" | "Offer" | "Hired" | "
 const statusOrder: AppStatus[] = ["Applied", "Shortlisted", "Interview", "Offer", "Hired"];
 
 const statusColors: Record<string, string> = {
-  Applied:     "bg-blue-500/10 text-blue-600 border border-blue-200",
+  Applied: "bg-blue-500/10 text-blue-600 border border-blue-200",
   Shortlisted: "bg-primary/10 text-primary border border-primary/20",
-  Interview:   "bg-amber-500/10 text-amber-600 border border-amber-200",
-  Offer:       "bg-purple-500/10 text-purple-600 border border-purple-200",
-  Hired:       "bg-emerald-500/10 text-emerald-600 border border-emerald-200",
-  Withdrawn:   "bg-gray-500/10 text-gray-500 border border-gray-200",
-  Rejected:    "bg-red-500/10 text-red-500 border border-red-200",
+  Interview: "bg-amber-500/10 text-amber-600 border border-amber-200",
+  Offer: "bg-purple-500/10 text-purple-600 border border-purple-200",
+  Hired: "bg-emerald-500/10 text-emerald-600 border border-emerald-200",
+  Withdrawn: "bg-gray-500/10 text-gray-500 border border-gray-200",
+  Rejected: "bg-red-500/10 text-red-500 border border-red-200",
 };
 
 // ── Application Details Modal ─────────────────────────────────────────────────
@@ -145,7 +145,7 @@ export default function ApplicationManagementPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-[28px] font-bold text-foreground tracking-tight">Application Management</h1>
@@ -169,11 +169,10 @@ export default function ApplicationManagementPage() {
             <div key={s} className="flex items-center gap-1">
               <button
                 onClick={() => setFilter(s)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
-                  filter === s
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${filter === s
                     ? "bg-primary/10 border-primary/30 text-primary"
                     : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/20"
-                }`}
+                  }`}
               >
                 <span className="text-foreground font-bold">{counts[s.toLowerCase() as keyof typeof counts] ?? 0}</span>
                 {s}
@@ -185,11 +184,10 @@ export default function ApplicationManagementPage() {
           ))}
           <button
             onClick={() => setFilter("All")}
-            className={`ml-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
-              filter === "All"
+            className={`ml-2 px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${filter === "All"
                 ? "bg-primary text-white border-primary"
                 : "bg-card border-border text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             All ({counts.all})
           </button>
