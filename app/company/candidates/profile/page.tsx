@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -50,7 +50,7 @@ function CandidateProfileInner() {
 
   const [changeApplicationStatus, { isLoading: isStatusChanging }] = useChangeApplicationStatusMutation();
   const [currentStep, setCurrentStep] = useState(0);
-
+  const router = useRouter()
   const candidate: CandidateDetail | undefined = data?.data;
 
   async function handleStatusChange(newStatus: ApplicationStatus) {
@@ -73,12 +73,12 @@ function CandidateProfileInner() {
           <p className="text-sm text-muted-foreground mb-4">
             Please select a candidate from the list to view their profile.
           </p>
-          <Link
-            href="/company/candidates"
+          <button
+            onClick={() => router.back()}
             className="text-sm font-semibold text-[#4BC957] hover:underline"
           >
             Browse candidates
-          </Link>
+          </button>
         </div>
       </div>
     );
