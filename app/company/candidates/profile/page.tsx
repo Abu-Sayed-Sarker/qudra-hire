@@ -44,8 +44,8 @@ function CandidateProfileInner() {
     isError,
     error,
     refetch,
-  } = useGetCompanyCandidateDetailQuery(applicationId, {
-    skip: !applicationId,
+  } = useGetCompanyCandidateDetailQuery(Number(candidateId), {
+    skip: !candidateId,
   });
 
   const [changeApplicationStatus, { isLoading: isStatusChanging }] = useChangeApplicationStatusMutation();
