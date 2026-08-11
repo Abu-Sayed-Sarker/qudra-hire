@@ -271,9 +271,10 @@ export default function CandidateSubscriptionPage() {
                     </div>
                     <button
                       onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
-                      className="w-full h-12 rounded-2xl font-bold text-sm border border-border text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] transition-all mb-8 shadow-sm"
+                      disabled={activeSub?.plan_name === freePlan.name}
+                      className="w-full h-12 rounded-2xl font-bold text-sm border border-border text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] transition-all mb-8 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                      Get started free
+                      {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
                     </button>
                     <div className="border-t border-border/50 mb-6" />
                     <ul className="space-y-4 flex-1">
@@ -320,9 +321,10 @@ export default function CandidateSubscriptionPage() {
                     </div>
                     <button
                       onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
-                      className="w-full h-12 rounded-2xl font-bold text-sm bg-linear-to-r from-[#4BC957] to-emerald-500 hover:from-emerald-500 hover:to-[#4BC957] text-white shadow-xl shadow-[#4BC957]/30 hover:shadow-[#4BC957]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mb-8"
+                      disabled={activeSub?.plan_name === premiumPlan.name}
+                      className="w-full h-12 rounded-2xl font-bold text-sm bg-linear-to-r from-[#4BC957] to-emerald-500 hover:from-emerald-500 hover:to-[#4BC957] text-white shadow-xl shadow-[#4BC957]/30 hover:shadow-[#4BC957]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mb-8 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                      Upgrade to {premiumPlan.name}
+                      {activeSub?.plan_name === premiumPlan.name ? "Active" : `Upgrade to ${premiumPlan.name}`}
                     </button>
                     <div className="border-t border-green-200 dark:border-white/10 mb-6" />
                     <ul className="space-y-4 flex-1">
