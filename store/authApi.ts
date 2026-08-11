@@ -265,6 +265,7 @@ export interface CandidateDetail {
   educations: CandidateEducation[];
   experiences: CandidateExperience[];
   created_at: string;
+  image?: string | null;
 }
 
 // ─── Company Job types ─────────────────────────────────────────────────────────

@@ -112,11 +112,11 @@ function CandidateProfileInner() {
 
   const initials = candidate
     ? candidate.name
-        .split(" ")
-        .map((w) => w[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
     : "??";
 
   const matchDisplay = candidate?.match_score !== null && candidate?.match_score !== undefined
@@ -154,7 +154,7 @@ function CandidateProfileInner() {
               className={`flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold transition-all ${idx === currentStep
                 ? "bg-[#4BC957] text-white"
                 : "bg-background border border-border text-muted-foreground hover:bg-muted"
-              }`}
+                }`}
               aria-label={`Step ${idx + 1}: ${step.label}`}
             >
               {idx + 1}
@@ -170,7 +170,7 @@ function CandidateProfileInner() {
       </div>
 
       {/* Step Content */}
-      <div className="min-h-[300px]">
+      <div className="min-h-75">
         {currentStep === 0 && (
           <>
             {/* Profile Header Card */}
@@ -186,9 +186,13 @@ function CandidateProfileInner() {
               ) : (
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex items-center gap-5">
-                    <div className="h-20 w-20 rounded-full bg-muted border-2 border-border flex items-center justify-center font-extrabold text-foreground text-3xl shadow-lg">
-                      {initials}
-                    </div>
+                    {candidate?.image ? (
+                      <img src={candidate.image} alt={candidate.name} className="h-20 w-20 rounded-full object-cover shadow-lg border-2 border-border shrink-0" />
+                    ) : (
+                      <div className="h-20 w-20 rounded-full bg-muted border-2 border-border flex items-center justify-center font-extrabold text-foreground text-3xl shadow-lg shrink-0">
+                        {initials}
+                      </div>
+                    )}
                     <div className="space-y-1.5">
                       <div className="flex flex-wrap items-center gap-3">
                         <h1 className="text-2xl font-extrabold text-foreground tracking-tight">{candidate?.name}</h1>
@@ -235,7 +239,7 @@ function CandidateProfileInner() {
                         className={`text-sm font-bold px-4 py-2 rounded-xl border transition-all ${active
                           ? "bg-[#4BC957]/10 border-[#4BC957] text-[#4BC957]"
                           : "border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
-                        }`}
+                          }`}
                       >
                         {label}
                       </button>
@@ -326,7 +330,7 @@ function CandidateProfileInner() {
               <div className="space-y-6 pl-4 border-l-2 border-border">
                 {candidate.experiences.map((exp) => (
                   <div key={exp.id} className="relative space-y-1.5">
-                    <div className="absolute -left-[23px] top-1.5 h-3 w-3 rounded-full bg-[#4BC957] border-2 border-card" />
+                    <div className="absolute -left-5.75 top-1.5 h-3 w-3 rounded-full bg-[#4BC957] border-2 border-card" />
                     <h3 className="text-base font-bold text-foreground tracking-tight">
                       {exp.job_title} <span className="text-[#4BC957] font-normal">•</span> {exp.company}
                     </h3>
@@ -417,7 +421,7 @@ function CandidateProfileInner() {
           </div>
         )}
 
-        </div>
+      </div>
 
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between pt-4">
