@@ -1464,7 +1464,7 @@ export const authApi = createApi({
 
     // GET /candidates/{id}/
     getCompanyCandidateDetail: builder.query<ApiResponse<CandidateDetail>, any>({
-      query: (id) => `candidates/${id}/`,
+      query: (id) => `company/jobs/${id}/applications/`,
       providesTags: (_r, _e, id) => [{ type: "CompanyCandidates", id }],
     }),
 
