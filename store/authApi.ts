@@ -699,7 +699,9 @@ export interface CandidateAutoApply {
 
 export interface JobQuota {
   plan: string;
+  is_paid: boolean;
   base_limit: number;
+  included_with_plan: number;
   extra_slots: number;
   total_allowed: number;
   used: number;
@@ -906,6 +908,16 @@ export interface CandidateProfile {
   ai_status: string;
   is_default: boolean;
   can_set_default: boolean;
+  is_active_profile: boolean;
+  subscription?: {
+    is_active: boolean;
+    plan_id: string;
+    plan_name: string;
+    price: string;
+    currency: string;
+    started_at: string;
+    expires_at: string;
+  };
   auto_apply: CandidateAutoApply;
   educations: ProfileEducation[];
   experiences: ProfileExperience[];

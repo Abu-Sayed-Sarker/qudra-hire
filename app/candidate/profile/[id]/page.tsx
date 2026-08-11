@@ -44,6 +44,7 @@ import {
   useToggleCandidateAutoApplyMutation,
   useGetSubscriptionPlansQuery,
   useCreateStripeCheckoutSessionMutation,
+  useSwitchCandidateProfileMutation,
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
@@ -68,6 +69,7 @@ export default function CandidateProfilePage() {
   const [setDefaultProfile] = useSetDefaultCandidateProfileMutation();
   const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
   const [toggleAutoApply, { isLoading: isTogglingAutoApply }] = useToggleCandidateAutoApplyMutation();
+  const [switchProfile, { isLoading: isSwitching }] = useSwitchCandidateProfileMutation();
   const { data: plansRes } = useGetSubscriptionPlansQuery();
   const [createCheckoutSession, { isLoading: isSubscribing }] = useCreateStripeCheckoutSessionMutation();
 
@@ -393,6 +395,17 @@ export default function CandidateProfilePage() {
     }
   }
 
+  async function handleSwitchProfile() {
+    try {
+      await switchProfile(id).unwrap();
+      toast.success("Switched to this profile successfully");
+      window.location.reload();
+    } catch (err: any) {
+      console.log(err)
+      toast.error(err?.data?.details ?? "Failed to switch profile");
+    }
+  }
+
   // ── Set as default ──
   async function handleSetDefault() {
     if (profile && profile.can_set_default === false) {
@@ -464,10 +477,35 @@ export default function CandidateProfilePage() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border flex-wrap pb-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-            <p className="text-sm text-muted-foreground mt-1">Keep your profile up to date to stand out to potential employers.</p>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              My Profile
+              {profile.subscription?.is_active && (
+                <span className="text-[10px] font-bold bg-[#4BC957]/15 text-[#4BC957] px-2 py-0.5 rounded-full border border-[#4BC957]/20 uppercase tracking-wide">
+                  {profile.subscription.plan_name} PLAN
+                </span>
+              )}
+            </h1>
+            <div className="flex flex-col gap-1 mt-1">
+              <p className="text-sm text-muted-foreground">Keep your profile up to date to stand out to potential employers.</p>
+              {profile.subscription?.expires_at && (
+                <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <Star className="h-3 w-3" />
+                  Subscription expires on: {new Date(profile.subscription.expires_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            {!profile.is_active_profile && (
+              <button
+                onClick={handleSwitchProfile}
+                disabled={isSwitching}
+                className="text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+              >
+                {isSwitching ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                Switch to Profile
+              </button>
+            )}
             {isDefault ? (
               <span className="text-sm font-semibold bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30 px-4 py-2 rounded-lg flex items-center gap-1.5">
                 <Star className="h-3.5 w-3.5 fill-[#4BC957]" /> Published

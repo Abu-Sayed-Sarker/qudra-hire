@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";import { cn } from "@/lib/utils";
+import { useState } from "react"; import { cn } from "@/lib/utils";
 import {
   Briefcase,
   Users,
@@ -35,11 +35,11 @@ const navItems = [
     href: "/company",
     icon: Briefcase,
   },
-  {
-    label: "Candidates",
-    href: "/company/candidates",
-    icon: Users,
-  },
+  // {
+  //   label: "Candidates",
+  //   href: "/company/candidates",
+  //   icon: Users,
+  // },
   {
     label: "Manage Jobs",
     href: "/company/jobs",

@@ -165,10 +165,6 @@ export default function PostJobPage() {
             <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Post a new job</h1>
             <p className="text-sm text-muted-foreground mt-1">AI will shortlist your top 10 matches within minutes.</p>
           </div>
-          {/* <span className="bg-[#4BC957]/10 text-[#4BC957] border border-[#4BC957]/20 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4" />
-            Trade-licence verified
-          </span> */}
         </div>
       </div>
 
@@ -469,22 +465,26 @@ export default function PostJobPage() {
 
               {/* Action buttons */}
               <div className="flex justify-start gap-3 border-t border-border pt-6">
-                <Link
-                  href="/company/jobs"
-                  className="border border-border hover:bg-muted text-foreground font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors text-center"
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/company/jobs")}
+                  className="border-border hover:bg-muted text-foreground font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors text-center h-auto"
                 >
                   Cancel
-                </Link>
+                </Button>
                 <Button
                   type="submit"
-                  disabled={isLoading}
-                  className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#4BC957]/50 focus-visible:ring-offset-2"
+                  disabled={isLoading || quotaRes?.data?.can_post === false}
+                  className="bg-[#4BC957] hover:bg-[#00B96E] text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-[#4BC957]/10 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-[#4BC957]/50 focus-visible:ring-offset-2 h-auto"
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Publishing...
                     </>
+                  ) : quotaRes?.data?.can_post === false ? (
+                    "Quota Exceeded"
                   ) : (
                     "Publish & get approved"
                   )}
@@ -510,21 +510,55 @@ export default function PostJobPage() {
                 </ol>
               </div>
 
-              {/* Cost breakdown */}
-              {/* <div className="bg-card border border-border rounded-2xl p-6 space-y-5 shadow-sm">
-                <h3 className="text-sm font-bold text-foreground">Cost</h3>
+              {/* Job Quota Details */}
+              {quotaRes?.data && (
+                <div className="bg-card border border-border rounded-2xl p-6 space-y-5 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-foreground">Job Quota</h3>
+                    <span className="bg-blue-600/10 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {quotaRes.data.plan} PLAN
+                    </span>
+                  </div>
 
-                <div className="space-y-3.5 font-semibold">
-                  <div className="flex justify-between items-center text-muted-foreground">
-                    <span>Top 10 shortlist</span>
-                    <span className="text-foreground">Free</span>
+                  <div className="space-y-3.5 text-sm font-medium">
+                    <div className="flex justify-between items-center text-muted-foreground">
+                      <span>Included with plan</span>
+                      <span className="text-foreground">{quotaRes.data.included_with_plan}</span>
+                    </div>
+                    {quotaRes.data.extra_slots > 0 && (
+                      <div className="flex justify-between items-center text-muted-foreground">
+                        <span>Extra purchased slots</span>
+                        <span className="text-foreground">{quotaRes.data.extra_slots}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center text-muted-foreground border-t border-border pt-3">
+                      <span>Total allowed</span>
+                      <span className="text-foreground">{quotaRes.data.total_allowed}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-muted-foreground">
+                      <span>Total used</span>
+                      <span className="text-foreground">{quotaRes.data.used}</span>
+                    </div>
+                    <div className="flex justify-between items-center font-bold border-t border-border pt-3">
+                      <span className="text-foreground">Remaining</span>
+                      <span className={quotaRes.data.remaining > 0 ? "text-[#4BC957] text-base" : "text-destructive text-base"}>
+                        {quotaRes.data.remaining}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-muted-foreground">
-                    <span>Per unlock</span>
-                    <span className="text-foreground">2 credits</span>
-                  </div>
+
+                  {!quotaRes.data.can_post && (
+                    <div className="pt-2">
+                      <Link
+                        href="/company/subscription"
+                        className="flex w-full justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2.5 rounded-lg transition-colors"
+                      >
+                        Upgrade Plan
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              </div> */}
+              )}
 
             </div>
           </div>
