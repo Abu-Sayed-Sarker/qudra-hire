@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Check, Star, Zap, ShieldCheck, Building2, Loader2, CreditCard } from "lucide-react";
 import { useCreateStripeCheckoutSessionMutation, useGetCompanyProfileQuery, useGetSubscriptionHistoryQuery, useGetSubscriptionPlansQuery } from "@/store/authApi";
 import { useAppSelector } from "@/store/hooks";
@@ -145,20 +146,38 @@ export default function CompanySubscriptionPage() {
 
         {/* Current Plan Banner */}
         {activeSub && (
-          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-            <div className="flex items-start gap-5">
-              <div className="h-12 w-12 rounded-xl bg-[#4BC957]/10 border border-[#4BC957]/20 flex items-center justify-center shrink-0">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl p-6 shadow-lg shadow-emerald-500/5 hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-500/50 transition-all duration-500"
+          >
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-emerald-500/5 to-transparent pointer-events-none z-0 skew-x-12" />
+
+            <div className="relative z-10 flex items-start gap-5">
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+                transition={{ duration: 0.5 }}
+                className="h-12 w-12 rounded-xl bg-[#4BC957]/15 border border-[#4BC957]/30 flex items-center justify-center shrink-0 shadow-inner"
+              >
                 <Building2 className="h-6 w-6 text-[#4BC957]" />
-              </div>
+              </motion.div>
               <div>
-                <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase">ACTIVE SUBSCRIPTION</span>
-                <h2 className="text-xl font-bold text-foreground mt-0.5">{activeSub.plan_name}</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase flex items-center gap-1.5 group-hover:scale-105 transition-transform origin-left">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4BC957] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#4BC957]"></span>
+                  </span>
+                  ACTIVE SUBSCRIPTION
+                </span>
+                <h2 className="text-xl font-bold text-foreground mt-1 group-hover:text-[#4BC957] transition-colors">{activeSub.plan_name}</h2>
+                <p className="text-sm font-medium text-muted-foreground mt-1">
                   {activeSub.currency} {activeSub.price} &bull; Renews on {new Date(activeSub.expires_at).toLocaleDateString()}
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Plans Grid */}
@@ -169,7 +188,7 @@ export default function CompanySubscriptionPage() {
                 <h2 className="text-xl font-bold text-foreground tracking-tight">Available Plans</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">Select a plan that fits your hiring needs</p>
               </div>
-              <div className="bg-muted p-1 rounded-full flex items-center border border-border">
+              {/* <div className="bg-muted p-1 rounded-full flex items-center border border-border">
                 <button
                   onClick={() => setYearly(false)}
                   className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${!yearly ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
@@ -184,76 +203,102 @@ export default function CompanySubscriptionPage() {
                 >
                   Yearly
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               {/* Free Card */}
               {freePlan && (
-                <div className="bg-card border border-border rounded-2xl p-6 flex flex-col h-full">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Zap className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">STARTER</span>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  className="group relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/80 rounded-xl p-8 flex flex-col h-full shadow-sm hover:shadow-2xl hover:shadow-slate-500/10 hover:border-slate-500/30 transition-all duration-500"
+                >
+                  <div className="absolute inset-0 bg-linear-to-br from-slate-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+                  <div className="relative z-10 flex-1 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Zap className="w-5 h-5 text-muted-foreground group-hover:scale-110 transition-transform" />
+                      <span className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">STARTER</span>
+                    </div>
+                    <h3 className="text-3xl font-extrabold text-foreground mb-2 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">{freePlan.name}</h3>
+                    <p className="text-sm font-medium text-muted-foreground mb-6">{freePlan.description || "Everything you need to get started."}</p>
+                    <div className="flex items-baseline gap-1.5 mb-8">
+                      <span className="text-4xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
+                      <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider ml-1">{freePlan.renewal}</span>
+                    </div>
+                    <button
+                      onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
+                      disabled={activeSub?.plan_name === freePlan.name}
+                      className="w-full h-12 rounded-2xl border border-border bg-background hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] text-foreground text-sm font-bold transition-all mb-8 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
+                    </button>
+                    <div className="border-t border-border/50 pt-6 space-y-4 flex-1">
+                      {freeFeatures.map((f) => (
+                        <div key={f} className="flex items-start gap-3">
+                          <span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-slate-200 dark:group-hover:bg-slate-800 transition-colors">
+                            <Check className="w-3 h-3 text-muted-foreground" />
+                          </span>
+                          <span className="text-sm font-medium text-muted-foreground">{f}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="text-3xl font-extrabold text-foreground mb-1">{freePlan.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{freePlan.description || "Everything you need to get started."}</p>
-                  <div className="flex items-baseline gap-1 mb-5">
-                    <span className="text-4xl font-extrabold text-foreground">AED {Number(freePlan.price)}</span>
-                    <span className="text-sm text-muted-foreground ml-1">{freePlan.renewal}</span>
-                  </div>
-                  <button
-                    onClick={() => openCheckout({ id: freePlan.id, name: freePlan.name, price: freePlan.price })}
-                    disabled={activeSub?.plan_name === freePlan.name}
-                    className="w-full py-2.5 rounded-xl border border-border bg-background hover:bg-muted text-foreground text-sm font-bold transition-all mb-6 disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {activeSub?.plan_name === freePlan.name ? "Current plan" : "Get started free"}
-                  </button>
-                  <div className="border-t border-border pt-5 space-y-3 flex-1">
-                    {freeFeatures.map((f) => (
-                      <div key={f} className="flex items-start gap-2.5">
-                        <Check className="w-4 h-4 text-[#4BC957] shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                </motion.div>
               )}
 
               {/* Premium Card */}
               {premiumPlan && (
-                <div className="relative bg-green-50 dark:bg-[#0f1f14] border-2 border-[#4BC957]/50 rounded-2xl p-6 flex flex-col h-full shadow-xl shadow-[#4BC957]/10">
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-[#4BC957] text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wide">MOST POPULAR</span>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="group relative bg-green-50/80 dark:bg-[#0f1f14]/80 backdrop-blur-2xl border-2 border-[#4BC957]/50 rounded-xl p-8 flex flex-col h-full shadow-2xl shadow-[#4BC957]/10 hover:shadow-[#4BC957]/20 hover:-translate-y-1 transition-all duration-500"
+                >
+                  <div className="absolute inset-0 bg-linear-to-br from-[#4BC957]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                  <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent pointer-events-none z-0 skew-x-12" />
+
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
+                    <span className="bg-linear-to-r from-[#4BC957] to-emerald-400 text-white text-[11px] font-bold px-4 py-1.5 rounded-full tracking-wider shadow-lg shadow-[#4BC957]/30">MOST POPULAR</span>
                   </div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Star className="w-4 h-4 text-[#4BC957]" />
-                    <span className="text-[10px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
+
+                  <div className="relative z-10 flex-1 flex flex-col">
+                    <div className="flex items-center gap-2 mb-4">
+                      <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.5 }}>
+                        <Star className="w-5 h-5 text-[#4BC957]" fill="currentColor" />
+                      </motion.div>
+                      <span className="text-[11px] font-bold tracking-widest text-[#4BC957] uppercase">RECOMMENDED</span>
+                    </div>
+                    <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2 bg-clip-text group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-emerald-500 group-hover:to-[#4BC957] transition-all duration-300">{premiumPlan.name}</h3>
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-6">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
+                    <div className="flex items-baseline gap-1.5 mb-8">
+                      <span className="text-4xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
+                      <span className="text-sm font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">/ month</span>
+                      {yearly && premiumPlan.discount && (
+                        <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{premiumPlan.discount}</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
+                      disabled={activeSub?.plan_name === premiumPlan.name}
+                      className="w-full h-12 rounded-2xl font-bold text-sm bg-linear-to-r from-[#4BC957] to-emerald-500 hover:from-emerald-500 hover:to-[#4BC957] text-white shadow-xl shadow-[#4BC957]/30 hover:shadow-[#4BC957]/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mb-8 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      {activeSub?.plan_name === premiumPlan.name ? "Active" : `Upgrade to ${premiumPlan.name}`}
+                    </button>
+                    <div className="border-t border-green-200 dark:border-white/10 pt-6 space-y-4 flex-1">
+                      {premiumFeatures.map((f) => (
+                        <div key={f} className="flex items-start gap-3">
+                          <span className="h-5 w-5 rounded-full bg-[#4BC957]/20 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                            <Check className="h-3 w-3 text-[#4BC957]" />
+                          </span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{f}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{premiumPlan.name}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{premiumPlan.description || "Your always-on AI Recruiter."}</p>
-                  <div className="flex items-baseline gap-1 mb-5">
-                    <span className="text-4xl font-extrabold text-slate-900 dark:text-white">AED {Number(premiumPlan.price)}</span>
-                    <span className="text-sm text-slate-600 dark:text-slate-400 ml-1">/ month</span>
-                    {yearly && premiumPlan.discount && (
-                      <span className="ml-2 text-[11px] font-bold bg-[#4BC957]/20 text-[#4BC957] px-2 py-0.5 rounded-full">{premiumPlan.discount}</span>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => openCheckout({ id: premiumPlan.id, name: premiumPlan.name, price: premiumPlan.price })}
-                    disabled={activeSub?.plan_name === premiumPlan.name}
-                    className="w-full py-2.5 rounded-xl bg-[#4BC957] hover:bg-[#3DAF49] text-white text-sm font-bold transition-all mb-6 shadow-md shadow-[#4BC957]/30 disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {activeSub?.plan_name === premiumPlan.name ? "Active" : `Upgrade to ${premiumPlan.name}`}
-                  </button>
-                  <div className="border-t border-green-200 dark:border-white/10 pt-5 space-y-3 flex-1">
-                    {premiumFeatures.map((f) => (
-                      <div key={f} className="flex items-start gap-2.5">
-                        <Check className="w-4 h-4 text-[#4BC957] shrink-0 mt-0.5" />
-                        <span className="text-sm text-slate-700 dark:text-slate-300">{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                </motion.div>
               )}
             </div>
           </div>
@@ -262,40 +307,47 @@ export default function CompanySubscriptionPage() {
         {/* Billing History */}
         <div>
           <h2 className="text-xl font-extrabold text-foreground mb-4">Billing history</h2>
-          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="bg-card/60 backdrop-blur-2xl border border-border/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
             {history.length === 0 ? (
               <div className="px-6 py-8 text-center text-sm text-muted-foreground">No subscription history yet.</div>
             ) : (
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-6 py-4 uppercase tracking-wider">Plan</th>
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-6 py-4 uppercase tracking-wider">Started</th>
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-6 py-4 uppercase tracking-wider">Expires</th>
-                    <th className="text-left text-xs font-semibold text-muted-foreground px-6 py-4 uppercase tracking-wider">Status</th>
-                    <th className="text-right text-xs font-semibold text-muted-foreground px-6 py-4 uppercase tracking-wider">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((row, i) => (
-                    <tr key={row.id} className={i < history.length - 1 ? "border-b border-border" : ""}>
-                      <td className="px-6 py-4 text-sm font-semibold text-foreground">{row.plan_name}</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${row.sub_status === "ACTIVE"
-                          ? "bg-[#4BC957]/10 text-[#4BC957]"
-                          : "bg-muted text-muted-foreground"
-                          }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${row.sub_status === "ACTIVE" ? "bg-[#4BC957]" : "bg-muted-foreground"}`} />
-                          {row.sub_status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-bold text-foreground text-right">{row.currency} {row.price}</td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted/50 border-b border-border/50 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                      <th className="text-left px-6 py-4">Plan</th>
+                      <th className="text-left px-6 py-4">Started</th>
+                      <th className="text-left px-6 py-4">Expires</th>
+                      <th className="text-left px-6 py-4">Status</th>
+                      <th className="text-right px-6 py-4">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {history.map((row, i) => (
+                      <motion.tr
+                        key={row.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 * i, duration: 0.4 }}
+                        className={`group cursor-default hover:bg-muted/30 transition-colors ${i < history.length - 1 ? "border-b border-border/50" : ""}`}
+                      >
+                        <td className="px-6 py-4 font-bold text-foreground group-hover:text-emerald-500 transition-colors">{row.plan_name}</td>
+                        <td className="px-6 py-4 font-medium text-muted-foreground">{new Date(row.started_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 font-medium text-muted-foreground">{new Date(row.expires_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm ${row.sub_status === "ACTIVE"
+                            ? "bg-[#4BC957]/15 text-[#4BC957] border border-[#4BC957]/30"
+                            : "bg-muted text-muted-foreground border border-border"
+                            }`}>
+                            {row.sub_status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 font-extrabold text-foreground text-right">{row.currency} {row.price}</td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
