@@ -254,8 +254,8 @@ export default function CompanyDashboard() {
                     whileHover={{ scale: 1.01 }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-muted border border-border flex items-center justify-center font-bold text-foreground text-sm">
-                        {getInitials(match.name)}
+                      <div className="h-10 w-10 rounded-xl bg-muted border border-border flex items-center justify-center font-bold text-foreground text-sm overflow-hidden">
+                        {match.image ? <img src={match.image} alt={match.name} className="w-full h-full object-cover object-top" /> : getInitials(match.name)}
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-foreground group-hover:text-[#4BC957] transition-colors">{match.name}</p>

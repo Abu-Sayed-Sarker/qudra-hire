@@ -198,6 +198,7 @@ export interface CompanyDashboardTopMatch {
   name: string;
   role_title: string;
   match_score: string;
+  image?: string | null;
 }
 
 export interface CompanyDashboardOpenRole {
