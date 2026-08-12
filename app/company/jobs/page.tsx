@@ -25,11 +25,9 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import {
-  Skeleton,
   SkeletonTable,
 } from "@/components/ui/skeleton-cards";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/error-state";
 import {
   useGetCompanyJobsQuery,
   useDeleteCompanyJobMutation,
@@ -114,7 +112,7 @@ export default function JobsPage() {
         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="relative flex flex-col sm:flex-row justify-between items-start sm:items-end gap-5"
       >
-        <div className="absolute -top-6 -left-6 w-32 h-32 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-6 -left-6 w-32 h-32 bg-linear-to-br from-emerald-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
@@ -146,75 +144,76 @@ export default function JobsPage() {
           animate="visible"
           className="relative bg-card/80 backdrop-blur-sm border border-border rounded-3xl overflow-hidden shadow-sm"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-br from-emerald-500/2 to-transparent pointer-events-none" />
 
           {/* Mobile card view */}
           <div className="block md:hidden divide-y divide-border/60">
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="p-5 space-y-3">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="space-y-2 flex-1">
-                        <div className="h-4 bg-muted/70 rounded-lg w-3/4 animate-pulse" />
-                        <div className="h-3 bg-muted/50 rounded-lg w-1/2 animate-pulse" />
-                      </div>
-                      <div className="h-6 bg-muted/70 rounded-full w-20 animate-pulse" />
+                <div key={i} className="p-5 space-y-3">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-muted/70 rounded-lg w-3/4 animate-pulse" />
+                      <div className="h-3 bg-muted/50 rounded-lg w-1/2 animate-pulse" />
                     </div>
-                    <div className="h-3 bg-muted/50 rounded-lg w-32 animate-pulse" />
-                    <div className="flex items-center justify-between">
-                      <div className="h-3 bg-muted/50 rounded-lg w-24 animate-pulse" />
-                      <div className="h-8 w-8 bg-muted/70 rounded-xl animate-pulse" />
-                    </div>
+                    <div className="h-6 bg-muted/70 rounded-full w-20 animate-pulse" />
                   </div>
-                ))
+                  <div className="h-3 bg-muted/50 rounded-lg w-32 animate-pulse" />
+                  <div className="flex items-center justify-between">
+                    <div className="h-3 bg-muted/50 rounded-lg w-24 animate-pulse" />
+                    <div className="h-8 w-8 bg-muted/70 rounded-xl animate-pulse" />
+                  </div>
+                </div>
+              ))
               : jobs.map((job) => (
-                  <motion.div
-                    key={job.id}
-                    className={`p-5 space-y-3 ${cardHover}`}
-                    variants={fadeInUp}
-                    custom={job.id}
-                  >
-                    <div className="flex justify-between items-start gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-foreground text-sm leading-tight truncate">{job.title}</h3>
-                        <p className="text-muted-foreground text-xs font-medium mt-1">{job.location}</p>
-                      </div>
-                      <span className={`inline-flex items-center border px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${statusColor(job.job_status)}`}>
-                        {job.job_status}
-                      </span>
+                <motion.div
+                  key={job.id}
+                  className={`p-5 space-y-3 ${cardHover}`}
+                  variants={fadeInUp}
+                  custom={job.id}
+                  onClick={() => router.push(`/company/jobs/view?id=${job.id}`)}
+                >
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-foreground text-sm leading-tight truncate">{job.title}</h3>
+                      <p className="text-muted-foreground text-xs font-medium mt-1">{job.location}</p>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground font-medium">
-                        <strong className="text-foreground font-extrabold">{job.applications_count}</strong> applicants
-                      </span>
-                      <span className="font-bold text-emerald-600 flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        {job.ai_matches_count} matches
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 pt-1">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="inline-flex items-center justify-center border border-border bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground w-9 h-9 rounded-xl transition-all active:scale-[0.98]" aria-label="Job options">
-                          <MoreVertical className="h-4 w-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44 bg-card border border-border text-foreground shadow-xl rounded-2xl">
-                          <DropdownMenuItem onClick={() => router.push(`/company/jobs/view?id=${job.id}`)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl">
-                            <Eye className="h-4 w-4" /> View
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => router.push(`/company/jobs/edit?id=${job.id}`)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl">
-                            <Pencil className="h-4 w-4" /> Request edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants?id=${job.id}`)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl">
-                            <Users className="h-3.5 w-3.5 text-muted-foreground" /> Applicants
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(job.id, job.title)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl text-red-500 focus:text-red-500">
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </motion.div>
-                ))}
+                    <span className={`inline-flex items-center border px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${statusColor(job.job_status)}`}>
+                      {job.job_status}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground font-medium">
+                      <strong className="text-foreground font-extrabold">{job.applications_count}</strong> applicants
+                    </span>
+                    <span className="font-bold text-emerald-600 flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      {job.ai_matches_count} matches
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="inline-flex items-center justify-center border border-border bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground w-9 h-9 rounded-xl transition-all active:scale-[0.98]" aria-label="Job options">
+                        <MoreVertical className="h-4 w-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44 bg-card border border-border text-foreground shadow-xl rounded-2xl">
+                        <DropdownMenuItem onClick={() => router.push(`/company/jobs/view?id=${job.id}`)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl">
+                          <Eye className="h-4 w-4" /> View
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/company/jobs/edit?id=${job.id}`)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl">
+                          <Pencil className="h-4 w-4" /> Request edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/company/jobs/applicants?id=${job.id}`)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl">
+                          <Users className="h-3.5 w-3.5 text-muted-foreground" /> Applicants
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(job.id, job.title)} className="cursor-pointer gap-2.5 px-3 py-2.5 rounded-xl text-red-500 focus:text-red-500">
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </motion.div>
+              ))}
           </div>
 
           {/* Desktop table */}

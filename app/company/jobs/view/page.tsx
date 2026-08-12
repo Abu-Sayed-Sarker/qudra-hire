@@ -3,7 +3,7 @@
 import React, { Suspense } from "react";
 import { ArrowLeft, MapPin, Users, Sparkles, Briefcase, Clock, DollarSign, ShieldCheck, Loader2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useGetCompanyJobDetailQuery,
@@ -83,17 +83,19 @@ function JobViewContent() {
     });
   };
 
+  const router = useRouter()
+
   return (
     <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-full mx-auto">
       {/* Back */}
       <div>
-        <Link
-          href="/company/jobs"
+        <button
+          onClick={() => router.back()}
           className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
-        </Link>
+        </button>
       </div>
 
       {/* Header */}
@@ -200,7 +202,7 @@ function JobViewContent() {
               <ul className="space-y-2">
                 {job.requirements_list.map((req, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#4BC957] mt-2 flex-shrink-0" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#4BC957] mt-2 shrink-0" />
                     {req}
                   </li>
                 ))}
