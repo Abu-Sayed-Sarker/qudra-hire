@@ -312,6 +312,31 @@ export default function CandidateProfilePage() {
 
   // ── Save (PATCH) ──
   async function handleSave() {
+    if (!form.first_name?.trim() || !form.last_name?.trim() || !form.role_title?.trim()) {
+      toast.error("Please fill out all required basic info fields (First name, Last name, Role title).");
+      return;
+    }
+
+    if (educations.some(edu => !edu.school?.trim())) {
+      toast.error("Please fill out the School / University field for all educations.");
+      return;
+    }
+
+    if (experiences.some(exp => !exp.company?.trim())) {
+      toast.error("Please fill out the Company / Organization field for all experiences.");
+      return;
+    }
+
+    if (projects.some(proj => !proj.title?.trim())) {
+      toast.error("Please fill out the Title field for all projects.");
+      return;
+    }
+
+    if (certifications.some(cert => !cert.name?.trim())) {
+      toast.error("Please fill out the Name field for all certifications.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("first_name", form.first_name);
@@ -365,6 +390,51 @@ export default function CandidateProfilePage() {
       cvFile,
     };
     setIsEditing(true);
+  }
+
+  // ── Step Navigation ──
+  function validateCurrentStep(): boolean {
+    if (!isEditing) return true;
+
+    if (currentStep === 0) {
+      if (!form.first_name?.trim() || !form.last_name?.trim() || !form.role_title?.trim()) {
+        toast.error("Please fill out all required basic info fields (First name, Last name, Role title).");
+        return false;
+      }
+    } else if (currentStep === 4) {
+      if (educations.some(edu => !edu.school?.trim())) {
+        toast.error("Please fill out the School / University field for all educations.");
+        return false;
+      }
+    } else if (currentStep === 3) {
+      if (experiences.some(exp => !exp.company?.trim())) {
+        toast.error("Please fill out the Company / Organization field for all experiences.");
+        return false;
+      }
+    } else if (currentStep === 5) {
+      if (projects.some(proj => !proj.title?.trim())) {
+        toast.error("Please fill out the Title field for all projects.");
+        return false;
+      }
+    } else if (currentStep === 6) {
+      if (certifications.some(cert => !cert.name?.trim())) {
+        toast.error("Please fill out the Name field for all certifications.");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function handleNextStep() {
+    if (!validateCurrentStep()) return;
+    setCurrentStep((s) => Math.min(profileSteps.length - 1, s + 1));
+  }
+
+  function handleGoToStep(idx: number) {
+    if (isEditing && idx > currentStep) {
+      if (!validateCurrentStep()) return;
+    }
+    setCurrentStep(idx);
   }
 
   function handleCancel() {
@@ -577,7 +647,7 @@ export default function CandidateProfilePage() {
           {profileSteps.map((step, idx) => (
             <React.Fragment key={step.key}>
               <button
-                onClick={() => setCurrentStep(idx)}
+                onClick={() => handleGoToStep(idx)}
                 className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all ${idx === currentStep
                   ? "bg-[#4BC957] text-white"
                   : "bg-background border border-border text-muted-foreground hover:bg-muted"
@@ -1124,7 +1194,7 @@ export default function CandidateProfilePage() {
             Previous
           </button>
           <button
-            onClick={() => setCurrentStep((s) => Math.min(profileSteps.length - 1, s + 1))}
+            onClick={handleNextStep}
             disabled={currentStep === profileSteps.length - 1 || isLoading}
             className="flex items-center gap-2 bg-[#4BC957] hover:bg-[#3DAF49] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md shadow-[#4BC957]/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >

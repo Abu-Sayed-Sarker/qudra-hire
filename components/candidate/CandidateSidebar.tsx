@@ -81,6 +81,7 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
   const initials = (fullName.match(/\b\w/g)?.slice(0, 2).join("") || "CU").toUpperCase();
 
   const handleCreateProfile = async () => {
+
     let payload: FormData | undefined = undefined;
     if (selectedFile) {
       payload = new FormData();
@@ -97,6 +98,9 @@ export default function CandidateSidebar({ setSidebarOpen }: { setSidebarOpen?: 
       const newProfileId = result.data?.id;
       if (newProfileId) {
         setSuccessProfileId(String(newProfileId));
+        if (!selectedFile) {
+          return router.push(`/candidate/profile/${newProfileId}`);
+        }
         setShowSuccess(true);
       }
     } catch (error: any) {
