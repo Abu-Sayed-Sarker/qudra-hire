@@ -32,6 +32,7 @@ import {
 } from "@/store/authApi";
 import { get403Message } from "@/lib/utils";
 import SubscriptionRequiredCard from "@/components/ui/subscription-required-card";
+import NotificationBell from "@/components/shared/NotificationBell";
 
 function getInitials(name: string) {
   return name
@@ -110,6 +111,9 @@ export default function CompanyDashboard() {
           <h1 className="text-3xl font-extrabold text-foreground mt-1 tracking-tight">
             {companyName}
           </h1>
+        </div>
+        <div className="hidden md:flex items-center gap-4">
+          <NotificationBell />
         </div>
         {/* <Link
           href="/company/jobs/create"
